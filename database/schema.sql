@@ -148,3 +148,43 @@ CREATE TABLE email_settings (
     updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     PRIMARY KEY (id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Flat list of labels used to group media library files. Sorted
+-- alphabetically in the UI; a media item belongs to at most one category
+-- (or none) -- no nesting.
+CREATE TABLE media_categories (
+    id INT UNSIGNED NOT NULL AUTO_INCREMENT,
+    name VARCHAR(100) NOT NULL,
+    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    PRIMARY KEY (id),
+    UNIQUE KEY uq_media_categories_name (name)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Uploaded media library files (images only for now). filename is the
+-- randomly generated name stored on disk under assets/uploads/media-library;
+-- original_filename is kept only for display. Deleting a category does not
+-- delete its files -- they just become uncategorized.
+CREATE TABLE media_items (
+    id INT UNSIGNED NOT NULL AUTO_INCREMENT,
+    category_id INT UNSIGNED NULL,
+    filename VARCHAR(255) NOT NULL,
+    original_filename VARCHAR(255) NOT NULL,
+    mime_type VARCHAR(100) NOT NULL,
+    size INT UNSIGNED NOT NULL,
+    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    PRIMARY KEY (id),
+    KEY idx_media_items_category (category_id),
+    CONSTRAINT fk_media_items_category FOREIGN KEY (category_id) REFERENCES media_categories (id) ON DELETE SET NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Single-row settings record (id is always 1) controlling media library
+-- upload limits. allowed_types is a comma-separated list of file extensions.
+CREATE TABLE media_settings (
+    id TINYINT UNSIGNED NOT NULL DEFAULT 1,
+    max_file_size_mb SMALLINT UNSIGNED NOT NULL DEFAULT 5,
+    allowed_types VARCHAR(255) NOT NULL DEFAULT 'jpg,jpeg,png,gif,webp',
+    updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    PRIMARY KEY (id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
