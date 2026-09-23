@@ -34,6 +34,7 @@ class InducteeProfileRepository
         $stmt = $this->db->prepare(
             'UPDATE inductee_profiles
              SET first_name = :first_name, last_name = :last_name, job_position = :job_position,
+                 company = :company, employment_type = :employment_type,
                  contact_number = :contact_number, emergency_contact_name = :emergency_contact_name,
                  emergency_contact_phone = :emergency_contact_phone
              WHERE user_id = :user_id'
@@ -43,6 +44,8 @@ class InducteeProfileRepository
             'first_name' => $data['first_name'],
             'last_name' => $data['last_name'],
             'job_position' => $data['job_position'] !== '' ? $data['job_position'] : null,
+            'company' => $data['company'] !== '' ? $data['company'] : null,
+            'employment_type' => $data['employment_type'] !== '' ? $data['employment_type'] : null,
             'contact_number' => $data['contact_number'] !== '' ? $data['contact_number'] : null,
             'emergency_contact_name' => $data['emergency_contact_name'] !== '' ? $data['emergency_contact_name'] : null,
             'emergency_contact_phone' => $data['emergency_contact_phone'] !== '' ? $data['emergency_contact_phone'] : null,

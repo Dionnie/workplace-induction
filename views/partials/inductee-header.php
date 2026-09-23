@@ -38,7 +38,6 @@ $wideContainer = $wideContainer ?? false;
         </div>
         <div class="navbar-nav">
             <a class="nav-link <?= $currentPage === 'profile' ? 'fw-semibold text-white' : '' ?>" href="/inductee/profile/index.php">My Profile</a>
-            <span class="nav-link text-white-50"><?= e($authUser['email'] ?? '') ?></span>
             <a class="nav-link" href="/logout.php">Log Out</a>
         </div>
     </div>

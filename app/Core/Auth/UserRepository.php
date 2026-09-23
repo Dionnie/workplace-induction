@@ -67,12 +67,24 @@ class UserRepository
         return (int) $this->db->lastInsertId();
     }
 
-    public function createInducteeProfile(int $userId, string $firstName, string $lastName): void
-    {
+    public function createInducteeProfile(
+        int $userId,
+        string $firstName,
+        string $lastName,
+        ?string $company = null,
+        ?string $employmentType = null
+    ): void {
         $stmt = $this->db->prepare(
-            'INSERT INTO inductee_profiles (user_id, first_name, last_name) VALUES (:user_id, :first_name, :last_name)'
+            'INSERT INTO inductee_profiles (user_id, first_name, last_name, company, employment_type)
+             VALUES (:user_id, :first_name, :last_name, :company, :employment_type)'
         );
-        $stmt->execute(['user_id' => $userId, 'first_name' => $firstName, 'last_name' => $lastName]);
+        $stmt->execute([
+            'user_id' => $userId,
+            'first_name' => $firstName,
+            'last_name' => $lastName,
+            'company' => $company,
+            'employment_type' => $employmentType,
+        ]);
     }
 
     public function createAdminProfile(int $userId, string $firstName, string $lastName): void
@@ -146,6 +158,16 @@ class UserRepository
     {
         $stmt = $this->db->prepare('UPDATE users SET email = ? WHERE id = ?');
         $stmt->execute([$email, $id]);
+    }
+
+    /**
+     * The user's admin/inductee profile row is removed automatically via its
+     * ON DELETE CASCADE foreign key.
+     */
+    public function delete(int $id): void
+    {
+        $stmt = $this->db->prepare('DELETE FROM users WHERE id = ?');
+        $stmt->execute([$id]);
     }
 
     /**

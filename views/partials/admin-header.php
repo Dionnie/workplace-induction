@@ -30,12 +30,13 @@ $currentPage = $currentPage ?? '';
             <a class="nav-link <?= $currentPage === 'dashboard' ? 'fw-semibold text-white' : '' ?>" href="/admin/index.php">Dashboard</a>
             <a class="nav-link <?= $currentPage === 'inductions' ? 'fw-semibold text-white' : '' ?>" href="/admin/inductions/index.php">Inductions</a>
             <a class="nav-link <?= $currentPage === 'exams' ? 'fw-semibold text-white' : '' ?>" href="/admin/exams/index.php">Exams</a>
+            <a class="nav-link <?= $currentPage === 'exam-attempts' ? 'fw-semibold text-white' : '' ?>" href="/admin/exam-attempts/index.php">Exam Attempts</a>
             <a class="nav-link <?= $currentPage === 'users' ? 'fw-semibold text-white' : '' ?>" href="/admin/users/index.php">Users</a>
             <a class="nav-link <?= $currentPage === 'compliance' ? 'fw-semibold text-white' : '' ?>" href="/admin/compliance/index.php">Compliance</a>
             <a class="nav-link <?= $currentPage === 'settings' ? 'fw-semibold text-white' : '' ?>" href="/admin/settings/index.php">Settings</a>
         </div>
         <div class="navbar-nav">
-            <span class="nav-link text-white-50"><?= e($authUser['email'] ?? '') ?></span>
+            <a class="nav-link <?= $currentPage === 'profile' ? 'fw-semibold text-white' : '' ?>" href="/admin/profile/index.php">My Profile</a>
             <a class="nav-link" href="/logout.php">Log Out</a>
         </div>
     </div>

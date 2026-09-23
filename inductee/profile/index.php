@@ -19,6 +19,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         'first_name' => trim($_POST['first_name'] ?? ''),
         'last_name' => trim($_POST['last_name'] ?? ''),
         'job_position' => trim($_POST['job_position'] ?? ''),
+        'company' => trim($_POST['company'] ?? ''),
+        'employment_type' => $_POST['employment_type'] ?? '',
         'contact_number' => trim($_POST['contact_number'] ?? ''),
         'emergency_contact_name' => trim($_POST['emergency_contact_name'] ?? ''),
         'emergency_contact_phone' => trim($_POST['emergency_contact_phone'] ?? ''),

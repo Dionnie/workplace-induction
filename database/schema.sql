@@ -35,12 +35,16 @@ CREATE TABLE admin_profiles (
 -- contact_number, job_position, and the emergency_contact_* fields are
 -- workplace details the inductee manages themselves; all optional since they
 -- are collected after registration via the inductee's own profile page.
+-- company and employment_type are required at registration but remain
+-- nullable here since an admin-created account does not collect them.
 CREATE TABLE inductee_profiles (
     user_id INT UNSIGNED NOT NULL,
     first_name VARCHAR(100) NOT NULL,
     last_name VARCHAR(100) NOT NULL,
     contact_number VARCHAR(30) NULL,
     job_position VARCHAR(150) NULL,
+    company VARCHAR(150) NULL,
+    employment_type ENUM('Full-time', 'Part-time', 'Casual', 'Contractor', 'Sub-contractor', 'Apprentice', 'Trainee', 'Shift-worker', 'Other') NULL,
     emergency_contact_name VARCHAR(150) NULL,
     emergency_contact_phone VARCHAR(30) NULL,
     created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -99,6 +103,8 @@ CREATE TABLE exam_attempts (
 -- The authoritative record that a user has successfully completed an induction
 -- requirement. Renewal never overwrites a record -- it creates a new one and
 -- links back via renewed_from_id, preserving permanent compliance history.
+-- legacy_id holds the originating session id from a prior induction system,
+-- for records migrated from elsewhere; NULL for records issued by this app.
 CREATE TABLE compliance_records (
     id INT UNSIGNED NOT NULL AUTO_INCREMENT,
     user_id INT UNSIGNED NOT NULL,
@@ -110,12 +116,14 @@ CREATE TABLE compliance_records (
     expiry_date DATE NOT NULL,
     status ENUM('active', 'expired', 'superseded', 'revoked') NOT NULL DEFAULT 'active',
     renewed_from_id INT UNSIGNED NULL,
+    legacy_id VARCHAR(64) NULL,
     expiry_reminder_sent_at DATETIME NULL,
     created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     PRIMARY KEY (id),
     UNIQUE KEY uq_compliance_verification_token (verification_token),
     UNIQUE KEY uq_compliance_certificate_number (certificate_number),
+    UNIQUE KEY uq_compliance_legacy_id (legacy_id),
     KEY idx_compliance_user_induction (user_id, induction_id),
     CONSTRAINT fk_compliance_user FOREIGN KEY (user_id) REFERENCES users (id),
     CONSTRAINT fk_compliance_induction FOREIGN KEY (induction_id) REFERENCES inductions (id),

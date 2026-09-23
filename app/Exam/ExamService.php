@@ -4,6 +4,10 @@ declare(strict_types=1);
 
 namespace App\Exam;
 
+use App\Compliance\ComplianceService;
+use App\Core\Database;
+use App\Induction\InductionRepository;
+
 class ExamService
 {
     private const STATUSES = ['active', 'inactive'];
@@ -57,6 +61,52 @@ class ExamService
         }
 
         $this->exams->update($id, $normalized);
+        return ['success' => true, 'errors' => []];
+    }
+
+    /**
+     * Deletes an exam. An exam used by inductions or with exam attempts is
+     * blocked unless $cascade is set: cascading detaches it from any
+     * induction (the induction is kept, just without an exam) and deletes
+     * its exam attempts, clearing (not deleting) the exam attempt reference
+     * on any compliance record that cites one of them.
+     *
+     * @return array{success: bool, errors: array<string, string>}
+     */
+    public function delete(int $id, bool $cascade = false): array
+    {
+        if (!$this->exams->find($id)) {
+            return ['success' => false, 'errors' => ['form' => 'Exam not found.']];
+        }
+
+        $inductions = new InductionRepository();
+        $attempts = new ExamAttemptRepository();
+        $compliance = new ComplianceService();
+
+        $inductionCount = $inductions->countForExam($id);
+        $attemptCount = $attempts->countForExam($id);
+
+        if (($inductionCount > 0 || $attemptCount > 0) && !$cascade) {
+            return ['success' => false, 'errors' => ['form' => sprintf(
+                'This exam is used by %d induction(s) and has %d exam attempt(s). Enable cascade delete to detach the induction(s) and remove the attempts, or they must be removed first.',
+                $inductionCount,
+                $attemptCount
+            )]];
+        }
+
+        $db = Database::connection();
+        $db->beginTransaction();
+        try {
+            $inductions->detachExam($id);
+            $compliance->detachExamAttempts($id);
+            $attempts->deleteForExam($id);
+            $this->exams->delete($id);
+            $db->commit();
+        } catch (\Throwable $e) {
+            $db->rollBack();
+            throw $e;
+        }
+
         return ['success' => true, 'errors' => []];
     }
 

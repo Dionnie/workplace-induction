@@ -71,11 +71,57 @@ $statusBadge = [
                     <td><?= e(date('Y-m-d', strtotime((string) $u['created_at']))) ?></td>
                     <td class="text-end">
                         <a href="/admin/users/edit.php?id=<?= (int) $u['id'] ?>" class="btn btn-sm btn-outline-secondary">Edit</a>
+                        <button type="button" class="btn btn-sm btn-outline-danger" data-bs-toggle="modal" data-bs-target="#deleteUserModal"
+                                data-id="<?= (int) $u['id'] ?>"
+                                data-name="<?= e(trim(($u['first_name'] ?? '') . ' ' . ($u['last_name'] ?? '')) ?: $u['email']) ?>">
+                            Delete
+                        </button>
                     </td>
                 </tr>
             <?php endforeach; ?>
         </tbody>
     </table>
 </div>
+
+<div class="modal fade" id="deleteUserModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form method="post" action="/admin/users/delete.php">
+                <?= csrf_field() ?>
+                <input type="hidden" name="id" id="deleteUserId" value="">
+                <div class="modal-header">
+                    <h5 class="modal-title">Delete User</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p>Are you sure you want to delete <strong id="deleteUserName"></strong>? This cannot be undone.</p>
+                    <div class="alert alert-warning small mb-3">
+                        As an administrator, you can permanently delete this user even if they have exam attempts
+                        or compliance records. If related data exists, deletion is blocked unless cascade delete
+                        is enabled below.
+                    </div>
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" name="cascade" value="1" id="deleteUserCascade">
+                        <label class="form-check-label" for="deleteUserCascade">
+                            Also permanently delete this user's exam attempts and compliance records (cascade delete)
+                        </label>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-danger">Delete User</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+document.getElementById('deleteUserModal').addEventListener('show.bs.modal', function (event) {
+    var button = event.relatedTarget;
+    document.getElementById('deleteUserId').value = button.getAttribute('data-id');
+    document.getElementById('deleteUserName').textContent = button.getAttribute('data-name');
+});
+</script>
 
 <?php require __DIR__ . '/../../partials/admin-footer.php'; ?>

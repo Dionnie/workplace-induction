@@ -250,4 +250,82 @@ class ComplianceRepository
         $record = $stmt->fetch();
         return $record ?: null;
     }
+
+    public function countForUser(int $userId): int
+    {
+        $stmt = $this->db->prepare('SELECT COUNT(*) FROM compliance_records WHERE user_id = ?');
+        $stmt->execute([$userId]);
+        return (int) $stmt->fetchColumn();
+    }
+
+    public function countForInduction(int $inductionId): int
+    {
+        $stmt = $this->db->prepare('SELECT COUNT(*) FROM compliance_records WHERE induction_id = ?');
+        $stmt->execute([$inductionId]);
+        return (int) $stmt->fetchColumn();
+    }
+
+    /**
+     * Renewal history (renewed_from_id) is only ever chained within the same
+     * user+induction, so nulling it out for the whole batch before deleting
+     * that same batch keeps the self-referencing foreign key satisfied.
+     */
+    public function detachRenewalsForUser(int $userId): void
+    {
+        $stmt = $this->db->prepare('UPDATE compliance_records SET renewed_from_id = NULL WHERE user_id = ?');
+        $stmt->execute([$userId]);
+    }
+
+    public function detachRenewalsForInduction(int $inductionId): void
+    {
+        $stmt = $this->db->prepare('UPDATE compliance_records SET renewed_from_id = NULL WHERE induction_id = ?');
+        $stmt->execute([$inductionId]);
+    }
+
+    public function detachRenewalOf(int $id): void
+    {
+        $stmt = $this->db->prepare('UPDATE compliance_records SET renewed_from_id = NULL WHERE renewed_from_id = ?');
+        $stmt->execute([$id]);
+    }
+
+    /**
+     * Clears the link to an exam attempt that is about to be deleted, keeping
+     * the compliance record itself as permanent history.
+     */
+    public function detachExamAttempts(int $examId): void
+    {
+        $stmt = $this->db->prepare(
+            'UPDATE compliance_records SET exam_attempt_id = NULL
+             WHERE exam_attempt_id IN (SELECT id FROM exam_attempts WHERE exam_id = ?)'
+        );
+        $stmt->execute([$examId]);
+    }
+
+    /**
+     * Clears the link to a single exam attempt that is about to be deleted,
+     * keeping the compliance record itself as permanent history.
+     */
+    public function detachExamAttempt(int $attemptId): void
+    {
+        $stmt = $this->db->prepare('UPDATE compliance_records SET exam_attempt_id = NULL WHERE exam_attempt_id = ?');
+        $stmt->execute([$attemptId]);
+    }
+
+    public function deleteForUser(int $userId): void
+    {
+        $stmt = $this->db->prepare('DELETE FROM compliance_records WHERE user_id = ?');
+        $stmt->execute([$userId]);
+    }
+
+    public function deleteForInduction(int $inductionId): void
+    {
+        $stmt = $this->db->prepare('DELETE FROM compliance_records WHERE induction_id = ?');
+        $stmt->execute([$inductionId]);
+    }
+
+    public function delete(int $id): void
+    {
+        $stmt = $this->db->prepare('DELETE FROM compliance_records WHERE id = ?');
+        $stmt->execute([$id]);
+    }
 }

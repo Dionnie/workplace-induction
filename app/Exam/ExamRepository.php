@@ -85,4 +85,10 @@ class ExamRepository
             'id' => $id,
         ]);
     }
+
+    public function delete(int $id): void
+    {
+        $stmt = $this->db->prepare('DELETE FROM exams WHERE id = ?');
+        $stmt->execute([$id]);
+    }
 }

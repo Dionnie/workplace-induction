@@ -97,6 +97,7 @@ The **authoritative record that a user has successfully completed an induction r
 | `expiry_date`        | Date the compliance expires.                                                                           |
 | `status`             | Current state of the compliance record: `active`, `expired`, `superseded`, or `revoked`.               |
 | `renewed_from_id`    | Optional reference to the previous compliance record when this record is a renewal.                    |
+| `legacy_id`          | Optional identifier from a prior induction system, for records migrated from elsewhere. `NULL` otherwise. |
 | `created_at`         | Date and time the compliance record was created.                                                       |
 | `updated_at`         | Date and time the compliance record was last modified.                                                 |
 

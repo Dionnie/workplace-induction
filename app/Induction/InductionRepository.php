@@ -109,4 +109,27 @@ class InductionRepository
         $stmt = $this->db->prepare('UPDATE inductions SET content_blocks = :content_blocks WHERE id = :id');
         $stmt->execute(['content_blocks' => $json, 'id' => $id]);
     }
+
+    public function countForExam(int $examId): int
+    {
+        $stmt = $this->db->prepare('SELECT COUNT(*) FROM inductions WHERE exam_id = ?');
+        $stmt->execute([$examId]);
+        return (int) $stmt->fetchColumn();
+    }
+
+    /**
+     * Detaches inductions from an exam that is about to be deleted; the
+     * induction itself is kept, just without an exam.
+     */
+    public function detachExam(int $examId): void
+    {
+        $stmt = $this->db->prepare('UPDATE inductions SET exam_id = NULL WHERE exam_id = ?');
+        $stmt->execute([$examId]);
+    }
+
+    public function delete(int $id): void
+    {
+        $stmt = $this->db->prepare('DELETE FROM inductions WHERE id = ?');
+        $stmt->execute([$id]);
+    }
 }

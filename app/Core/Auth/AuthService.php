@@ -9,6 +9,10 @@ use DateTimeImmutable;
 
 class AuthService
 {
+    private const EMPLOYMENT_TYPES = [
+        'Full-time', 'Part-time', 'Casual', 'Contractor', 'Sub-contractor', 'Apprentice', 'Trainee', 'Shift-worker', 'Other',
+    ];
+
     private UserRepository $users;
 
     public function __construct()
@@ -21,9 +25,15 @@ class AuthService
      *
      * @return array{success: bool, errors: array<string, string>}
      */
-    public function registerInductee(string $email, string $password, string $firstName, string $lastName): array
-    {
-        $errors = $this->validateNewAccount($email, $password, $firstName, $lastName);
+    public function registerInductee(
+        string $email,
+        string $password,
+        string $firstName,
+        string $lastName,
+        string $company,
+        string $employmentType
+    ): array {
+        $errors = $this->validateNewAccount($email, $password, $firstName, $lastName, $company, $employmentType);
         if ($errors) {
             return ['success' => false, 'errors' => $errors];
         }
@@ -40,7 +50,7 @@ class AuthService
             'email_verification_expires_at' => $expiresAt,
         ]);
 
-        $this->users->createInducteeProfile($userId, $firstName, $lastName);
+        $this->users->createInducteeProfile($userId, $firstName, $lastName, $company, $employmentType);
         $this->sendVerificationEmail($email, $token);
 
         return ['success' => true, 'errors' => []];
@@ -124,8 +134,14 @@ class AuthService
     /**
      * @return array<string, string>
      */
-    private function validateNewAccount(string $email, string $password, string $firstName, string $lastName): array
-    {
+    private function validateNewAccount(
+        string $email,
+        string $password,
+        string $firstName,
+        string $lastName,
+        string $company,
+        string $employmentType
+    ): array {
         $errors = [];
 
         if ($firstName === '') {
@@ -140,6 +156,14 @@ class AuthService
             $errors['email'] = 'Enter a valid email address.';
         } elseif ($this->users->emailExists($email)) {
             $errors['email'] = 'An account with this email already exists.';
+        }
+
+        if ($company === '') {
+            $errors['company'] = 'Company is required.';
+        }
+
+        if (!in_array($employmentType, self::EMPLOYMENT_TYPES, true)) {
+            $errors['employment_type'] = 'Select a valid employment type.';
         }
 
         $errors = array_merge($errors, $this->validatePassword($password, $password));

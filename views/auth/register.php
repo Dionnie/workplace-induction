@@ -33,6 +33,29 @@ require __DIR__ . '/../partials/guest-header.php';
             </div>
 
             <div class="mb-3">
+                <label for="company" class="form-label">Company</label>
+                <input type="text" class="form-control <?= error_for($errors, 'company') ? 'is-invalid' : '' ?>"
+                       id="company" name="company" value="<?= old('company') ?>" required>
+                <?php if ($error = error_for($errors, 'company')): ?>
+                    <div class="invalid-feedback"><?= e($error) ?></div>
+                <?php endif; ?>
+            </div>
+
+            <div class="mb-3">
+                <label for="employment_type" class="form-label">Employment Type</label>
+                <select class="form-select <?= error_for($errors, 'employment_type') ? 'is-invalid' : '' ?>"
+                        id="employment_type" name="employment_type" required>
+                    <option value="">Select&hellip;</option>
+                    <?php foreach (['Full-time', 'Part-time', 'Casual', 'Contractor', 'Sub-contractor', 'Apprentice', 'Trainee', 'Shift-worker', 'Other'] as $type): ?>
+                        <option value="<?= e($type) ?>" <?= old('employment_type') === $type ? 'selected' : '' ?>><?= e($type) ?></option>
+                    <?php endforeach; ?>
+                </select>
+                <?php if ($error = error_for($errors, 'employment_type')): ?>
+                    <div class="invalid-feedback"><?= e($error) ?></div>
+                <?php endif; ?>
+            </div>
+
+            <div class="mb-3">
                 <label for="email" class="form-label">Email</label>
                 <input type="email" class="form-control <?= error_for($errors, 'email') ? 'is-invalid' : '' ?>"
                        id="email" name="email" value="<?= old('email') ?>" required>

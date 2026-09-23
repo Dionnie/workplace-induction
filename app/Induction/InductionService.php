@@ -7,6 +7,7 @@ namespace App\Induction;
 use App\Compliance\ComplianceService;
 use App\ContentBlocks\ContentBlockService;
 use App\Core\Auth\UserRepository;
+use App\Core\Database;
 use App\Exam\ExamAttemptRepository;
 use App\Exam\ExamRepository;
 use App\Exam\ExamService;
@@ -68,6 +69,48 @@ class InductionService
         }
 
         $this->inductions->update($id, $normalized);
+        return ['success' => true, 'errors' => []];
+    }
+
+    /**
+     * Deletes an induction. An induction with exam attempts or compliance
+     * records is blocked unless $cascade is set, since those rows would
+     * otherwise be orphaned.
+     *
+     * @return array{success: bool, errors: array<string, string>}
+     */
+    public function delete(int $id, bool $cascade = false): array
+    {
+        if (!$this->inductions->find($id)) {
+            return ['success' => false, 'errors' => ['form' => 'Induction not found.']];
+        }
+
+        $attempts = new ExamAttemptRepository();
+        $compliance = new ComplianceService();
+
+        $attemptCount = $attempts->countForInduction($id);
+        $complianceCount = $compliance->countForInduction($id);
+
+        if (($attemptCount > 0 || $complianceCount > 0) && !$cascade) {
+            return ['success' => false, 'errors' => ['form' => sprintf(
+                'This induction has %d exam attempt(s) and %d compliance record(s). Enable cascade delete to remove them together, or they must be removed first.',
+                $attemptCount,
+                $complianceCount
+            )]];
+        }
+
+        $db = Database::connection();
+        $db->beginTransaction();
+        try {
+            $compliance->deleteAllForInduction($id);
+            $attempts->deleteForInduction($id);
+            $this->inductions->delete($id);
+            $db->commit();
+        } catch (\Throwable $e) {
+            $db->rollBack();
+            throw $e;
+        }
+
         return ['success' => true, 'errors' => []];
     }
 

@@ -97,6 +97,12 @@ $statusBadge = [
                                 <button type="submit" class="btn btn-sm btn-outline-danger">Revoke</button>
                             </form>
                         <?php endif; ?>
+                        <form method="post" action="/admin/compliance/delete.php" class="d-inline"
+                              onsubmit="return confirm('Permanently delete this compliance record? This bypasses the normal compliance history and cannot be undone.');">
+                            <?= csrf_field() ?>
+                            <input type="hidden" name="id" value="<?= (int) $record['id'] ?>">
+                            <button type="submit" class="btn btn-sm btn-outline-danger">Delete</button>
+                        </form>
                     </td>
                 </tr>
             <?php endforeach; ?>

@@ -24,8 +24,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $passwordConfirmation = (string) ($_POST['password_confirmation'] ?? '');
     $firstName = trim($_POST['first_name'] ?? '');
     $lastName = trim($_POST['last_name'] ?? '');
+    $company = trim($_POST['company'] ?? '');
+    $employmentType = $_POST['employment_type'] ?? '';
 
-    $result = (new AuthService())->registerInductee($email, $password, $firstName, $lastName);
+    $result = (new AuthService())->registerInductee($email, $password, $firstName, $lastName, $company, $employmentType);
 
     if ($result['success']) {
         clear_old();
@@ -33,7 +35,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         redirect('/login.php');
     }
 
-    set_old(['email' => $email, 'first_name' => $firstName, 'last_name' => $lastName]);
+    set_old(['email' => $email, 'first_name' => $firstName, 'last_name' => $lastName, 'company' => $company, 'employment_type' => $employmentType]);
     set_errors($result['errors']);
     redirect('/register.php');
 }

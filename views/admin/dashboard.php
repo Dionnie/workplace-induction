@@ -15,7 +15,7 @@ require __DIR__ . '/../partials/admin-header.php';
 <p class="text-muted mb-4">Here's what you can do.</p>
 
 <div class="row g-3 mb-4">
-    <div class="col-6 col-md-4 col-lg-2">
+    <div class="col-6 col-lg-3">
         <div class="card shadow-sm h-100">
             <div class="card-body text-center">
                 <div class="fs-3 fw-semibold text-brand"><?= (int) $metrics['total_inductees'] ?></div>
@@ -23,7 +23,7 @@ require __DIR__ . '/../partials/admin-header.php';
             </div>
         </div>
     </div>
-    <div class="col-6 col-md-4 col-lg-2">
+    <div class="col-6 col-lg-3">
         <div class="card shadow-sm h-100">
             <div class="card-body text-center">
                 <div class="fs-3 fw-semibold text-brand"><?= (int) $metrics['active_inductions'] ?></div>
@@ -31,7 +31,7 @@ require __DIR__ . '/../partials/admin-header.php';
             </div>
         </div>
     </div>
-    <div class="col-6 col-md-4 col-lg-2">
+    <div class="col-6 col-lg-3">
         <div class="card shadow-sm h-100">
             <div class="card-body text-center">
                 <div class="fs-3 fw-semibold text-warning"><?= (int) $metrics['expiring_soon'] ?></div>
@@ -39,7 +39,7 @@ require __DIR__ . '/../partials/admin-header.php';
             </div>
         </div>
     </div>
-    <div class="col-6 col-md-4 col-lg-2">
+    <div class="col-6 col-lg-3">
         <div class="card shadow-sm h-100">
             <div class="card-body text-center">
                 <div class="fs-3 fw-semibold text-danger"><?= (int) $metrics['expired'] ?></div>
@@ -132,9 +132,9 @@ require __DIR__ . '/../partials/admin-header.php';
     <div class="col-12 col-md-6 col-lg-4">
         <div class="card shadow-sm h-100">
             <div class="card-body">
-                <h2 class="fs-6 fw-semibold">Users</h2>
-                <p class="text-muted small mb-3">Create and manage administrator and inductee accounts.</p>
-                <a href="/admin/users/index.php" class="btn btn-primary btn-sm">Manage Users</a>
+                <h2 class="fs-6 fw-semibold">Exam Attempts</h2>
+                <p class="text-muted small mb-3">View and manage every exam attempt submitted by inductees.</p>
+                <a href="/admin/exam-attempts/index.php" class="btn btn-primary btn-sm">Manage Exam Attempts</a>
             </div>
         </div>
     </div>
@@ -144,6 +144,15 @@ require __DIR__ . '/../partials/admin-header.php';
                 <h2 class="fs-6 fw-semibold">Compliance</h2>
                 <p class="text-muted small mb-3">View inductee compliance records and revoke them where necessary.</p>
                 <a href="/admin/compliance/index.php" class="btn btn-primary btn-sm">Manage Compliance</a>
+            </div>
+        </div>
+    </div>
+    <div class="col-12 col-md-6 col-lg-4">
+        <div class="card shadow-sm h-100">
+            <div class="card-body">
+                <h2 class="fs-6 fw-semibold">Users</h2>
+                <p class="text-muted small mb-3">Create and manage administrator and inductee accounts.</p>
+                <a href="/admin/users/index.php" class="btn btn-primary btn-sm">Manage Users</a>
             </div>
         </div>
     </div>

@@ -117,4 +117,76 @@ class ComplianceService
 
         return ['success' => true, 'error' => null];
     }
+
+    public function countForUser(int $userId): int
+    {
+        return $this->records->countForUser($userId);
+    }
+
+    public function countForInduction(int $inductionId): int
+    {
+        return $this->records->countForInduction($inductionId);
+    }
+
+    /**
+     * Permanently deletes every compliance record for a user, as part of a
+     * cascade delete of that user. Renewal links within the batch are
+     * cleared first so the self-referencing foreign key is satisfied.
+     */
+    public function deleteAllForUser(int $userId): void
+    {
+        $this->records->detachRenewalsForUser($userId);
+        $this->records->deleteForUser($userId);
+    }
+
+    /**
+     * Permanently deletes every compliance record for an induction, as part
+     * of a cascade delete of that induction.
+     */
+    public function deleteAllForInduction(int $inductionId): void
+    {
+        $this->records->detachRenewalsForInduction($inductionId);
+        $this->records->deleteForInduction($inductionId);
+    }
+
+    /**
+     * Clears the exam attempt reference on any compliance record that cites
+     * one of this exam's attempts, as part of a cascade delete of the exam.
+     * The compliance record itself is kept as permanent history.
+     */
+    public function detachExamAttempts(int $examId): void
+    {
+        $this->records->detachExamAttempts($examId);
+    }
+
+    /**
+     * Clears the exam attempt reference on any compliance record that cites
+     * this single attempt, as part of deleting the attempt on its own. The
+     * compliance record itself is kept as permanent history.
+     */
+    public function detachExamAttempt(int $attemptId): void
+    {
+        $this->records->detachExamAttempt($attemptId);
+    }
+
+    /**
+     * Permanently deletes a single compliance record. This bypasses the
+     * "permanent history" convention that revoke() preserves -- it is an
+     * explicit administrative override, not part of the normal compliance
+     * lifecycle.
+     *
+     * @return array{success: bool, errors: array<string, string>}
+     */
+    public function delete(int $id): array
+    {
+        $record = $this->records->find($id);
+        if (!$record) {
+            return ['success' => false, 'errors' => ['form' => 'Compliance record not found.']];
+        }
+
+        $this->records->detachRenewalOf($id);
+        $this->records->delete($id);
+
+        return ['success' => true, 'errors' => []];
+    }
 }

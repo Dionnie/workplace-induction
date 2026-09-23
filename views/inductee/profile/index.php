@@ -13,15 +13,13 @@ require __DIR__ . '/../../partials/inductee-header.php';
 
 <h1 class="fs-4 fw-semibold mb-3">My Profile</h1>
 
-<div class="card shadow-sm" style="max-width: 560px;">
+<div class="card shadow-sm mb-3" style="max-width: 560px;">
     <div class="card-body p-4">
+        <h2 class="fs-6 fw-semibold mb-1">Profile</h2>
+        <p class="text-muted small mb-3">Your name and workplace details.</p>
+
         <form method="post" action="/inductee/profile/index.php" novalidate>
             <?= csrf_field() ?>
-
-            <div class="mb-3">
-                <label class="form-label">Email</label>
-                <input type="email" class="form-control" value="<?= e($profile['email']) ?>" disabled>
-            </div>
 
             <div class="row g-3 mb-3">
                 <div class="col">
@@ -52,6 +50,29 @@ require __DIR__ . '/../../partials/inductee-header.php';
             </div>
 
             <div class="mb-3">
+                <label for="company" class="form-label">Company</label>
+                <input type="text" class="form-control <?= error_for($errors, 'company') ? 'is-invalid' : '' ?>"
+                       id="company" name="company" value="<?= old('company', (string) ($profile['company'] ?? '')) ?>">
+                <?php if ($error = error_for($errors, 'company')): ?>
+                    <div class="invalid-feedback"><?= e($error) ?></div>
+                <?php endif; ?>
+            </div>
+
+            <div class="mb-3">
+                <label for="employment_type" class="form-label">Employment Type</label>
+                <select class="form-select <?= error_for($errors, 'employment_type') ? 'is-invalid' : '' ?>"
+                        id="employment_type" name="employment_type">
+                    <option value="">Select&hellip;</option>
+                    <?php foreach (['Full-time', 'Part-time', 'Casual', 'Contractor', 'Sub-contractor', 'Apprentice', 'Trainee', 'Shift-worker', 'Other'] as $type): ?>
+                        <option value="<?= e($type) ?>" <?= old('employment_type', (string) ($profile['employment_type'] ?? '')) === $type ? 'selected' : '' ?>><?= e($type) ?></option>
+                    <?php endforeach; ?>
+                </select>
+                <?php if ($error = error_for($errors, 'employment_type')): ?>
+                    <div class="invalid-feedback"><?= e($error) ?></div>
+                <?php endif; ?>
+            </div>
+
+            <div class="mb-3">
                 <label for="contact_number" class="form-label">Contact Number</label>
                 <input type="tel" class="form-control <?= error_for($errors, 'contact_number') ? 'is-invalid' : '' ?>"
                        id="contact_number" name="contact_number" value="<?= old('contact_number', (string) ($profile['contact_number'] ?? '')) ?>">
@@ -61,7 +82,7 @@ require __DIR__ . '/../../partials/inductee-header.php';
             </div>
 
             <hr class="my-4">
-            <h2 class="fs-6 fw-semibold mb-3">Emergency Contact</h2>
+            <h3 class="fs-6 fw-semibold mb-3">Emergency Contact</h3>
 
             <div class="mb-3">
                 <label for="emergency_contact_name" class="form-label">Name</label>
@@ -83,8 +104,18 @@ require __DIR__ . '/../../partials/inductee-header.php';
                 <?php endif; ?>
             </div>
 
-            <button type="submit" class="btn btn-primary">Save Changes</button>
+            <button type="submit" class="btn btn-primary">Save Profile</button>
         </form>
+    </div>
+</div>
+
+<div class="card shadow-sm" style="max-width: 560px;">
+    <div class="card-body p-4">
+        <h2 class="fs-6 fw-semibold mb-1">Account</h2>
+        <p class="text-muted small mb-3">Your login email.</p>
+
+        <label for="email" class="form-label">Email</label>
+        <input type="email" class="form-control" id="email" value="<?= e($profile['email']) ?>" disabled>
     </div>
 </div>
 

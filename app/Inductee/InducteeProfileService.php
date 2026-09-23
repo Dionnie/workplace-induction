@@ -7,6 +7,9 @@ namespace App\Inductee;
 class InducteeProfileService
 {
     private const PHONE_PATTERN = '/^[0-9+\-\s()]{6,30}$/';
+    private const EMPLOYMENT_TYPES = [
+        'Full-time', 'Part-time', 'Casual', 'Contractor', 'Sub-contractor', 'Apprentice', 'Trainee', 'Shift-worker', 'Other',
+    ];
 
     private InducteeProfileRepository $profiles;
 
@@ -56,6 +59,10 @@ class InducteeProfileService
 
         if (($data['emergency_contact_phone'] ?? '') !== '' && !preg_match(self::PHONE_PATTERN, $data['emergency_contact_phone'])) {
             $errors['emergency_contact_phone'] = 'Enter a valid emergency contact number.';
+        }
+
+        if (($data['employment_type'] ?? '') !== '' && !in_array($data['employment_type'], self::EMPLOYMENT_TYPES, true)) {
+            $errors['employment_type'] = 'Select a valid employment type.';
         }
 
         return $errors;
