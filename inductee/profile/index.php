@@ -1,0 +1,43 @@
+<?php
+
+declare(strict_types=1);
+
+require __DIR__ . '/../../bootstrap.php';
+
+use App\Core\Auth;
+use App\Inductee\InducteeProfileService;
+
+Auth::requireRole('inductee');
+
+$userId = (int) Auth::id();
+$service = new InducteeProfileService();
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    verify_csrf();
+
+    $data = [
+        'first_name' => trim($_POST['first_name'] ?? ''),
+        'last_name' => trim($_POST['last_name'] ?? ''),
+        'job_position' => trim($_POST['job_position'] ?? ''),
+        'contact_number' => trim($_POST['contact_number'] ?? ''),
+        'emergency_contact_name' => trim($_POST['emergency_contact_name'] ?? ''),
+        'emergency_contact_phone' => trim($_POST['emergency_contact_phone'] ?? ''),
+    ];
+
+    $result = $service->update($userId, $data);
+
+    if ($result['success']) {
+        clear_old();
+        flash('success', 'Profile updated.');
+        redirect('/inductee/profile/index.php');
+    }
+
+    set_old($data);
+    set_errors($result['errors']);
+    redirect('/inductee/profile/index.php');
+}
+
+$profile = $service->get($userId);
+$errors = get_errors();
+
+require __DIR__ . '/../../views/inductee/profile/index.php';

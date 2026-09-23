@@ -1,0 +1,521 @@
+@font-face {
+  font-family: 'Poppins';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('/assets/fonts/poppins/poppins-400.woff2') format('woff2');
+}
+
+@font-face {
+  font-family: 'Poppins';
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url('/assets/fonts/poppins/poppins-600.woff2') format('woff2');
+}
+
+:root {
+  --font-family-base: 'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+
+  --color-primary-900: #022a2b;
+  --color-primary-800: #044647;
+  --color-primary-700: #0f5d5f;
+
+  --color-accent-500: #a54b17;
+  --color-warm-500: #ea9491;
+
+  --color-background: #ffffff;
+  --color-surface: #ffffff;
+  --color-surface-subtle: #f8f6f3;
+
+  --color-border: #dee2e6;
+  --color-text: #212529;
+  --color-text-muted: #6c757d;
+}
+
+body {
+  font-family: var(--font-family-base);
+  color: var(--color-text);
+  background-color: var(--color-background);
+}
+
+a {
+  color: var(--color-primary-700);
+}
+
+a:hover {
+  color: var(--color-primary-800);
+}
+
+.btn-primary {
+  background-color: var(--color-primary-700);
+  border-color: var(--color-primary-700);
+}
+
+.btn-primary:hover,
+.btn-primary:focus {
+  background-color: var(--color-primary-800);
+  border-color: var(--color-primary-800);
+}
+
+.text-brand {
+  color: var(--color-primary-700);
+}
+
+.bg-surface-subtle {
+  background-color: var(--color-surface-subtle);
+}
+
+/*
+ * Content Blocks reading canvas (docs/application/content_blocks_editor.md #6).
+ * .content-canvas caps media-width blocks (image/iframe); .content-block-inner
+ * nests inside it to cap text-width blocks (section/lecture/text/alert).
+ * Both are plain centered max-widths — blocks are never visually nested,
+ * only spaced, so grouping stays a spacing concern, not a layout one.
+ */
+.content-canvas {
+  max-width: 1024px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.content-block-inner {
+  max-width: 700px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* Image block layout variants (docs/application/content_blocks_editor.md #4.2). */
+.cb-image {
+  display: block;
+}
+
+.cb-image.cb-align-center {
+  margin-left: auto;
+  margin-right: auto;
+  text-align: center;
+}
+
+.cb-image.cb-align-right {
+  margin-left: auto;
+}
+
+/*
+ * Width presets: "full" spans the 1024px media canvas edge to edge;
+ * "content" is a fixed 700px so the image lines up with paragraph text
+ * width above/below it; "small"/"smaller" are canvas percentages. Below the
+ * 576px breakpoint every preset except "full" collapses to 100% so a
+ * "smaller" image never shrinks to an illegible size on a phone.
+ */
+.cb-image.cb-w-full { width: 100%; }
+.cb-image.cb-w-content { width: 700px; max-width: 100%; }
+.cb-image.cb-w-small { width: 50%; }
+.cb-image.cb-w-smaller { width: 35%; }
+
+@media (max-width: 576px) {
+  .cb-image.cb-w-content,
+  .cb-image.cb-w-small,
+  .cb-image.cb-w-smaller {
+    width: 100%;
+  }
+}
+
+.cb-image img.cb-shape-rounded { border-radius: 0.5rem; }
+.cb-image img.cb-shape-square { border-radius: 0; }
+.cb-image img.cb-shape-circle { border-radius: 50%; aspect-ratio: 1 / 1; object-fit: cover; }
+
+.cb-image img.cb-aspect-16-9 { aspect-ratio: 16 / 9; object-fit: cover; width: 100%; }
+.cb-image img.cb-aspect-4-3 { aspect-ratio: 4 / 3; object-fit: cover; width: 100%; }
+.cb-image img.cb-aspect-1-1 { aspect-ratio: 1 / 1; object-fit: cover; width: 100%; }
+
+/*
+ * Section/Lecture heading typography, shared by the Studio editor (as an
+ * <input>) and ContentBlockRenderer (as the real <h2>/<h3>) so both surfaces
+ * read identically. Sized for comfortable reading by adult/senior staff,
+ * larger than the app's general fs-5/fs-6 body headings.
+ */
+.cb-heading-2 {
+  font-size: 2rem;
+  font-weight: 600;
+  line-height: 1.25;
+}
+
+.cb-heading-3 {
+  font-size: 1.5rem;
+  font-weight: 600;
+  line-height: 1.3;
+}
+
+/*
+ * Proximity spacing (docs/application/content_blocks_editor.md #6, per
+ * Gestalt/Fitts-law product feedback): Sections read as new chapters and
+ * get a large gap before them; every other block type stays close to its
+ * preceding block so it reads as belonging to the same section. Applied to
+ * both the Studio editor (.cb-block) and the inductee page (.content-block)
+ * so grouping looks identical in both places.
+ */
+.cb-block,
+.content-block {
+  margin-top: 0.75rem;
+}
+
+.cb-block[data-type="section"],
+.content-block-section {
+  margin-top: 4.5rem;
+}
+
+/*
+ * Lecture headings are still a heading level (h3), not body content, so
+ * they get a middle tier of breathing room — enough to read as a clear
+ * sub-break even when a section has no description sitting between the
+ * two headings, without approaching a section's "new chapter" gap.
+ */
+.cb-block[data-type="lecture"],
+.content-block-lecture {
+  margin-top: 2rem;
+}
+
+.cb-block:first-child,
+.content-block:first-child {
+  margin-top: 0;
+}
+
+/*
+ * Rich text fields (lecture/section/alert content) may or may not contain
+ * explicit <p> tags depending on how they were typed — give paragraphs
+ * consistent spacing either way, and let a single bare line of text (no
+ * wrapping tag at all) read like normal body copy via inherited styles.
+ */
+.content-block-inner p,
+.cb-richtext p {
+  margin-top: 0;
+  margin-bottom: 0.75rem;
+}
+
+.content-block-inner p:last-child,
+.cb-richtext p:last-child {
+  margin-bottom: 0;
+}
+
+/* Studio editor (docs/application/content_blocks_editor.md #7). */
+.cb-block {
+  position: relative;
+  padding: 0.5rem 0.75rem;
+  border-radius: 0.5rem;
+  transition: background-color 0.15s ease;
+}
+
+.cb-block:hover,
+.cb-block.active,
+.cb-block.focused {
+  background-color: rgba(15, 93, 95, 0.05);
+}
+
+/*
+ * Block controls are a floating, borderless overlay that reserves no layout
+ * space of its own (WYSIWYG canvas stays undisturbed) and only appears on
+ * hover/focus, per product direction.
+ */
+.cb-block-controls {
+  position: absolute;
+  top: -0.9rem;
+  right: 0.5rem;
+  z-index: 2;
+  display: flex;
+  gap: 0.125rem;
+  background: var(--color-surface);
+  border-radius: 0.5rem;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.15);
+  padding: 0.15rem;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.15s ease;
+}
+
+.cb-block:hover .cb-block-controls,
+.cb-block.active .cb-block-controls,
+.cb-block.focused .cb-block-controls,
+.cb-block:focus-within .cb-block-controls {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+/* Minimum ~36px touch target (Fitts's law) with no visible border. */
+.cb-block-controls .btn {
+  border: none;
+  background: transparent;
+  min-width: 2.25rem;
+  min-height: 2.25rem;
+  padding: 0.25rem 0.5rem;
+  font-size: 0.95rem;
+  border-radius: 0.375rem;
+  color: var(--color-text-muted);
+}
+
+.cb-block-controls .btn:hover:not(:disabled) {
+  background-color: var(--color-surface-subtle);
+  color: var(--color-text);
+}
+
+.cb-block-controls .btn[data-remove]:hover {
+  background-color: #f8d7da;
+  color: #842029;
+}
+
+.cb-block-controls .btn:disabled {
+  opacity: 0.3;
+}
+
+/*
+ * Inline title/rich-text fields are styled to already look like their final
+ * rendered form (heading size, no input chrome) so editing IS the preview —
+ * no separate "preview mode" needed to see the real result.
+ */
+.cb-title-input,
+.cb-richtext {
+  display: block;
+  width: 100%;
+  border: none;
+  background: transparent;
+  border-radius: 0.375rem;
+  padding: 0.15rem 0.35rem;
+  margin: 0 -0.35rem;
+}
+
+.cb-title-input:focus,
+.cb-richtext:focus {
+  outline: none;
+  background-color: rgba(15, 93, 95, 0.07);
+  box-shadow: 0 0 0 2px rgba(15, 93, 95, 0.18);
+}
+
+.cb-title-input::placeholder {
+  font-weight: 400;
+  color: var(--color-text-muted);
+  opacity: 1;
+}
+
+.cb-richtext {
+  min-height: 2.25rem;
+}
+
+/*
+ * Breathing room above the formatting toolbar so it never sits flush
+ * against the field/heading above it (title input, alert box top edge),
+ * and a clear gap below it before the editable text starts.
+ */
+.cb-richtext-toolbar {
+  margin-top: 0.65rem;
+  margin-bottom: 0.4rem;
+}
+
+.cb-richtext:empty::before {
+  content: attr(data-placeholder);
+  color: var(--color-text-muted);
+}
+
+/* Compact settings row for non-text fields (image/iframe/alert controls). */
+.cb-settings-panel {
+  margin-top: 0.5rem;
+  padding-top: 0.5rem;
+  border-top: 1px dashed var(--color-border);
+}
+
+.cb-empty-media {
+  padding: 2.5rem 1rem;
+  text-align: center;
+  color: var(--color-text-muted);
+  border: 1px dashed var(--color-border);
+  border-radius: 0.5rem;
+}
+
+.cb-raw-html-preview {
+  background-color: var(--color-surface-subtle);
+  border-radius: 0.375rem;
+  padding: 0.75rem;
+}
+
+.border-dashed {
+  border-style: dashed !important;
+}
+
+/*
+ * Course structure sidebar & teleport scroll
+ * (docs/application/content_blocks_editor.md #8, #9). Every teleport target
+ * gets breathing room above it so a smooth-scroll landing never touches the
+ * viewport edge.
+ */
+.content-block,
+.cb-block {
+  scroll-margin-top: 1.5rem;
+}
+
+/*
+ * Shared course-page layout for the Studio editor and the inductee page.
+ * The reading canvas is centered purely by its own .content-canvas rule
+ * (max-width:1024px + margin:auto) inside a plain full-width container —
+ * nothing sits beside it in normal flow, so its centering is never
+ * affected by the sidebar.
+ *
+ * .cb-content-area is a position:relative wrapper placed immediately
+ * around the sidebar + canvas, right where the canvas begins in the
+ * document (i.e. after whatever variable-height content — page title,
+ * description, state alerts — precedes it on a given page). The sidebar
+ * rail is position:absolute, top:0/bottom:0 *within that wrapper*, not
+ * fixed to the viewport — so it always starts level with the top of the
+ * canvas and spans its full height, on every page, regardless of how
+ * tall the content above happens to be. (The earlier position:fixed
+ * version anchored to a blind viewport offset, which overlapped the
+ * canvas/title whenever a page had more content above it than assumed —
+ * e.g. a long induction title.) The nav inside the rail is what actually
+ * sticks during scroll, via position:sticky, now that it has proper
+ * scroll range to stick within.
+ *
+ * Horizontally, the rail sits at calc(50% - 796px) — half the canvas
+ * (512px) + a 24px gap + the rail's own 260px width — landing in the
+ * gutter centering naturally leaves empty; symmetric container padding
+ * on any ancestor doesn't shift this, since it never moves a 50% point.
+ * It only fits without overlapping the canvas once that gutter is wide
+ * enough — viewport >= 1024 + 2*(260+24) = 1592px — so it's shown only at
+ * 1600px+; every narrower viewport (most real screens, not just phones)
+ * uses a toggle button + Bootstrap offcanvas drawer instead, per
+ * docs/application/content_blocks_editor.md #8.
+ */
+.cb-content-area {
+  position: relative;
+}
+
+.cb-outline-sidebar-rail {
+  display: none;
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: calc(50% - 796px);
+  width: 260px;
+}
+
+/*
+ * The nav sticks within the rail's top:0/bottom:0 span (see above), at an
+ * offset that clears whatever sits above the canvas on that specific page.
+ * The inductee navbar scrolls away with the page, so a small offset is
+ * enough there; the Studio topbar is itself sticky, so its page sets
+ * --cb-sidebar-sticky-top higher to clear it (see .cb-studio-main).
+ */
+.cb-outline-sidebar {
+  position: sticky;
+  top: var(--cb-sidebar-sticky-top, 1.5rem);
+  max-height: calc(100vh - var(--cb-sidebar-sticky-top, 1.5rem) - 1.5rem);
+  overflow-y: auto;
+}
+
+/* The Studio topbar is sticky (~4rem tall), so the sidebar needs a taller
+   clearance than the inductee page's non-sticky navbar. */
+.cb-studio-main {
+  --cb-sidebar-sticky-top: 4.5rem;
+}
+
+@media (min-width: 1600px) {
+  .cb-outline-sidebar-rail {
+    display: block;
+  }
+
+  .cb-outline-toggle {
+    display: none;
+  }
+}
+
+.cb-outline-list .cb-outline-section {
+  margin-top: 1.25rem;
+}
+
+.cb-outline-list .cb-outline-section:first-child {
+  margin-top: 0;
+}
+
+.cb-outline-link {
+  display: block;
+  padding: 0.25rem 0;
+  color: var(--color-text);
+  text-decoration: none;
+  border-radius: 0.25rem;
+}
+
+.cb-outline-link:hover,
+.cb-outline-link:focus {
+  color: var(--color-primary-700);
+}
+
+.cb-outline-link-section {
+  font-weight: 600;
+}
+
+.cb-outline-empty {
+  color: var(--color-text-muted);
+  font-size: 0.85rem;
+}
+
+.cb-outline-items {
+  margin-top: 0.125rem;
+  padding-left: 0.85rem;
+  border-left: 2px solid var(--color-border);
+}
+
+.cb-outline-items .cb-outline-link {
+  font-size: 0.9rem;
+  color: var(--color-text-muted);
+  padding: 0.2rem 0 0.2rem 0.6rem;
+}
+
+.cb-outline-items .cb-outline-link:hover,
+.cb-outline-items .cb-outline-link:focus {
+  color: var(--color-primary-700);
+}
+
+@keyframes teleport-highlight-pulse {
+  0% { background-color: var(--color-warm-500); }
+  100% { background-color: transparent; }
+}
+
+.teleport-highlight-pulse {
+  animation: teleport-highlight-pulse 1.2s ease-out;
+  border-radius: 0.5rem;
+}
+
+/*
+ * Small type badge above Section/Lecture titles (Studio editor only — the
+ * inductee page stays clean prose without editorial/CMS labels). Reuses the
+ * brand primary/accent tokens rather than introducing new colors, so the
+ * two structural block types stay easy to tell apart at a glance now that
+ * the canvas has no visual nesting to signal hierarchy.
+ */
+.cb-type-badge {
+  display: inline-flex;
+  align-items: center;
+  font-size: 0.7rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  padding: 0.2rem 0.55rem;
+  border-radius: 999px;
+  margin-bottom: 0.5rem;
+}
+
+.cb-type-badge-section {
+  background-color: rgba(15, 93, 95, 0.12);
+  color: var(--color-primary-700);
+}
+
+.cb-type-badge-lecture {
+  background-color: rgba(165, 75, 23, 0.12);
+  color: var(--color-accent-500);
+}
+
+/* Spinner icon shown on the Save button while a save request is in flight. */
+@keyframes cb-spin {
+  to { transform: rotate(360deg); }
+}
+
+.cb-spin {
+  display: inline-block;
+  animation: cb-spin 0.8s linear infinite;
+}
