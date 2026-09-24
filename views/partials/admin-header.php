@@ -37,6 +37,7 @@ $currentPage = $currentPage ?? '';
                 <a class="nav-link <?= $currentPage === 'compliance' ? 'fw-semibold text-white' : '' ?>" href="/admin/compliance/index.php">Compliance</a>
                 <a class="nav-link <?= $currentPage === 'users' ? 'fw-semibold text-white' : '' ?>" href="/admin/users/index.php">Users</a>
                 <a class="nav-link <?= $currentPage === 'media-library' ? 'fw-semibold text-white' : '' ?>" href="/admin/media-library/index.php">Media Library</a>
+                <a class="nav-link <?= $currentPage === 'tools' ? 'fw-semibold text-white' : '' ?>" href="/admin/tools/index.php">Tools</a>
 
                 <a class="nav-link <?= $currentPage === 'settings' ? 'fw-semibold text-white' : '' ?>" href="/admin/settings/index.php">Settings</a>
             </div>
