@@ -21,21 +21,27 @@ $currentPage = 'tools';
 require __DIR__ . '/../../partials/admin-header.php';
 ?>
 
-<div class="d-flex justify-content-between align-items-center mb-3">
-    <h1 class="fs-4 fw-semibold mb-0">Search &amp; Replace</h1>
-    <a href="/admin/tools/index.php" class="btn btn-outline-secondary btn-sm"><i class="bi bi-arrow-left me-1" aria-hidden="true"></i>Tools</a>
+<div class="page-header">
+    <div>
+        <nav aria-label="Breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="/admin/tools/index.php">Tools</a></li>
+                <li class="breadcrumb-item active" aria-current="page">Search &amp; Replace</li>
+            </ol>
+        </nav>
+        <h1 class="page-title">Search &amp; Replace</h1>
+        <p class="page-subtitle">Run a dry run first to see every match, then replace.</p>
+    </div>
 </div>
 
-<div class="card shadow-sm mb-4">
-    <div class="card-body">
+<div class="card shadow-sm mb-3">
+    <div class="card-body p-4">
         <form method="get" action="/admin/tools/search-replace.php">
-            <div class="mb-3">
-                <div class="d-flex align-items-center gap-2 mb-1">
-                    <label class="form-label mb-0">Tables</label>
-                    <div class="form-check form-check-inline mb-0 ms-2">
-                        <input class="form-check-input" type="checkbox" id="sr-select-all">
-                        <label class="form-check-label small text-muted" for="sr-select-all">Select all</label>
-                    </div>
+            <fieldset class="mb-3">
+                <legend class="form-label fs-6 mb-2">Tables</legend>
+                <div class="form-check mb-1">
+                    <input class="form-check-input" type="checkbox" id="sr-select-all">
+                    <label class="form-check-label small text-muted" for="sr-select-all">Select all</label>
                 </div>
                 <div id="sr-table-list">
                     <?php foreach ($allTables as $table): ?>
@@ -46,7 +52,7 @@ require __DIR__ . '/../../partials/admin-header.php';
                         </div>
                     <?php endforeach; ?>
                 </div>
-            </div>
+            </fieldset>
 
             <div class="row g-3 mb-3">
                 <div class="col-md-6">
@@ -55,36 +61,38 @@ require __DIR__ . '/../../partials/admin-header.php';
                            placeholder="e.g. https://old-domain.com" required>
                 </div>
                 <div class="col-md-6">
-                    <label for="replace" class="form-label">Replace With</label>
+                    <label for="replace" class="form-label">Replace With <span class="text-muted small">(optional)</span></label>
                     <input type="text" class="form-control" id="replace" name="replace" value="<?= e($replace) ?>"
                            placeholder="e.g. https://new-domain.com">
                     <div class="form-text">Leave blank to remove the found text entirely.</div>
                 </div>
             </div>
 
-            <button type="submit" class="btn btn-primary"><i class="bi bi-search me-1" aria-hidden="true"></i>Dry Run</button>
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary"><i class="bi bi-search me-1" aria-hidden="true"></i>Dry Run</button>
+            </div>
         </form>
     </div>
 </div>
 
 <?php if ($results !== null): ?>
     <?php if ($results['totalRows'] === 0): ?>
-        <div class="alert alert-secondary">No matches found.</div>
+        <div class="alert alert-info">No matches found.</div>
     <?php else: ?>
-        <div class="card shadow-sm mb-4">
-            <div class="card-body">
-                <h2 class="fs-6 fw-semibold mb-3">
+        <div class="card shadow-sm">
+            <div class="card-body p-4">
+                <h2 class="fs-6 mb-3">
                     Found <?= (int) $results['totalOccurrences'] ?> occurrence(s) across <?= (int) $results['totalRows'] ?> row(s)
                 </h2>
 
                 <?php foreach ($results['tables'] as $tableName => $tableResult): ?>
                     <?php foreach ($tableResult['columns'] as $columnName => $columnResult): ?>
-                        <h3 class="fs-6 fw-semibold text-muted font-monospace mt-4 mb-2"><?= e($tableName) ?>.<?= e($columnName) ?></h3>
+                        <h3 class="fs-6 text-muted font-monospace mt-4 mb-2"><?= e($tableName) ?>.<?= e($columnName) ?></h3>
                         <?php foreach ($columnResult['rows'] as $row): ?>
                             <div class="border rounded p-3 mb-2">
-                                <div class="d-flex justify-content-between align-items-center mb-2">
+                                <div class="d-flex justify-content-between align-items-center gap-2 mb-2">
                                     <strong class="font-monospace small"><?= e($row['pk']) ?> = <?= e($row['value']) ?></strong>
-                                    <span class="badge text-bg-secondary"><?= (int) $row['count'] ?> occurrence(s)</span>
+                                    <span class="badge text-bg-light border"><?= (int) $row['count'] ?> occurrence(s)</span>
                                 </div>
                                 <?php foreach ($row['snippets'] as $snippet): ?>
                                     <div class="font-monospace small text-muted mb-1 text-break">
@@ -99,18 +107,16 @@ require __DIR__ . '/../../partials/admin-header.php';
                     <?php endforeach; ?>
                 <?php endforeach; ?>
 
-                <div class="d-flex gap-2 mt-3">
-                    <form method="post" action="/admin/tools/search-replace.php">
-                        <?= csrf_field() ?>
-                        <input type="hidden" name="find" value="<?= e($find) ?>">
-                        <input type="hidden" name="replace" value="<?= e($replace) ?>">
-                        <?php foreach ($tables as $table): ?>
-                            <input type="hidden" name="tables[]" value="<?= e($table) ?>">
-                        <?php endforeach; ?>
-                        <button type="submit" class="btn btn-danger"><i class="bi bi-arrow-repeat me-1" aria-hidden="true"></i>Replace</button>
-                    </form>
+                <form method="post" action="/admin/tools/search-replace.php" class="form-actions mt-3">
+                    <?= csrf_field() ?>
+                    <input type="hidden" name="find" value="<?= e($find) ?>">
+                    <input type="hidden" name="replace" value="<?= e($replace) ?>">
+                    <?php foreach ($tables as $table): ?>
+                        <input type="hidden" name="tables[]" value="<?= e($table) ?>">
+                    <?php endforeach; ?>
+                    <button type="submit" class="btn btn-danger"><i class="bi bi-arrow-repeat me-1" aria-hidden="true"></i>Replace</button>
                     <a href="/admin/tools/search-replace.php" class="btn btn-outline-secondary">Cancel</a>
-                </div>
+                </form>
             </div>
         </div>
     <?php endif; ?>

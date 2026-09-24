@@ -379,7 +379,7 @@
         markSaved: function () {
             this.dirty = false;
             if (this.saveStatus) {
-                this.saveStatus.className = 'badge text-bg-secondary';
+                this.saveStatus.className = 'badge text-bg-success';
                 this.saveStatus.textContent = 'Saved';
             }
         },

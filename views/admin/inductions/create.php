@@ -22,11 +22,23 @@ $formAction = '/admin/inductions/create.php';
 $submitLabel = 'Create Induction';
 ?>
 
-<h1 class="fs-4 fw-semibold mb-3">Add Induction</h1>
+<div class="page-narrow">
+    <div class="page-header">
+        <div>
+            <nav aria-label="Breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="/admin/inductions/index.php">Inductions</a></li>
+                    <li class="breadcrumb-item active" aria-current="page">Add Induction</li>
+                </ol>
+            </nav>
+            <h1 class="page-title">Add Induction</h1>
+        </div>
+    </div>
 
-<div class="card shadow-sm" style="max-width: 720px;">
-    <div class="card-body p-4">
-        <?php require __DIR__ . '/_form.php'; ?>
+    <div class="card shadow-sm">
+        <div class="card-body p-4">
+            <?php require __DIR__ . '/_form.php'; ?>
+        </div>
     </div>
 </div>
 

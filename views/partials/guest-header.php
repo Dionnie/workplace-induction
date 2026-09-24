@@ -1,23 +1,30 @@
 <?php
-/** @var string $pageTitle */
-$appName = app_config()['name'];
+/**
+ * Guest layout, part 1 of 2 (close with guest-footer.php): log in, register,
+ * password reset, certificate verification. Pages render their own flash
+ * messages inside their card. See docs/core/design-system.html#page-shell.
+ *
+ * @var string $pageTitle
+ */
+$appName = site_settings()['company_name'];
+$appLogo = site_settings()['logo_url'];
+$documentTitle = $pageTitle . ' · ' . $appName;
 ?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title><?= e($pageTitle) ?> &middot; <?= e($appName) ?></title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="/assets/css/app.css" rel="stylesheet">
+<?php require __DIR__ . '/head.php'; ?>
 </head>
-<body class="bg-surface-subtle">
+<body>
 
 <header class="border-bottom bg-white">
     <div class="container py-3">
-        <a href="/index.php" class="fs-5 fw-semibold text-brand text-decoration-none"><?= e($appName) ?></a>
+        <a href="/index.php" class="d-inline-flex align-items-center gap-2 fs-5 fw-semibold text-primary text-decoration-none">
+            <?php if ($appLogo): ?><img src="<?= e($appLogo) ?>" alt="" class="brand-logo"><?php endif; ?>
+            <?= e($appName) ?>
+        </a>
     </div>
 </header>
 
 <main class="py-5">
-    <div class="container" style="max-width: 420px;">
+    <div class="container container-guest">

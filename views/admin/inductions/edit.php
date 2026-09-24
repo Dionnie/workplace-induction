@@ -23,16 +23,26 @@ $formAction = '/admin/inductions/edit.php?id=' . (int) $induction['id'];
 $submitLabel = 'Save Changes';
 ?>
 
-<div class="d-flex justify-content-between align-items-center mb-3" style="max-width: 720px;">
-    <h1 class="fs-4 fw-semibold mb-0">Edit Induction</h1>
-    <a href="/admin/inductions/editor.php?id=<?= (int) $induction['id'] ?>" class="btn btn-primary btn-sm">
-        Edit Content Blocks
-    </a>
-</div>
+<div class="page-narrow">
+    <div class="page-header">
+        <div>
+            <nav aria-label="Breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="/admin/inductions/index.php">Inductions</a></li>
+                    <li class="breadcrumb-item active" aria-current="page">Edit Induction</li>
+                </ol>
+            </nav>
+            <h1 class="page-title">Edit Induction</h1>
+        </div>
+        <a href="/admin/inductions/editor.php?id=<?= (int) $induction['id'] ?>" class="btn btn-outline-secondary btn-sm">
+            <i class="bi bi-pencil-square me-1" aria-hidden="true"></i>Edit Content Blocks
+        </a>
+    </div>
 
-<div class="card shadow-sm" style="max-width: 720px;">
-    <div class="card-body p-4">
-        <?php require __DIR__ . '/_form.php'; ?>
+    <div class="card shadow-sm">
+        <div class="card-body p-4">
+            <?php require __DIR__ . '/_form.php'; ?>
+        </div>
     </div>
 </div>
 

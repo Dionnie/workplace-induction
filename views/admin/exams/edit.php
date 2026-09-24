@@ -24,11 +24,23 @@ if ($examBlocksJson === '') {
 }
 ?>
 
-<h1 class="fs-4 fw-semibold mb-3">Edit Exam</h1>
+<div class="page-narrow">
+    <div class="page-header">
+        <div>
+            <nav aria-label="Breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="/admin/exams/index.php">Exams</a></li>
+                    <li class="breadcrumb-item active" aria-current="page">Edit Exam</li>
+                </ol>
+            </nav>
+            <h1 class="page-title">Edit Exam</h1>
+        </div>
+    </div>
 
-<div class="card shadow-sm" style="max-width: 720px;">
-    <div class="card-body p-4">
-        <?php require __DIR__ . '/_form.php'; ?>
+    <div class="card shadow-sm">
+        <div class="card-body p-4">
+            <?php require __DIR__ . '/_form.php'; ?>
+        </div>
     </div>
 </div>
 

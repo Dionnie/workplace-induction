@@ -45,34 +45,50 @@ if (!empty($outline)) {
 }
 ?>
 
-<h1 class="fs-4 fw-semibold mb-1"><?= e($induction['title']) ?></h1>
-<p class="text-muted mb-4"><?= e($induction['description']) ?></p>
+<!-- Header and state alert share the canvas width, so they line up with the content card below. -->
+<div class="content-canvas">
+    <div class="page-header">
+        <div>
+            <nav aria-label="Breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="/inductee/index.php">Dashboard</a></li>
+                    <li class="breadcrumb-item active" aria-current="page"><?= e($induction['title']) ?></li>
+                </ol>
+            </nav>
+            <h1 class="page-title"><?= e($induction['title']) ?></h1>
+            <?php if (!empty($induction['description'])): ?>
+                <p class="page-subtitle"><?= e($induction['description']) ?></p>
+            <?php endif; ?>
+        </div>
+        <?php if (!empty($outline)): ?>
+            <button type="button" class="cb-outline-toggle btn btn-outline-secondary btn-sm" data-bs-toggle="offcanvas" data-bs-target="#cbOutlineOffcanvas" aria-controls="cbOutlineOffcanvas">
+                <i class="bi bi-list-ul me-1" aria-hidden="true"></i>Course Outline
+            </button>
+        <?php endif; ?>
+    </div>
+
+    <?php if ($state === 'compliant' && $compliance): ?>
+        <div class="alert alert-success">
+            You are currently compliant for this induction. Expires <?= e($compliance['expiry_date']) ?>.
+            <a href="/inductee/certificates/show.php?id=<?= (int) $compliance['id'] ?>" class="alert-link">View certificate</a>.
+        </div>
+    <?php elseif ($state === 'expired'): ?>
+        <div class="alert alert-danger">Your compliance for this induction has expired. Complete it again below to renew.</div>
+    <?php elseif ($state === 'failed'): ?>
+        <div class="alert alert-danger">You did not pass the exam on your last attempt. Review the content below and try again.</div>
+    <?php endif; ?>
+</div>
 
 <?php if (!empty($outline)): ?>
-    <button type="button" class="cb-outline-toggle btn btn-outline-secondary mb-3" data-bs-toggle="offcanvas" data-bs-target="#cbOutlineOffcanvas" aria-controls="cbOutlineOffcanvas">
-        <i class="bi bi-list-ul me-1" aria-hidden="true"></i>Course Outline
-    </button>
-
     <div class="offcanvas offcanvas-start" tabindex="-1" id="cbOutlineOffcanvas" aria-labelledby="cbOutlineOffcanvasLabel">
         <div class="offcanvas-header">
-            <h2 class="offcanvas-title fs-6 fw-semibold" id="cbOutlineOffcanvasLabel">Course Outline</h2>
+            <h2 class="offcanvas-title fs-6" id="cbOutlineOffcanvasLabel">Course Outline</h2>
             <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
         </div>
         <div class="offcanvas-body">
             <ul class="cb-outline-list list-unstyled mb-0"><?= $outlineItemsHtml ?></ul>
         </div>
     </div>
-<?php endif; ?>
-
-<?php if ($state === 'compliant' && $compliance): ?>
-    <div class="alert alert-success">
-        You are currently compliant for this induction. Expires <?= e($compliance['expiry_date']) ?>.
-        <a href="/inductee/certificates/show.php?id=<?= (int) $compliance['id'] ?>" class="alert-link">View certificate</a>.
-    </div>
-<?php elseif ($state === 'expired'): ?>
-    <div class="alert alert-warning">Your compliance for this induction has expired. Complete it again below to renew.</div>
-<?php elseif ($state === 'failed'): ?>
-    <div class="alert alert-danger">You did not pass the exam on your last attempt. Review the content below and try again.</div>
 <?php endif; ?>
 
 <!--
@@ -122,7 +138,6 @@ if (!empty($outline)) {
 </div>
 
 <?php if (!empty($outline)): ?>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script src="/assets/js/course-outline.js"></script>
 <?php endif; ?>
 

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Core\Auth;
 
 use App\Core\Mailer;
+use App\Notification\EmailSettingsService;
 use DateTimeImmutable;
 
 class AuthService
@@ -52,6 +53,13 @@ class AuthService
 
         $this->users->createInducteeProfile($userId, $firstName, $lastName, $company, $employmentType);
         $this->sendVerificationEmail($email, $token);
+
+        do_action('inductee_registered', [
+            'email' => $email,
+            'first_name' => $firstName,
+            'last_name' => $lastName,
+            'company' => $company,
+        ]);
 
         return ['success' => true, 'errors' => []];
     }
@@ -189,28 +197,31 @@ class AuthService
 
     private function sendVerificationEmail(string $email, string $token): void
     {
-        $link = $this->publicUrl('/verify-email.php?token=' . $token);
-        Mailer::send(
-            $email,
-            'Verify your email address',
-            "Please verify your email address by visiting the link below:\n\n{$link}\n\nThis link expires in 24 hours."
-        );
+        $this->sendSystemEmail($email, Mailer::renderTemplate('verify-email', [
+            'verificationUrl' => public_url('/verify-email.php?token=' . $token),
+        ]));
     }
 
     private function sendPasswordResetEmail(string $email, string $token): void
     {
-        $link = $this->publicUrl('/reset-password.php?token=' . $token);
-        Mailer::send(
-            $email,
-            'Reset your password',
-            "A password reset was requested for your account. Visit the link below to set a new password:\n\n{$link}\n\nIf you did not request this, you can ignore this email. This link expires in 1 hour."
-        );
+        $this->sendSystemEmail($email, Mailer::renderTemplate('password-reset', [
+            'resetUrl' => public_url('/reset-password.php?token=' . $token),
+        ]));
     }
 
-    private function publicUrl(string $path): string
+    /**
+     * Account emails go only to the account holder -- never cc/bcc, since
+     * they contain private links.
+     *
+     * @param array{subject: string, body: string, html: string} $rendered
+     */
+    private function sendSystemEmail(string $to, array $rendered): void
     {
-        $scheme = !empty($_SERVER['HTTPS']) ? 'https' : 'http';
-        $host = $_SERVER['HTTP_HOST'] ?? 'localhost';
-        return $scheme . '://' . $host . $path;
+        $settings = (new EmailSettingsService())->get();
+        Mailer::send($to, $rendered['subject'], $rendered['body'], [
+            'from_name' => $settings['inductee_sender_name'],
+            'from_email' => $settings['inductee_sender_email'],
+            'html' => $rendered['html'],
+        ]);
     }
 }

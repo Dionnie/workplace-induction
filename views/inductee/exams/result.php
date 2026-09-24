@@ -6,7 +6,7 @@ declare(strict_types=1);
  * @var array<string, mixed> $induction
  * @var array<string, mixed> $result score, total, percentage, passed, exam, answers, compliance
  */
-$pageTitle = $induction['title'] . ' &mdash; Result';
+$pageTitle = $induction['title'] . ' — Result';
 $currentPage = 'dashboard';
 require __DIR__ . '/../../partials/inductee-header.php';
 
@@ -14,7 +14,18 @@ $questions = json_decode((string) $result['exam']['exam_blocks'], true) ?: [];
 $answers = $result['answers'];
 ?>
 
-<h1 class="fs-4 fw-semibold mb-3"><?= e($induction['title']) ?> &mdash; Result</h1>
+<div class="page-header">
+    <div>
+        <nav aria-label="Breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="/inductee/index.php">Dashboard</a></li>
+                <li class="breadcrumb-item"><a href="/inductee/inductions/show.php?id=<?= (int) $induction['id'] ?>"><?= e($induction['title']) ?></a></li>
+                <li class="breadcrumb-item active" aria-current="page">Result</li>
+            </ol>
+        </nav>
+        <h1 class="page-title"><?= e($induction['title']) ?> &mdash; Result</h1>
+    </div>
+</div>
 
 <?php if ($result['passed']): ?>
     <div class="alert alert-success">
@@ -50,11 +61,9 @@ $answers = $result['answers'];
     ?>
     <div class="card shadow-sm mb-3">
         <div class="card-body">
-            <div class="d-flex justify-content-between align-items-start">
-                <h2 class="fs-6 fw-semibold">Question <?= $index + 1 ?></h2>
-                <span class="badge text-bg-<?= $wasCorrect ? 'success' : 'danger' ?>">
-                    <?= $wasCorrect ? 'Correct' : 'Incorrect' ?>
-                </span>
+            <div class="d-flex justify-content-between align-items-start gap-2 mb-2">
+                <h2 class="fs-6 mb-0">Question <?= $index + 1 ?></h2>
+                <?= status_badge($wasCorrect ? 'correct' : 'incorrect') ?>
             </div>
             <p><?= nl2br(e($question['question'])) ?></p>
 
@@ -70,12 +79,16 @@ $answers = $result['answers'];
             <?php endif; ?>
 
             <?php if (!empty($question['explanation'])): ?>
-                <p class="text-muted small mb-0"><?= nl2br(e($question['explanation'])) ?></p>
+                <p class="text-muted small mb-0 mt-2"><?= nl2br(e($question['explanation'])) ?></p>
             <?php endif; ?>
         </div>
     </div>
 <?php endforeach; ?>
 
-<a href="/inductee/inductions/show.php?id=<?= (int) $induction['id'] ?>" class="btn btn-outline-secondary">Back to Induction</a>
+<div class="form-actions">
+    <a href="/inductee/inductions/show.php?id=<?= (int) $induction['id'] ?>" class="btn btn-outline-secondary">
+        <i class="bi bi-arrow-left me-1" aria-hidden="true"></i>Back to Induction
+    </a>
+</div>
 
 <?php require __DIR__ . '/../../partials/inductee-footer.php'; ?>

@@ -6,19 +6,14 @@ declare(strict_types=1);
  * @var array<string, mixed> $induction
  * @var string $initialBlocksJson
  */
-$appName = app_config()['name'];
+$documentTitle = 'Edit Content · ' . $induction['title'] . ' · ' . site_settings()['company_name'];
 ?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Edit Content &middot; <?= e($induction['title']) ?> &middot; <?= e($appName) ?></title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
-    <link href="/assets/css/app.css" rel="stylesheet">
+<?php require __DIR__ . '/../../partials/head.php'; ?>
 </head>
-<body class="bg-surface-subtle">
+<body>
 
 <header class="cb-studio-header border-bottom bg-white sticky-top">
     <div class="cb-studio-header-inner container-fluid px-3 py-2 d-flex justify-content-between align-items-center flex-wrap gap-2">
@@ -27,7 +22,7 @@ $appName = app_config()['name'];
                 <i class="bi bi-arrow-left me-1" aria-hidden="true"></i>Induction Details
             </a>
             <span class="cb-induction-title fw-semibold text-truncate"><?= e($induction['title']) ?></span>
-            <span id="cb-save-status" class="cb-save-status badge text-bg-secondary">Saved</span>
+            <span id="cb-save-status" class="cb-save-status badge text-bg-success">Saved</span>
         </div>
         <div class="d-flex align-items-center gap-2">
             <button type="button" class="cb-outline-toggle btn btn-outline-secondary" data-bs-toggle="offcanvas" data-bs-target="#cbOutlineOffcanvas" aria-controls="cbOutlineOffcanvas">

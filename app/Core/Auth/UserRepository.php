@@ -173,6 +173,25 @@ class UserRepository
     /**
      * @return array<int, array<string, mixed>>
      */
+    /**
+     * Inductee accounts created in the period, for the admin report.
+     *
+     * @return array<int, array<string, mixed>>
+     */
+    public function inducteesRegisteredBetween(string $from, string $to): array
+    {
+        $stmt = $this->db->prepare(
+            "SELECT u.id, u.email, u.created_at, ip.first_name, ip.last_name, ip.company
+             FROM users u
+             JOIN inductee_profiles ip ON ip.user_id = u.id
+             WHERE u.user_type = 'inductee'
+               AND u.created_at >= :from AND u.created_at < :to
+             ORDER BY u.created_at"
+        );
+        $stmt->execute(['from' => $from, 'to' => $to]);
+        return $stmt->fetchAll();
+    }
+
     public function allWithProfiles(?string $userType = null, ?string $search = null): array
     {
         $sql = "SELECT u.id, u.email, u.user_type, u.status, u.email_verified_at, u.created_at,

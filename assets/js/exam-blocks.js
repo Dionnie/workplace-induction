@@ -27,12 +27,13 @@
         row.dataset.id = id;
         row.innerHTML =
             '<div class="input-group-text">'
-            + '<input type="radio" name="correct_' + questionId + '" data-field="correct" '
+            + '<input type="radio" class="form-check-input mt-0" name="correct_' + questionId + '" data-field="correct" aria-label="Correct answer" '
             + (data.correct ? 'checked' : '') + '>'
             + '</div>'
             + '<input type="text" class="form-control" data-field="text" placeholder="Option text" '
             + 'value="' + escapeHtml(data.text || '') + '">'
-            + '<button type="button" class="btn btn-outline-danger" data-remove-option>&times;</button>';
+            + '<button type="button" class="btn btn-outline-danger" data-remove-option title="Remove option" aria-label="Remove option">'
+            + '<i class="bi bi-x-lg" aria-hidden="true"></i></button>';
         optionsList.appendChild(row);
     }
 
@@ -50,7 +51,7 @@
         card.innerHTML =
             '<div class="card-body">'
             + '<div class="d-flex justify-content-between align-items-center mb-2">'
-            + '<span class="badge text-bg-secondary">Question</span>'
+            + '<span class="small text-uppercase text-muted fw-semibold">Question</span>'
             + '<button type="button" class="btn btn-sm btn-outline-danger" data-remove-question>Remove</button>'
             + '</div>'
             + '<textarea class="form-control mb-2" data-field="question" rows="2" '
@@ -61,7 +62,8 @@
             + 'placeholder="Explanation shown after answering (optional)">' + escapeHtml(data.explanation || '') + '</textarea>'
             + '<label class="form-label small text-muted mb-1">Options (select the correct one)</label>'
             + '<div class="options-list"></div>'
-            + '<button type="button" class="btn btn-sm btn-outline-primary mt-1" data-add-option>+ Add Option</button>'
+            + '<button type="button" class="btn btn-sm btn-outline-primary mt-1" data-add-option>'
+            + '<i class="bi bi-plus-lg me-1" aria-hidden="true"></i>Add Option</button>'
             + '</div>';
 
         container.appendChild(card);

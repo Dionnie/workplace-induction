@@ -8,7 +8,7 @@ declare(strict_types=1);
  * @var array<string, mixed> $complianceRecord
  */
 $inducteeName = trim($inductee['first_name'] . ' ' . $inductee['last_name']);
-$appName = app_config()['name'];
+$appName = site_settings()['company_name'];
 $subject = "Induction Completed: {$induction['title']}";
 
 echo <<<TEXT

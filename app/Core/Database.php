@@ -33,4 +33,14 @@ class Database
 
         return self::$connection;
     }
+
+    /**
+     * The database server's current time. Use it when comparing against
+     * DATETIME columns filled by CURRENT_TIMESTAMP/NOW(), since PHP's
+     * timezone may differ from the database's.
+     */
+    public static function now(): \DateTimeImmutable
+    {
+        return new \DateTimeImmutable((string) self::connection()->query('SELECT NOW()')->fetchColumn());
+    }
 }

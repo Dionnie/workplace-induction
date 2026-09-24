@@ -232,6 +232,57 @@ class ComplianceRepository
         return $stmt->fetchAll();
     }
 
+    /**
+     * Records issued in the period, for the admin report. Legacy imports are
+     * excluded -- they are not new completions.
+     *
+     * @return array<int, array<string, mixed>>
+     */
+    public function completedBetween(string $from, string $to): array
+    {
+        $stmt = $this->db->prepare(
+            "SELECT cr.*, i.title AS induction_title, u.email,
+                    COALESCE(ap.first_name, ip.first_name) AS first_name,
+                    COALESCE(ap.last_name, ip.last_name) AS last_name
+             FROM compliance_records cr
+             JOIN inductions i ON i.id = cr.induction_id
+             JOIN users u ON u.id = cr.user_id
+             LEFT JOIN admin_profiles ap ON ap.user_id = u.id
+             LEFT JOIN inductee_profiles ip ON ip.user_id = u.id
+             WHERE cr.legacy_id IS NULL
+               AND cr.created_at >= :from AND cr.created_at < :to
+             ORDER BY cr.created_at"
+        );
+        $stmt->execute(['from' => $from, 'to' => $to]);
+        return $stmt->fetchAll();
+    }
+
+    /**
+     * Records that lapsed in the period without being renewed (a renewed
+     * record is 'superseded', not 'expired'), for the admin report. A record
+     * is expired from the day after its expiry_date.
+     *
+     * @return array<int, array<string, mixed>>
+     */
+    public function expiredBetween(string $fromDate, string $toDate): array
+    {
+        $stmt = $this->db->prepare(
+            "SELECT cr.*, i.title AS induction_title, u.email,
+                    COALESCE(ap.first_name, ip.first_name) AS first_name,
+                    COALESCE(ap.last_name, ip.last_name) AS last_name
+             FROM compliance_records cr
+             JOIN inductions i ON i.id = cr.induction_id
+             JOIN users u ON u.id = cr.user_id
+             LEFT JOIN admin_profiles ap ON ap.user_id = u.id
+             LEFT JOIN inductee_profiles ip ON ip.user_id = u.id
+             WHERE cr.status = 'expired'
+               AND cr.expiry_date >= :from AND cr.expiry_date < :to
+             ORDER BY cr.expiry_date"
+        );
+        $stmt->execute(['from' => $fromDate, 'to' => $toDate]);
+        return $stmt->fetchAll();
+    }
+
     public function markReminderSent(int $id): void
     {
         $stmt = $this->db->prepare('UPDATE compliance_records SET expiry_reminder_sent_at = NOW() WHERE id = ?');

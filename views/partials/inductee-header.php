@@ -5,49 +5,38 @@ declare(strict_types=1);
 use App\Core\Auth;
 
 /**
+ * Inductee layout, part 1 of 2 (close with inductee-footer.php).
+ * See docs/core/design-system.html#page-shell.
+ *
  * @var string $pageTitle
- * @var string $currentPage
+ * @var string $currentPage Key of the active navbar item.
  * @var bool $wideContainer Set true for pages that need more than
  *     Bootstrap's default .container width (e.g. a page with its own
  *     left sidebar rail, where a 1024px reading canvas plus a 260px
  *     sidebar needs more room than the standard container gives).
  */
-$appName = app_config()['name'];
 $authUser = Auth::user();
 $currentPage = $currentPage ?? '';
 $wideContainer = $wideContainer ?? false;
+$documentTitle = $pageTitle . ' · ' . site_settings()['company_name'];
+
+$navItems = [
+    'dashboard' => ['Dashboard', '/inductee/index.php'],
+    'compliance' => ['Compliance', '/inductee/compliance/index.php'],
+];
+$homeUrl = '/inductee/index.php';
+$profileUrl = '/inductee/profile/index.php';
+$navbarExpand = 'md';
 ?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title><?= e($pageTitle) ?> &middot; <?= e($appName) ?></title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
-    <link href="/assets/css/app.css" rel="stylesheet">
+<?php require __DIR__ . '/head.php'; ?>
 </head>
 <body>
 
-<nav class="navbar navbar-expand navbar-dark" style="background-color: var(--color-primary-700);">
-    <div class="container">
-        <a class="navbar-brand" href="/inductee/index.php"><?= e($appName) ?></a>
-        <div class="navbar-nav me-auto">
-            <a class="nav-link <?= $currentPage === 'dashboard' ? 'fw-semibold text-white' : '' ?>" href="/inductee/index.php">Dashboard</a>
-            <a class="nav-link <?= $currentPage === 'compliance' ? 'fw-semibold text-white' : '' ?>" href="/inductee/compliance/index.php">Compliance</a>
-        </div>
-        <div class="navbar-nav">
-            <a class="nav-link <?= $currentPage === 'profile' ? 'fw-semibold text-white' : '' ?>" href="/inductee/profile/index.php">My Profile</a>
-            <a class="nav-link" href="/logout.php">Log Out</a>
-        </div>
-    </div>
-</nav>
+<?php require __DIR__ . '/app-navbar.php'; ?>
 
 <main class="py-4">
     <div class="<?= $wideContainer ? 'container-fluid px-4' : 'container' ?>">
-        <?php if ($message = flash('success')): ?>
-            <div class="alert alert-success"><?= e($message) ?></div>
-        <?php endif; ?>
-        <?php if ($message = flash('error')): ?>
-            <div class="alert alert-danger"><?= e($message) ?></div>
-        <?php endif; ?>
+        <?php require __DIR__ . '/flash.php'; ?>

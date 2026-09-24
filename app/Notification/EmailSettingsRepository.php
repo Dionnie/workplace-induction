@@ -23,50 +23,82 @@ class EmailSettingsRepository
         return $settings ?: $this->defaults();
     }
 
-    public function update(array $data): void
+    /**
+     * @param array<string, string> $data Sender fields for both audiences (see EmailSettingsService::AUDIENCES).
+     */
+    public function updateSenders(array $data): void
     {
-        $stmt = $this->db->prepare(
-            'INSERT INTO email_settings
-                (id, sender_name, sender_email, cc, bcc, notify_admin_on_completion, notify_inductee_on_completion,
-                 notify_inductee_on_expiry, expiry_reminder_days)
-             VALUES
-                (1, :sender_name, :sender_email, :cc, :bcc, :notify_admin_on_completion, :notify_inductee_on_completion,
-                 :notify_inductee_on_expiry, :expiry_reminder_days)
-             ON DUPLICATE KEY UPDATE
-                sender_name = VALUES(sender_name),
-                sender_email = VALUES(sender_email),
-                cc = VALUES(cc),
-                bcc = VALUES(bcc),
-                notify_admin_on_completion = VALUES(notify_admin_on_completion),
-                notify_inductee_on_completion = VALUES(notify_inductee_on_completion),
-                notify_inductee_on_expiry = VALUES(notify_inductee_on_expiry),
-                expiry_reminder_days = VALUES(expiry_reminder_days)'
-        );
+        $values = [];
+        foreach (EmailSettingsService::AUDIENCES as $audience => $label) {
+            foreach (['sender_name', 'sender_email', 'cc', 'bcc'] as $field) {
+                $column = "{$audience}_{$field}";
+                $values[$column] = $data[$column] !== '' ? $data[$column] : null;
+            }
+        }
 
-        $stmt->execute([
-            'sender_name' => $data['sender_name'],
-            'sender_email' => $data['sender_email'] !== '' ? $data['sender_email'] : null,
-            'cc' => $data['cc'] !== '' ? $data['cc'] : null,
-            'bcc' => $data['bcc'] !== '' ? $data['bcc'] : null,
-            'notify_admin_on_completion' => $data['notify_admin_on_completion'] ? 1 : 0,
+        $this->upsert($values);
+    }
+
+    public function updateNotifications(array $data): void
+    {
+        $this->upsert([
             'notify_inductee_on_completion' => $data['notify_inductee_on_completion'] ? 1 : 0,
             'notify_inductee_on_expiry' => $data['notify_inductee_on_expiry'] ? 1 : 0,
             'expiry_reminder_days' => $data['expiry_reminder_days'],
+            'admin_notification_frequency' => $data['admin_notification_frequency'],
+            'notify_admin_on_registration' => $data['notify_admin_on_registration'] ? 1 : 0,
+            'notify_admin_on_completion' => $data['notify_admin_on_completion'] ? 1 : 0,
+            'notify_admin_on_expired' => $data['notify_admin_on_expired'] ? 1 : 0,
         ]);
+    }
+
+    public function markAdminReportSent(string $sentAt): void
+    {
+        $this->upsert(['admin_report_last_sent_at' => $sentAt]);
+    }
+
+    /**
+     * Saves only the given columns. On first save the row is created from
+     * defaults so the other columns get sensible values. Column names come
+     * from this class only, never from input.
+     *
+     * @param array<string, mixed> $values
+     */
+    private function upsert(array $values): void
+    {
+        $row = array_merge($this->defaults(), $values);
+        $columns = array_keys($row);
+
+        $sql = sprintf(
+            'INSERT INTO email_settings (%s) VALUES (%s) ON DUPLICATE KEY UPDATE %s',
+            implode(', ', $columns),
+            implode(', ', array_map(fn (string $column): string => ':' . $column, $columns)),
+            implode(', ', array_map(fn (string $column): string => "{$column} = VALUES({$column})", array_keys($values)))
+        );
+
+        $this->db->prepare($sql)->execute($row);
     }
 
     private function defaults(): array
     {
         return [
             'id' => 1,
-            'sender_name' => app_config()['name'],
-            'sender_email' => app_config()['contact_email'],
-            'cc' => null,
-            'bcc' => null,
+            'inductee_sender_name' => null,
+            'inductee_sender_email' => null,
+            'inductee_cc' => null,
+            'inductee_bcc' => null,
+            'admin_sender_name' => null,
+            'admin_sender_email' => null,
+            'admin_cc' => null,
+            'admin_bcc' => null,
+            'admin_notification_frequency' => 'weekly',
+            'notify_admin_on_registration' => 1,
             'notify_admin_on_completion' => 1,
             'notify_inductee_on_completion' => 1,
             'notify_inductee_on_expiry' => 1,
+            'notify_admin_on_expired' => 1,
             'expiry_reminder_days' => 30,
+            'admin_report_last_sent_at' => null,
         ];
     }
 }

@@ -6,7 +6,7 @@ require __DIR__ . '/../partials/guest-header.php';
 ?>
 <div class="card shadow-sm">
     <div class="card-body p-4">
-        <h1 class="fs-4 fw-semibold mb-3">Reset Password</h1>
+        <h1 class="page-title mb-3">Reset Password</h1>
 
         <?php if ($error = error_for($errors, 'form')): ?>
             <div class="alert alert-danger"><?= e($error) ?></div>
@@ -21,7 +21,7 @@ require __DIR__ . '/../partials/guest-header.php';
                 <div class="mb-3">
                     <label for="password" class="form-label">New Password</label>
                     <input type="password" class="form-control <?= error_for($errors, 'password') ? 'is-invalid' : '' ?>"
-                           id="password" name="password" required autofocus>
+                           id="password" name="password" autocomplete="new-password" required autofocus>
                     <?php if ($error = error_for($errors, 'password')): ?>
                         <div class="invalid-feedback"><?= e($error) ?></div>
                     <?php else: ?>
@@ -32,13 +32,15 @@ require __DIR__ . '/../partials/guest-header.php';
                 <div class="mb-3">
                     <label for="password_confirmation" class="form-label">Confirm New Password</label>
                     <input type="password" class="form-control <?= error_for($errors, 'password_confirmation') ? 'is-invalid' : '' ?>"
-                           id="password_confirmation" name="password_confirmation" required>
+                           id="password_confirmation" name="password_confirmation" autocomplete="new-password" required>
                     <?php if ($error = error_for($errors, 'password_confirmation')): ?>
                         <div class="invalid-feedback"><?= e($error) ?></div>
                     <?php endif; ?>
                 </div>
 
-                <button type="submit" class="btn btn-primary w-100">Reset Password</button>
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-primary w-100">Reset Password</button>
+                </div>
             </form>
         <?php endif; ?>
     </div>

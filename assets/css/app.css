@@ -1,3 +1,27 @@
+/*
+ * Application styles.
+ *
+ * This file implements the design system. docs/core/design-system.html is
+ * the authority for tokens, classes and markup patterns;
+ * docs/core/ui-guidelines.md explains the rules behind them. Every class
+ * defined here is listed in the design system's Class Reference -- add new
+ * classes there too.
+ *
+ *   1. Fonts
+ *   2. Tokens
+ *   3. Bootstrap bridge (theme)
+ *   4. Base
+ *   5. Layout
+ *   6. Components
+ *   7. Utilities
+ *   8. Settings
+ *   9. Content Blocks (docs/application/content_blocks_editor.md)
+ *  10. Media
+ */
+
+/* 1. Fonts -------------------------------------------------------------- */
+
+/* Only 400 and 600 are loaded: use fw-normal / fw-semibold, never 500 or 700. */
 @font-face {
   font-family: 'Poppins';
   font-style: normal;
@@ -14,57 +38,356 @@
   src: url('/assets/fonts/poppins/poppins-600.woff2') format('woff2');
 }
 
+/* 2. Tokens ------------------------------------------------------------- */
+
 :root {
   --font-family-base: 'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 
-  --color-primary-900: #022a2b;
-  --color-primary-800: #044647;
-  --color-primary-700: #0f5d5f;
+  /*
+   * Brand colours (themeable). These are the default Teal preset;
+   * theme_style_tag() overrides them in every page head with the theme
+   * chosen in Settings > Appearance (App\Core\Theme). Never hard-code a
+   * brand hex value anywhere else.
+   */
+  --color-primary-900: #022a2b;      /* navbar, dark surfaces */
+  --color-primary-800: #044647;      /* hover */
+  --color-primary-700: #0f5d5f;      /* primary actions, links, active states */
+  --color-primary-rgb: 15, 93, 95;   /* primary-700 as r, g, b for tints */
+  --color-primary-800-rgb: 4, 70, 71;
+  --color-accent-500: #a54b17;       /* secondary emphasis, used sparingly */
+  --color-accent-rgb: 165, 75, 23;
 
-  --color-accent-500: #a54b17;
-  --color-warm-500: #ea9491;
-
-  --color-background: #ffffff;
-  --color-surface: #ffffff;
-  --color-surface-subtle: #f8f6f3;
-
+  /* Fixed colours (not themeable). */
+  --color-warm-500: #ea9491;         /* decorative highlight only, never an error */
+  --color-background: #f8f6f3;       /* page background */
+  --color-surface: #ffffff;          /* cards, tables, inputs, modals */
+  --color-surface-subtle: #f8f6f3;   /* panels inside a surface, table headers */
   --color-border: #dee2e6;
   --color-text: #212529;
-  --color-text-muted: #6c757d;
+  --color-text-muted: #595c5f;       /* 4.5:1 or better on both backgrounds */
 }
 
-body {
-  font-family: var(--font-family-base);
-  color: var(--color-text);
-  background-color: var(--color-background);
+/* 3. Bootstrap bridge ----------------------------------------------------- */
+
+/*
+ * Bootstrap compiles its own blue into its variables. Pointing them at the
+ * tokens makes Bootstrap's classes follow the chosen theme (text-bg-primary,
+ * border-primary, links, btn-link, breadcrumbs, focus rings...).
+ *
+ * Custom properties resolve where they are declared, so .theme-scope repeats
+ * the mapping on any element that sets its own --color-* values (the live
+ * preview in Settings > Appearance).
+ */
+:root,
+.theme-scope {
+  --bs-font-sans-serif: var(--font-family-base);
+  --bs-secondary-color: var(--color-text-muted);
+  --bs-border-color: var(--color-border);
+  --bs-primary: var(--color-primary-700);
+  --bs-primary-rgb: var(--color-primary-rgb);
+  --bs-primary-text-emphasis: var(--color-primary-800);
+  --bs-primary-bg-subtle: rgba(var(--color-primary-rgb), 0.1);
+  --bs-primary-border-subtle: rgba(var(--color-primary-rgb), 0.3);
+  --bs-link-color: var(--color-primary-700);
+  --bs-link-color-rgb: var(--color-primary-rgb);
+  --bs-link-hover-color: var(--color-primary-800);
+  --bs-link-hover-color-rgb: var(--color-primary-800-rgb);
+  --bs-focus-ring-color: rgba(var(--color-primary-rgb), 0.25);
 }
 
-a {
-  color: var(--color-primary-700);
-}
-
-a:hover {
-  color: var(--color-primary-800);
-}
-
+/* Components that compile colours into their own variables. */
 .btn-primary {
+  --bs-btn-bg: var(--color-primary-700);
+  --bs-btn-border-color: var(--color-primary-700);
+  --bs-btn-hover-bg: var(--color-primary-800);
+  --bs-btn-hover-border-color: var(--color-primary-800);
+  --bs-btn-active-bg: var(--color-primary-900);
+  --bs-btn-active-border-color: var(--color-primary-900);
+  --bs-btn-disabled-bg: var(--color-primary-700);
+  --bs-btn-disabled-border-color: var(--color-primary-700);
+  --bs-btn-focus-shadow-rgb: var(--color-primary-rgb);
+}
+
+.btn-outline-primary {
+  --bs-btn-color: var(--color-primary-700);
+  --bs-btn-border-color: var(--color-primary-700);
+  --bs-btn-hover-bg: var(--color-primary-700);
+  --bs-btn-hover-border-color: var(--color-primary-700);
+  --bs-btn-active-bg: var(--color-primary-800);
+  --bs-btn-active-border-color: var(--color-primary-800);
+  --bs-btn-disabled-color: var(--color-primary-700);
+  --bs-btn-disabled-border-color: var(--color-primary-700);
+  --bs-btn-focus-shadow-rgb: var(--color-primary-rgb);
+}
+
+.list-group {
+  --bs-list-group-active-bg: var(--color-primary-700);
+  --bs-list-group-active-border-color: var(--color-primary-700);
+}
+
+.dropdown-menu {
+  --bs-dropdown-link-active-bg: var(--color-primary-700);
+}
+
+.pagination {
+  --bs-pagination-active-bg: var(--color-primary-700);
+  --bs-pagination-active-border-color: var(--color-primary-700);
+  --bs-pagination-focus-box-shadow: 0 0 0 0.25rem rgba(var(--color-primary-rgb), 0.25);
+}
+
+.form-check-input:checked {
   background-color: var(--color-primary-700);
   border-color: var(--color-primary-700);
 }
 
-.btn-primary:hover,
-.btn-primary:focus {
-  background-color: var(--color-primary-800);
-  border-color: var(--color-primary-800);
+.form-check-input:focus,
+.form-control:focus,
+.form-select:focus {
+  border-color: var(--color-primary-700);
+  box-shadow: 0 0 0 0.25rem rgba(var(--color-primary-rgb), 0.25);
 }
 
-.text-brand {
-  color: var(--color-primary-700);
+/*
+ * Not bridged yet because nothing uses them: form switches, ranges,
+ * progress bars, nav pills, accordions. Bridge them here before first use.
+ */
+
+/* 4. Base ----------------------------------------------------------------- */
+
+body {
+  background-color: var(--color-background);
 }
+
+/* Bootstrap's heading weight (500) isn't loaded and falls back to 400. */
+h1, h2, h3, h4, h5, h6,
+.h1, .h2, .h3, .h4, .h5, .h6 {
+  font-weight: 600;
+}
+
+/* 5. Layout --------------------------------------------------------------- */
+
+/* Top navbar of the admin and inductee areas (views/partials/app-navbar.php). */
+.app-navbar {
+  --bs-navbar-color: rgba(255, 255, 255, 0.75);
+  background-color: var(--color-primary-900);
+}
+
+.app-navbar .navbar-brand {
+  min-width: 0;
+  max-width: 16rem;
+}
+
+.app-navbar .navbar-nav .nav-link {
+  font-size: 0.9375rem;
+  white-space: nowrap;
+}
+
+.app-navbar .nav-link.active {
+  font-weight: 600;
+}
+
+/* Company logo beside the company name in page headers. */
+.brand-logo {
+  height: 28px;
+  width: auto;
+  max-width: 140px;
+  object-fit: contain;
+}
+
+/* Title row at the top of every page: optional breadcrumb, title, subtitle, actions. */
+.page-header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.page-header .breadcrumb {
+  margin-bottom: 0.25rem;
+  font-size: 0.875rem;
+}
+
+.page-title {
+  font-size: 1.5rem;
+  margin-bottom: 0;
+}
+
+.page-subtitle {
+  color: var(--color-text-muted);
+  margin: 0.25rem 0 0;
+}
+
+/* Width cap for form, profile and detail pages. */
+.page-narrow {
+  max-width: 720px;
+}
+
+/* Centered column of the guest layout (log in, register, verify certificate). */
+.container-guest {
+  max-width: 420px;
+}
+
+/* 6. Components ----------------------------------------------------------- */
+
+/* Buttons at the end of a form: submit first, then Cancel. */
+.form-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+  padding-top: 0.5rem;
+}
+
+/* A list table filling a card: .card.card-table > .table-responsive > .table */
+.card-table > .table-responsive {
+  border-radius: var(--bs-card-inner-border-radius);
+}
+
+.card-table .table {
+  margin-bottom: 0;
+}
+
+.card-table .table > :not(caption) > * > :first-child {
+  padding-left: 1rem;
+}
+
+.card-table .table > :not(caption) > * > :last-child {
+  padding-right: 1rem;
+}
+
+.card-table .table > thead th {
+  --bs-table-bg: var(--color-surface-subtle);
+  color: var(--color-text-muted);
+  font-size: 0.8125rem;
+  white-space: nowrap;
+}
+
+.card-table .table > tbody > tr:last-child > * {
+  border-bottom-width: 0;
+}
+
+/* A whole card that is a single link (dashboard shortcuts, Tools). */
+.link-card {
+  color: inherit;
+  text-decoration: none;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.link-card:hover,
+.link-card:focus-visible {
+  color: inherit;
+  border-color: rgba(var(--color-primary-rgb), 0.5);
+  box-shadow: 0 0.25rem 0.75rem rgba(0, 0, 0, 0.08);
+}
+
+/* 7. Utilities ------------------------------------------------------------ */
 
 .bg-surface-subtle {
   background-color: var(--color-surface-subtle);
 }
+
+.border-dashed {
+  border-style: dashed !important;
+}
+
+/* 8. Settings --------------------------------------------------------------- */
+
+/* Company logo preview in Settings > General, shown on the navbar colour. */
+.logo-preview-box {
+  width: 160px;
+  height: 64px;
+  background-color: var(--color-primary-900);
+}
+
+.logo-preview-box img {
+  max-width: 150px;
+  max-height: 48px;
+}
+
+/* Notifications: "Remind [n] days before" input group. */
+.reminder-days {
+  max-width: 230px;
+}
+
+/* Email preview modal body. */
+.email-preview-frame {
+  height: 70vh;
+}
+
+/* Appearance: colour theme choices (radio + label). */
+.theme-swatch {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.5rem 0.25rem;
+  border: 2px solid var(--color-border);
+  border-radius: 0.5rem;
+  background-color: var(--color-surface);
+  cursor: pointer;
+  text-align: center;
+  height: 100%; /* equal tiles even when one has a "Default" note */
+}
+
+.theme-swatch-colors {
+  display: flex;
+  width: 100%;
+  max-width: 64px;
+  height: 24px;
+  border-radius: 0.25rem;
+  overflow: hidden;
+}
+
+.theme-swatch-colors span {
+  flex: 1;
+}
+
+.theme-swatch:hover {
+  border-color: var(--color-text-muted);
+}
+
+.theme-swatch-note {
+  font-size: 0.7rem;
+  color: var(--color-text-muted);
+  line-height: 1;
+}
+
+/* "Custom colours" option: one full-width row instead of a tile. */
+.theme-swatch-row {
+  flex-direction: row;
+  justify-content: flex-start;
+  gap: 0.75rem;
+  padding: 0.5rem 0.75rem;
+  text-align: left;
+}
+
+.theme-swatch-row .theme-swatch-colors {
+  width: 64px;
+  flex-shrink: 0;
+}
+
+.theme-swatch-row .theme-swatch-note {
+  font-size: 0.8rem;
+}
+
+.theme-preview-header {
+  background-color: var(--color-primary-900);
+  min-height: 48px;
+}
+
+.btn-check:checked + .theme-swatch {
+  border-color: var(--color-primary-700);
+  box-shadow: 0 0 0 0.2rem rgba(var(--color-primary-rgb), 0.2);
+}
+
+.btn-check:focus-visible + .theme-swatch {
+  outline: 2px solid var(--color-primary-700);
+  outline-offset: 2px;
+}
+
+/* 9. Content Blocks ------------------------------------------------------- */
 
 /*
  * Content Blocks reading canvas (docs/application/content_blocks_editor.md #6).
@@ -208,7 +531,7 @@ a:hover {
 .cb-block:hover,
 .cb-block.active,
 .cb-block.focused {
-  background-color: rgba(15, 93, 95, 0.05);
+  background-color: rgba(var(--color-primary-rgb), 0.05);
 }
 
 /*
@@ -285,8 +608,8 @@ a:hover {
 .cb-title-input:focus,
 .cb-richtext:focus {
   outline: none;
-  background-color: rgba(15, 93, 95, 0.07);
-  box-shadow: 0 0 0 2px rgba(15, 93, 95, 0.18);
+  background-color: rgba(var(--color-primary-rgb), 0.07);
+  box-shadow: 0 0 0 2px rgba(var(--color-primary-rgb), 0.18);
 }
 
 .cb-title-input::placeholder {
@@ -333,10 +656,6 @@ a:hover {
   background-color: var(--color-surface-subtle);
   border-radius: 0.375rem;
   padding: 0.75rem;
-}
-
-.border-dashed {
-  border-style: dashed !important;
 }
 
 /*
@@ -501,12 +820,12 @@ a:hover {
 }
 
 .cb-type-badge-section {
-  background-color: rgba(15, 93, 95, 0.12);
+  background-color: rgba(var(--color-primary-rgb), 0.12);
   color: var(--color-primary-700);
 }
 
 .cb-type-badge-lecture {
-  background-color: rgba(165, 75, 23, 0.12);
+  background-color: rgba(var(--color-accent-rgb), 0.12);
   color: var(--color-accent-500);
 }
 
@@ -518,6 +837,38 @@ a:hover {
 .cb-spin {
   display: inline-block;
   animation: cb-spin 0.8s linear infinite;
+}
+
+/* 10. Media ------------------------------------------------------------- */
+
+/* Media Library list thumbnail and grid tile (views/admin/media-library/index.php). */
+.media-thumb {
+  width: 3rem;
+  height: 3rem;
+  object-fit: cover;
+}
+
+.media-tile img {
+  aspect-ratio: 1 / 1;
+  object-fit: cover;
+}
+
+.media-tile .card-body {
+  font-size: 0.75rem;
+}
+
+.media-tile .badge {
+  font-size: 0.65rem;
+}
+
+.media-tile-select {
+  z-index: 2;
+  width: 1.5rem;
+  height: 1.5rem;
+}
+
+.media-tile-zoom {
+  z-index: 2;
 }
 
 /* MediaPicker modal (assets/js/media-picker.js) -- reusable image picker

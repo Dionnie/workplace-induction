@@ -11,14 +11,38 @@ function app_config(): array
     return $config;
 }
 
+/**
+ * White-label branding (company name, logo, primary email) managed from
+ * Admin > Settings > General, falling back to config/app.php.
+ *
+ * @return array{company_name: string, logo_url: ?string, primary_email: ?string}
+ */
+function site_settings(): array
+{
+    static $settings = null;
+    if ($settings === null) {
+        $settings = (new \App\Core\SiteSettingsService())->get();
+    }
+    return $settings;
+}
+
 function redirect(string $url): void
 {
     header('Location: ' . $url);
     exit;
 }
 
+/**
+ * Absolute URL for a root-relative path. Uses config/app.php 'url' when set,
+ * which is needed wherever there is no request host (e.g. cron-sent emails).
+ */
 function public_url(string $path): string
 {
+    $baseUrl = rtrim((string) (app_config()['url'] ?? ''), '/');
+    if ($baseUrl !== '') {
+        return $baseUrl . $path;
+    }
+
     $scheme = !empty($_SERVER['HTTPS']) ? 'https' : 'http';
     $host = $_SERVER['HTTP_HOST'] ?? 'localhost';
     return $scheme . '://' . $host . $path;
@@ -105,4 +129,32 @@ function get_errors(): array
 function error_for(array $errors, string $field): ?string
 {
     return $errors[$field] ?? null;
+}
+
+/**
+ * Status badge. Each status has one colour everywhere in the application
+ * (docs/core/design-system.html#badges), so views never pick badge colours
+ * themselves.
+ */
+function status_badge(string $status, ?string $label = null): string
+{
+    $variant = match ($status) {
+        'active', 'compliant', 'passed', 'correct', 'saved' => 'success',
+        'expiring', 'pending', 'unsaved' => 'warning',
+        'expired', 'failed', 'revoked', 'suspended', 'incorrect' => 'danger',
+        default => 'secondary', // inactive, superseded, not_started
+    };
+
+    return '<span class="badge text-bg-' . $variant . '">'
+        . e($label ?? ucwords(str_replace('_', ' ', $status)))
+        . '</span>';
+}
+
+/**
+ * <style> block applying the chosen colour theme. views/partials/head.php
+ * outputs it after assets/css/app.css on every page.
+ */
+function theme_style_tag(): string
+{
+    return '<style>' . \App\Core\Theme::css(site_settings()) . '</style>';
 }

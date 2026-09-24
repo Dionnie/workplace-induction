@@ -360,15 +360,10 @@ pattern for a nav tree, not a "nested block."
 - **Mobile offcanvas**: below `lg`, the sidebar is replaced by Bootstrap's
   native `.offcanvas.offcanvas-start` component, opened by a topbar button
   and a floating "dock" button that hides while the offcanvas is open.
-  **Prerequisite**: Bootstrap's JS bundle is not loaded anywhere in this
-  project today (only the CSS CDN link exists in
-  `views/partials/admin-header.php` / `inductee-header.php`; both footer
-  partials have zero `<script>` tags). Add
-  `https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js`
-  (matching the already-pinned CSS version) to the relevant footer
-  partial(s) before this is usable. This uses Bootstrap's own component,
-  so it does not violate `docs/core/ui-guidelines.md`'s "no other UI
-  framework" rule.
+  Bootstrap's JS bundle is loaded on every layout by
+  `views/partials/scripts.php` (the Studio loads it itself). This uses
+  Bootstrap's own component, so it does not violate
+  `docs/core/ui-guidelines.md`'s "no other UI framework" rule.
 
 ---
 

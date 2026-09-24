@@ -6,21 +6,32 @@ declare(strict_types=1);
  * @var array<string, mixed> $induction
  * @var array<int, array<string, mixed>> $questions Correct-answer flags stripped.
  */
-$pageTitle = $induction['title'] . ' &mdash; Exam';
+$pageTitle = $induction['title'] . ' — Exam';
 $currentPage = 'dashboard';
 require __DIR__ . '/../../partials/inductee-header.php';
 ?>
 
-<h1 class="fs-4 fw-semibold mb-1"><?= e($induction['title']) ?> &mdash; Exam</h1>
-<p class="text-muted mb-4">Answer all questions, then submit.</p>
+<div class="page-header">
+    <div>
+        <nav aria-label="Breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="/inductee/index.php">Dashboard</a></li>
+                <li class="breadcrumb-item"><a href="/inductee/inductions/show.php?id=<?= (int) $induction['id'] ?>"><?= e($induction['title']) ?></a></li>
+                <li class="breadcrumb-item active" aria-current="page">Exam</li>
+            </ol>
+        </nav>
+        <h1 class="page-title"><?= e($induction['title']) ?> &mdash; Exam</h1>
+        <p class="page-subtitle">Answer all questions, then submit.</p>
+    </div>
+</div>
 
 <form method="post" action="/inductee/exams/take.php?induction_id=<?= (int) $induction['id'] ?>">
     <?= csrf_field() ?>
 
     <?php foreach ($questions as $index => $question): ?>
         <div class="card shadow-sm mb-3">
-            <div class="card-body">
-                <h2 class="fs-6 fw-semibold">Question <?= $index + 1 ?></h2>
+            <fieldset class="card-body">
+                <legend class="fs-6 fw-semibold mb-2">Question <?= $index + 1 ?></legend>
                 <p><?= nl2br(e($question['question'])) ?></p>
 
                 <?php if (!empty($question['diagram_img_url'])): ?>
@@ -37,11 +48,14 @@ require __DIR__ . '/../../partials/inductee-header.php';
                         </label>
                     </div>
                 <?php endforeach; ?>
-            </div>
+            </fieldset>
         </div>
     <?php endforeach; ?>
 
-    <button type="submit" class="btn btn-primary">Submit Exam</button>
+    <div class="form-actions">
+        <button type="submit" class="btn btn-primary">Submit Exam</button>
+        <a href="/inductee/inductions/show.php?id=<?= (int) $induction['id'] ?>" class="btn btn-outline-secondary">Cancel</a>
+    </div>
 </form>
 
 <?php require __DIR__ . '/../../partials/inductee-footer.php'; ?>

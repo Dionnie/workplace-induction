@@ -1,0 +1,1327 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Design System</title>
+    <!--
+      The authority for UI markup in this application: tokens, the class
+      vocabulary and component patterns. Every example below renders with
+      the real Bootstrap + assets/css/app.css, so what you see is what the
+      app does. Open it on the running site (e.g.
+      http://workplace-induction.test/docs/core/design-system.html) so the
+      Poppins font loads.
+
+      Companion documents:
+        docs/core/ui-guidelines.md   the rules and reasoning behind this system
+        assets/css/app.css           the implementation of every app class here
+    -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+    <link href="../../assets/css/app.css" rel="stylesheet">
+    <style>
+        /* Styles for this document only (ds- prefix). Never use them in the app. */
+        .ds-layout { display: grid; grid-template-columns: minmax(0, 1fr); gap: 2rem; }
+        @media (min-width: 992px) { .ds-layout { grid-template-columns: 210px minmax(0, 1fr); } }
+        .ds-toc { position: sticky; top: 1rem; max-height: calc(100vh - 2rem); overflow-y: auto; font-size: 0.875rem; }
+        .ds-toc a { display: block; padding: 0.15rem 0; color: var(--color-text-muted); text-decoration: none; }
+        .ds-toc a:hover { color: var(--color-primary-700); }
+        .ds-toc-group { margin: 1rem 0 0.25rem; font-size: 0.75rem; font-weight: 600; text-transform: uppercase; color: var(--color-text); }
+        .ds-section { scroll-margin-top: 1rem; margin-bottom: 3.5rem; }
+        .ds-section > h2 { font-size: 1.375rem; padding-bottom: 0.5rem; margin-bottom: 1rem; border-bottom: 1px solid var(--color-border); }
+        .ds-section > h3 { font-size: 1.0625rem; margin: 2rem 0 0.75rem; scroll-margin-top: 1rem; }
+        .ds-lead { font-size: 1.0625rem; color: var(--color-text-muted); max-width: 48rem; }
+        .ds-section > p, .ds-section > ul > li, .ds-section > ol > li { max-width: 48rem; }
+        .ds-example { margin: 1rem 0 1.5rem; border: 1px solid var(--color-border); border-radius: 0.5rem; background: var(--color-surface); overflow: hidden; }
+        .ds-preview { padding: 1.25rem; }
+        .ds-preview-page { background: var(--color-background); }
+        .ds-code { position: relative; border-top: 1px solid var(--color-border); }
+        .ds-code pre { margin: 0; padding: 1rem; max-height: 30rem; overflow: auto; background: #1f2428; color: #e6edf3; font-size: 0.8125rem; line-height: 1.55; }
+        .ds-copy { position: absolute; top: 0.5rem; right: 0.75rem; }
+        .ds-swatch { height: 3.5rem; border-radius: 0.375rem; border: 1px solid rgba(0, 0, 0, 0.08); }
+        .ds-preview .modal { position: static; display: block; z-index: auto; }
+        .ds-preview .modal-dialog { margin: 0; }
+        .ds-do, .ds-dont { padding-left: 0; list-style: none; }
+        .ds-do li, .ds-dont li { position: relative; padding-left: 1.5rem; margin-bottom: 0.35rem; }
+        .ds-do li::before, .ds-dont li::before { position: absolute; left: 0; font-family: 'bootstrap-icons'; }
+        .ds-do li::before { content: '\F26E'; color: var(--bs-success); }
+        .ds-dont li::before { content: '\F62A'; color: var(--bs-danger); }
+    </style>
+</head>
+<body>
+
+<nav class="navbar navbar-dark app-navbar">
+    <div class="container-xl">
+        <span class="navbar-brand"><i class="bi bi-palette2 me-2" aria-hidden="true"></i>Design System</span>
+        <div class="d-flex align-items-center gap-2">
+            <label for="ds-theme" class="text-white-50 small mb-0">Preview theme</label>
+            <select id="ds-theme" class="form-select form-select-sm w-auto">
+                <option value="teal">Teal (default)</option>
+                <option value="navy">Navy</option>
+                <option value="forest">Forest</option>
+                <option value="charcoal">Charcoal</option>
+                <option value="burgundy">Burgundy</option>
+                <option value="indigo">Indigo</option>
+            </select>
+        </div>
+    </div>
+</nav>
+
+<div class="container-xl py-4">
+<div class="ds-layout">
+
+<aside class="d-none d-lg-block">
+    <nav class="ds-toc" aria-label="Contents">
+        <a href="#about">About this document</a>
+        <div class="ds-toc-group">Foundations</div>
+        <a href="#colour">Colour</a>
+        <a href="#semantic">Semantic colours</a>
+        <a href="#typography">Typography</a>
+        <a href="#spacing">Spacing</a>
+        <a href="#icons">Icons</a>
+        <div class="ds-toc-group">Layout</div>
+        <a href="#page-shell">Page shell</a>
+        <a href="#navbar">Navbar</a>
+        <a href="#page-header">Page header</a>
+        <a href="#widths">Content widths</a>
+        <a href="#responsive">Responsive</a>
+        <div class="ds-toc-group">Components</div>
+        <a href="#buttons">Buttons</a>
+        <a href="#forms">Forms</a>
+        <a href="#cards">Cards</a>
+        <a href="#tables">Tables</a>
+        <a href="#filters">Filter bar</a>
+        <a href="#badges">Status badges</a>
+        <a href="#alerts">Alerts &amp; flash</a>
+        <a href="#modals">Modals &amp; confirmation</a>
+        <a href="#details">Detail list</a>
+        <a href="#subnav">Section navigation</a>
+        <a href="#empty">Empty states</a>
+        <a href="#loading">Loading state</a>
+        <div class="ds-toc-group">Reference</div>
+        <a href="#patterns">Page patterns</a>
+        <a href="#class-reference">Class reference</a>
+        <a href="#checklist">Review checklist</a>
+    </nav>
+</aside>
+
+<main>
+
+<!-- ===================================================================== -->
+<section class="ds-section" id="about">
+    <h1 class="page-title mb-2">Design System</h1>
+    <p class="ds-lead">
+        The single authority for how this application's UI is built: which tokens, classes and markup
+        patterns to use. Every page follows it. When a page and this document disagree, the page is wrong.
+    </p>
+
+    <h3>How the UI documents fit together</h3>
+    <div class="card shadow-sm card-table">
+        <div class="table-responsive">
+            <table class="table align-middle">
+                <thead>
+                    <tr><th>Where</th><th>What it owns</th></tr>
+                </thead>
+                <tbody>
+                    <tr><td><code>docs/core/design-system.html</code></td><td><strong>This document.</strong> Tokens, class vocabulary, component markup and page patterns. The authority.</td></tr>
+                    <tr><td><code>docs/core/ui-guidelines.md</code></td><td>The rules and reasoning behind the system: principles, colour meaning, states, forms, terminology.</td></tr>
+                    <tr><td><code>assets/css/app.css</code></td><td>The implementation. Every class it defines is listed in the <a href="#class-reference">Class reference</a>.</td></tr>
+                    <tr><td><code>views/partials/</code></td><td>Layouts shared by every page: <code>head.php</code>, <code>app-navbar.php</code>, <code>flash.php</code>, <code>scripts.php</code> and the admin, inductee and guest headers and footers.</td></tr>
+                    <tr><td><code>status_badge()</code> in <code>app/Core/helpers.php</code></td><td>The one status → colour map. See <a href="#badges">Status badges</a>.</td></tr>
+                    <tr><td><code>assets/js/app.js</code></td><td>App-wide behaviour, currently the <a href="#loading">loading state</a>.</td></tr>
+                    <tr><td>Settings → Appearance<br><code>admin/settings/update-appearance.php</code>, <code>App\Core\Theme</code></td><td>Sets the brand colour tokens at runtime. See <a href="#colour">Colour</a>.</td></tr>
+                    <tr><td><code>docs/application/content_blocks_editor.md</code></td><td>The Content Blocks canvas and Studio editor (<code>.content-*</code>, <code>.cb-*</code>). They use this system's tokens and buttons but have their own layout rules.</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <h3>Changing the system</h3>
+    <ol>
+        <li>Use a Bootstrap 5.3 component or utility when one fits. Most of the app is plain Bootstrap.</li>
+        <li>If a pattern repeats and Bootstrap can't express it, add a class to the right section of
+            <code>app.css</code> <em>and</em> add it to the <a href="#class-reference">Class reference</a> here.</li>
+        <li>Update the example in this document in the same change, so the example and the code never disagree.</li>
+        <li>No page-level <code>&lt;style&gt;</code> blocks and no <code>style=""</code> attributes, except for values only known at
+            runtime (e.g. a theme swatch's colour from the database).</li>
+    </ol>
+    <p class="text-muted small">
+        The theme menu at the top re-colours this page with each preset in <code>App\Core\Theme::PRESETS</code>
+        (mirrored in this page's script), so you can check that a component follows the theme.
+    </p>
+</section>
+
+<!-- ===================================================================== -->
+<section class="ds-section" id="colour">
+    <h2>Colour</h2>
+    <p>
+        One <strong>primary</strong> family, one <strong>accent</strong>, warm neutrals, and Bootstrap's semantic colours.
+        Colours are CSS custom properties (tokens) defined in <code>app.css</code>. Components use tokens or Bootstrap classes,
+        never hex values.
+    </p>
+
+    <h3>Brand tokens (themeable)</h3>
+    <p>
+        Administrators choose these in <strong>Settings → Appearance</strong> (a preset from <code>App\Core\Theme::PRESETS</code> or
+        custom Primary and Accent colours; <code>admin/settings/update-appearance.php</code> saves them).
+        <code>views/partials/head.php</code> outputs <code>theme_style_tag()</code> after <code>app.css</code>, which overrides the defaults
+        below on every page. For a custom theme, 800 and 900 are derived by darkening the chosen 700.
+    </p>
+    <div class="row row-cols-2 row-cols-md-4 g-3 mb-3">
+        <div class="col"><div class="ds-swatch" style="background: var(--color-primary-900)"></div><div class="small mt-1"><code>--color-primary-900</code><br><span class="text-muted" data-token="--color-primary-900"></span> · navbar, dark surfaces</div></div>
+        <div class="col"><div class="ds-swatch" style="background: var(--color-primary-800)"></div><div class="small mt-1"><code>--color-primary-800</code><br><span class="text-muted" data-token="--color-primary-800"></span> · hover</div></div>
+        <div class="col"><div class="ds-swatch" style="background: var(--color-primary-700)"></div><div class="small mt-1"><code>--color-primary-700</code><br><span class="text-muted" data-token="--color-primary-700"></span> · actions, links, active</div></div>
+        <div class="col"><div class="ds-swatch" style="background: var(--color-accent-500)"></div><div class="small mt-1"><code>--color-accent-500</code><br><span class="text-muted" data-token="--color-accent-500"></span> · accent, sparingly</div></div>
+    </div>
+    <p class="small text-muted">
+        Also provided: <code>--color-primary-rgb</code>, <code>--color-primary-800-rgb</code> and <code>--color-accent-rgb</code>
+        (r, g, b triplets) for tints, e.g. <code>rgba(var(--color-primary-rgb), 0.12)</code>.
+    </p>
+
+    <h3>Fixed tokens (not themeable)</h3>
+    <div class="row row-cols-2 row-cols-md-4 g-3 mb-3">
+        <div class="col"><div class="ds-swatch" style="background: var(--color-background)"></div><div class="small mt-1"><code>--color-background</code><br><span class="text-muted" data-token="--color-background"></span> · page background</div></div>
+        <div class="col"><div class="ds-swatch" style="background: var(--color-surface)"></div><div class="small mt-1"><code>--color-surface</code><br><span class="text-muted" data-token="--color-surface"></span> · cards, tables, inputs</div></div>
+        <div class="col"><div class="ds-swatch" style="background: var(--color-surface-subtle)"></div><div class="small mt-1"><code>--color-surface-subtle</code><br><span class="text-muted" data-token="--color-surface-subtle"></span> · panels in a card, table headers</div></div>
+        <div class="col"><div class="ds-swatch" style="background: var(--color-border)"></div><div class="small mt-1"><code>--color-border</code><br><span class="text-muted" data-token="--color-border"></span> · borders</div></div>
+        <div class="col"><div class="ds-swatch" style="background: var(--color-text)"></div><div class="small mt-1"><code>--color-text</code><br><span class="text-muted" data-token="--color-text"></span> · body text</div></div>
+        <div class="col"><div class="ds-swatch" style="background: var(--color-text-muted)"></div><div class="small mt-1"><code>--color-text-muted</code><br><span class="text-muted" data-token="--color-text-muted"></span> · secondary text (<code>text-muted</code>)</div></div>
+        <div class="col"><div class="ds-swatch" style="background: var(--color-warm-500)"></div><div class="small mt-1"><code>--color-warm-500</code><br><span class="text-muted" data-token="--color-warm-500"></span> · decorative only</div></div>
+    </div>
+
+    <h3>Bootstrap follows the theme</h3>
+    <p>
+        The <em>Bootstrap bridge</em> in <code>app.css</code> points Bootstrap's own variables at the tokens, so these Bootstrap classes
+        are brand-coloured with no extra work. Use them freely:
+    </p>
+    <div class="ds-example">
+        <div class="ds-preview d-flex flex-wrap align-items-center gap-3">
+            <button type="button" class="btn btn-primary">btn-primary</button>
+            <button type="button" class="btn btn-outline-primary">btn-outline-primary</button>
+            <button type="button" class="btn btn-link">btn-link</button>
+            <a href="#">A link</a>
+            <span class="text-primary fw-semibold">text-primary</span>
+            <span class="badge text-bg-primary">text-bg-primary</span>
+            <div class="form-check mb-0">
+                <input class="form-check-input" type="checkbox" id="ds-bridge-check" checked>
+                <label class="form-check-label" for="ds-bridge-check">Checked</label>
+            </div>
+            <input type="text" class="form-control w-auto" placeholder="Focus me">
+        </div>
+    </div>
+    <p class="small text-muted">
+        Also bridged: <code>border-primary</code>, <code>bg-primary</code>, breadcrumbs, list-group active items, dropdown active
+        items and pagination. <strong>Not bridged yet</strong> (unused so far): form switches, ranges, progress bars, nav pills,
+        accordions. Bridge them in <code>app.css</code> §3 before first use.
+    </p>
+
+    <h3>Rules</h3>
+    <ul class="ds-do">
+        <li>Use <code>var(--color-primary-700)</code> etc. in CSS, and <code>text-primary</code>, <code>btn-primary</code> etc. in markup.</li>
+        <li>Use the primary colour for what should be acted on: main actions, links, active navigation.</li>
+        <li>Use the accent sparingly, for small secondary emphasis (e.g. the Lecture badge in the Studio editor).</li>
+        <li>Emails can't read CSS variables; they get the theme through <code>App\Core\Theme::colors()</code> in <code>views/emails/layout.php</code>.</li>
+    </ul>
+    <ul class="ds-dont">
+        <li>Hard-code a brand hex value, or <code>rgba(15, 93, 95, …)</code>. It breaks every other theme.</li>
+        <li>Use the accent or warm pink to mean error, warning or success. Those are <a href="#semantic">semantic colours</a>.</li>
+        <li>Pick a colour per card or per status "to make it pop".</li>
+    </ul>
+</section>
+
+<!-- ===================================================================== -->
+<section class="ds-section" id="semantic">
+    <h2>Semantic colours</h2>
+    <p>Bootstrap's contextual colours communicate state. They never change with the theme, and the brand colours never stand in for them.</p>
+    <div class="card shadow-sm card-table">
+        <div class="table-responsive">
+            <table class="table align-middle">
+                <thead><tr><th>Meaning</th><th>Variant</th><th>Examples</th><th>Sample</th></tr></thead>
+                <tbody>
+                    <tr><td>Positive, completed, valid</td><td><code>success</code></td><td>Active, Compliant, Passed, Saved</td><td><span class="badge text-bg-success">Passed</span></td></tr>
+                    <tr><td>Attention required, not failure</td><td><code>warning</code></td><td>Expiring soon, Pending, Unsaved changes</td><td><span class="badge text-bg-warning">Expiring</span></td></tr>
+                    <tr><td>Negative, failed, destructive</td><td><code>danger</code></td><td>Expired, Failed, Revoked, Suspended, Delete</td><td><span class="badge text-bg-danger">Expired</span></td></tr>
+                    <tr><td>Neutral information</td><td><code>info</code></td><td>Instructions, "no matches"</td><td><span class="badge text-bg-info">Info</span></td></tr>
+                    <tr><td>Inactive, neutral state</td><td><code>secondary</code></td><td>Inactive, Superseded, Not Started</td><td><span class="badge text-bg-secondary">Inactive</span></td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <p class="mt-3">For coloured <em>text</em> on white, use <code>text-success</code>, <code>text-danger</code> and <code>text-warning-emphasis</code>:</p>
+    <div class="ds-example">
+        <div class="ds-preview d-flex flex-wrap gap-4">
+            <span class="fs-3 fw-semibold text-success">12</span>
+            <span class="fs-3 fw-semibold text-warning-emphasis">3</span>
+            <span class="fs-3 fw-semibold text-danger">1</span>
+        </div>
+    </div>
+    <ul class="ds-dont">
+        <li>Use <code>text-warning</code> for text. Yellow on white is unreadable (1.6:1 contrast).</li>
+        <li>Rely on colour alone. The text must state the status, e.g. "Expired", not just a red dot.</li>
+    </ul>
+</section>
+
+<!-- ===================================================================== -->
+<section class="ds-section" id="typography">
+    <h2>Typography</h2>
+    <p>
+        Poppins, self-hosted at two weights: <strong>400</strong> (<code>fw-normal</code>) and <strong>600</strong> (<code>fw-semibold</code>).
+        Never use <code>fw-medium</code> or <code>fw-bold</code>: those weights aren't loaded. All headings are 600 by default
+        (<code>app.css</code> §4), so headings don't need <code>fw-semibold</code>.
+    </p>
+    <div class="card shadow-sm card-table">
+        <div class="table-responsive">
+            <table class="table align-middle">
+                <thead><tr><th>Role</th><th>Markup</th><th>Sample</th></tr></thead>
+                <tbody>
+                    <tr><td>Page title (one per page)</td><td><code>&lt;h1 class="page-title"&gt;</code></td><td><span class="page-title fw-semibold d-block">Inductions</span></td></tr>
+                    <tr><td>Feature heading (certificate title, modal title)</td><td><code>&lt;h2 class="fs-5"&gt;</code></td><td><span class="fs-5 fw-semibold">Site Safety Induction</span></td></tr>
+                    <tr><td>Card / section title</td><td><code>&lt;h2 class="fs-6 mb-3"&gt;</code></td><td><span class="fs-6 fw-semibold">Expiring Soon</span></td></tr>
+                    <tr><td>Eyebrow label (group names, sub-sections)</td><td><code>class="small text-uppercase text-muted fw-semibold"</code></td><td><span class="small text-uppercase text-muted fw-semibold">Emergency Contact</span></td></tr>
+                    <tr><td>Body</td><td>no class (1rem)</td><td>Complete your assigned induction requirements.</td></tr>
+                    <tr><td>Secondary text</td><td><code>text-muted</code></td><td><span class="text-muted">Your name as shown throughout the application.</span></td></tr>
+                    <tr><td>Small print, help, meta</td><td><code>small</code> / <code>form-text</code></td><td><span class="small">Letters, numbers, and dashes only.</span></td></tr>
+                    <tr><td>Codes, identifiers</td><td><code>&lt;code&gt;</code></td><td><code>CERT-2026-000123</code></td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <p class="mt-3 small text-muted">
+        Heading levels follow the document outline (h1 → h2 → h3). Choose the level for structure and the class for size.
+        Content Blocks use their own reading sizes (<code>.cb-heading-2</code>, <code>.cb-heading-3</code>).
+    </p>
+</section>
+
+<!-- ===================================================================== -->
+<section class="ds-section" id="spacing">
+    <h2>Spacing</h2>
+    <p>Bootstrap spacing utilities only. The rhythm:</p>
+    <div class="card shadow-sm card-table">
+        <div class="table-responsive">
+            <table class="table align-middle">
+                <thead><tr><th>Between</th><th>Use</th></tr></thead>
+                <tbody>
+                    <tr><td>Navbar and page content</td><td><code>main.py-4</code> (layout provides it)</td></tr>
+                    <tr><td>Page header and first content</td><td>built into <code>.page-header</code> (1.5rem)</td></tr>
+                    <tr><td>Cards in a grid</td><td><code>row g-3</code></td></tr>
+                    <tr><td>Stacked cards</td><td><code>mb-3</code></td></tr>
+                    <tr><td>Page sections (e.g. dashboard rows)</td><td><code>mb-4</code></td></tr>
+                    <tr><td>Card title and content</td><td><code>mb-3</code> on the title, or <code>mb-1</code> title + <code>mb-3</code> description</td></tr>
+                    <tr><td>Form fields</td><td><code>mb-3</code> on each field or field row; <code>.form-actions</code> adds the gap before buttons</td></tr>
+                    <tr><td>Inside a card</td><td><code>card-body</code> (1rem); <code>card-body p-4</code> for forms and documents</td></tr>
+                    <tr><td>Buttons side by side</td><td>a flex parent with <code>gap-2</code> (<code>.form-actions</code> does this)</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</section>
+
+<!-- ===================================================================== -->
+<section class="ds-section" id="icons">
+    <h2>Icons</h2>
+    <p>
+        <a href="https://icons.getbootstrap.com/">Bootstrap Icons</a> 1.11.3, loaded on every page by <code>head.php</code>.
+        Icons support a text label; they rarely replace it.
+    </p>
+    <div class="ds-example">
+        <div class="ds-preview d-flex flex-wrap align-items-center gap-3">
+            <button type="button" class="btn btn-primary btn-sm"><i class="bi bi-plus-lg me-1" aria-hidden="true"></i>Add Induction</button>
+            <button type="button" class="btn btn-sm btn-outline-danger" title="Delete" aria-label="Delete site-map.png"><i class="bi bi-trash" aria-hidden="true"></i></button>
+            <h2 class="fs-6 mb-0"><i class="bi bi-patch-check text-primary me-2" aria-hidden="true"></i>Compliance</h2>
+        </div>
+    </div>
+    <ul class="ds-do">
+        <li>Decorative icons get <code>aria-hidden="true"</code>. Spacing: <code>me-1</code> in buttons, <code>me-2</code> in headings.</li>
+        <li>Icon-only buttons need <code>aria-label</code> (what it does, and to what) and <code>title</code> (tooltip).</li>
+        <li>Use the same icon for the same thing everywhere:</li>
+    </ul>
+    <div class="card shadow-sm card-table">
+        <div class="table-responsive">
+            <table class="table table-sm align-middle">
+                <thead><tr><th>Meaning</th><th>Icon</th><th>Class</th></tr></thead>
+                <tbody>
+                    <tr><td>Add / create</td><td><i class="bi bi-plus-lg"></i></td><td><code>bi-plus-lg</code></td></tr>
+                    <tr><td>Edit</td><td><i class="bi bi-pencil"></i></td><td><code>bi-pencil</code> (<code>bi-pencil-square</code> for "Edit Content Blocks")</td></tr>
+                    <tr><td>Delete</td><td><i class="bi bi-trash"></i></td><td><code>bi-trash</code></td></tr>
+                    <tr><td>Remove from a list / close</td><td><i class="bi bi-x-lg"></i></td><td><code>bi-x-lg</code></td></tr>
+                    <tr><td>Confirm</td><td><i class="bi bi-check-lg"></i></td><td><code>bi-check-lg</code></td></tr>
+                    <tr><td>Back</td><td><i class="bi bi-arrow-left"></i></td><td><code>bi-arrow-left</code></td></tr>
+                    <tr><td>Search</td><td><i class="bi bi-search"></i></td><td><code>bi-search</code></td></tr>
+                    <tr><td>Preview</td><td><i class="bi bi-eye"></i></td><td><code>bi-eye</code></td></tr>
+                    <tr><td>Send email</td><td><i class="bi bi-send"></i></td><td><code>bi-send</code></td></tr>
+                    <tr><td>Print</td><td><i class="bi bi-printer"></i></td><td><code>bi-printer</code></td></tr>
+                    <tr><td>Upload</td><td><i class="bi bi-cloud-arrow-up"></i></td><td><code>bi-cloud-arrow-up</code></td></tr>
+                    <tr><td>Media Library / choose image</td><td><i class="bi bi-images"></i></td><td><code>bi-images</code></td></tr>
+                    <tr><td>Information</td><td><i class="bi bi-info-circle"></i></td><td><code>bi-info-circle</code></td></tr>
+                    <tr><td>Warning</td><td><i class="bi bi-exclamation-triangle"></i></td><td><code>bi-exclamation-triangle</code></td></tr>
+                    <tr><td>Inductions</td><td><i class="bi bi-journal-check"></i></td><td><code>bi-journal-check</code></td></tr>
+                    <tr><td>Exams</td><td><i class="bi bi-ui-checks"></i></td><td><code>bi-ui-checks</code></td></tr>
+                    <tr><td>Exam Attempts</td><td><i class="bi bi-clipboard-data"></i></td><td><code>bi-clipboard-data</code></td></tr>
+                    <tr><td>Compliance</td><td><i class="bi bi-patch-check"></i></td><td><code>bi-patch-check</code></td></tr>
+                    <tr><td>Certificates</td><td><i class="bi bi-award"></i></td><td><code>bi-award</code></td></tr>
+                    <tr><td>Users</td><td><i class="bi bi-people"></i></td><td><code>bi-people</code></td></tr>
+                    <tr><td>Settings</td><td><i class="bi bi-gear"></i></td><td><code>bi-gear</code></td></tr>
+                    <tr><td>Account</td><td><i class="bi bi-person-circle"></i></td><td><code>bi-person-circle</code></td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</section>
+
+<!-- ===================================================================== -->
+<section class="ds-section" id="page-shell">
+    <h2>Page shell</h2>
+    <p>Every page uses one of these layouts. Never write a <code>&lt;head&gt;</code>, navbar or footer by hand.</p>
+    <div class="card shadow-sm card-table">
+        <div class="table-responsive">
+            <table class="table align-middle">
+                <thead><tr><th>Layout</th><th>Partials</th><th>Used by</th></tr></thead>
+                <tbody>
+                    <tr><td>Admin</td><td><code>admin-header.php</code> / <code>admin-footer.php</code></td><td>Everything under <code>/admin</code>. Navbar collapses below <code>xl</code>.</td></tr>
+                    <tr><td>Inductee</td><td><code>inductee-header.php</code> / <code>inductee-footer.php</code></td><td>Everything under <code>/inductee</code>. Navbar collapses below <code>md</code>. <code>$wideContainer = true</code> for the Content Blocks page.</td></tr>
+                    <tr><td>Guest</td><td><code>guest-header.php</code> / <code>guest-footer.php</code></td><td>Log in, register, password reset, email verification, certificate verification. One centered card (<code>.container-guest</code>).</td></tr>
+                    <tr><td>Public page</td><td><code>head.php</code> in <code>index.php</code></td><td>The landing page (<code>docs/core/public_page.md</code>).</td></tr>
+                    <tr><td>Studio</td><td><code>head.php</code> in <code>views/admin/inductions/editor.php</code></td><td>The Content Blocks editor (<code>docs/application/content_blocks_editor.md</code>).</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <p class="mt-3">
+        The shared partials: <code>head.php</code> (meta, Bootstrap, Bootstrap Icons, <code>app.css</code>, <code>theme_style_tag()</code>),
+        <code>app-navbar.php</code>, <code>flash.php</code> (flash messages), and <code>scripts.php</code> (Bootstrap JS and <code>app.js</code>).
+        A view sets two variables and requires its layout:
+    </p>
+    <div class="ds-example">
+        <script type="text/plain" class="ds-source">
+<?php
+
+declare(strict_types=1);
+
+/** @var array<int, array<string, mixed>> $inductions */
+$pageTitle = 'Inductions';      // browser tab: "Inductions · Company Name"
+$currentPage = 'inductions';    // key of the active navbar item
+require __DIR__ . '/../../partials/admin-header.php';
+?>
+
+<div class="page-header">…</div>
+
+…page content…
+
+<?php require __DIR__ . '/../../partials/admin-footer.php'; ?>
+        </script>
+    </div>
+    <p>
+        The page background is <code>--color-background</code> (warm off-white). Content sits on white surfaces: cards, tables, modals.
+        Page-specific scripts go just before the footer include; Bootstrap JS loads in the footer, so use it inside event handlers.
+    </p>
+</section>
+
+<!-- ===================================================================== -->
+<section class="ds-section" id="navbar">
+    <h2>Navbar</h2>
+    <p>
+        One component for the admin and inductee areas: <code>views/partials/app-navbar.php</code>, on <code>--color-primary-900</code>.
+        Each layout header defines <code>$navItems</code>; the view's <code>$currentPage</code> marks the active item
+        (<code>.active</code> and <code>aria-current="page"</code>). Account links sit in the right-hand dropdown.
+        Shown here expanded; the partial renders it, so there is no markup to copy.
+    </p>
+    <div class="ds-example" data-no-code>
+        <div class="ds-preview p-0">
+            <nav class="navbar navbar-expand navbar-dark app-navbar">
+                <div class="container-fluid">
+                    <a class="navbar-brand d-flex align-items-center gap-2" href="#"><span class="text-truncate">Company Name</span></a>
+                    <ul class="navbar-nav me-auto">
+                        <li class="nav-item"><a class="nav-link active" href="#" aria-current="page">Dashboard</a></li>
+                        <li class="nav-item"><a class="nav-link" href="#">Inductions</a></li>
+                        <li class="nav-item"><a class="nav-link" href="#">Compliance</a></li>
+                    </ul>
+                    <ul class="navbar-nav">
+                        <li class="nav-item"><a class="nav-link dropdown-toggle" href="#" aria-label="Account"><i class="bi bi-person-circle" aria-hidden="true"></i></a></li>
+                    </ul>
+                </div>
+            </nav>
+        </div>
+    </div>
+    <ul class="ds-do">
+        <li>Add a section by adding one entry to <code>$navItems</code> in the layout header.</li>
+        <li>Pages without their own nav item (a certificate, an exam) set <code>$currentPage</code> to their parent section.</li>
+    </ul>
+    <ul class="ds-dont">
+        <li>Give a navbar an inline background, or use primary-700 for it.</li>
+        <li>Build a second navbar markup for one area.</li>
+    </ul>
+</section>
+
+<!-- ===================================================================== -->
+<section class="ds-section" id="page-header">
+    <h2>Page header</h2>
+    <p>
+        Every page starts with <code>.page-header</code>: the page title, then optionally a breadcrumb above it, a one-line
+        subtitle below it, and the page's actions on the right. It wraps on narrow screens and provides the gap to the content.
+    </p>
+
+    <h3>Title and main action (list pages)</h3>
+    <div class="ds-example">
+        <div class="ds-preview ds-preview-page">
+            <div class="page-header">
+                <h1 class="page-title">Inductions</h1>
+                <a href="#" class="btn btn-primary btn-sm">
+                    <i class="bi bi-plus-lg me-1" aria-hidden="true"></i>Add Induction
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <h3>With subtitle</h3>
+    <div class="ds-example">
+        <div class="ds-preview ds-preview-page">
+            <div class="page-header">
+                <div>
+                    <h1 class="page-title">Compliance</h1>
+                    <p class="page-subtitle">Compliance records of every inductee.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <h3>With breadcrumb (every page below a section's index)</h3>
+    <div class="ds-example">
+        <div class="ds-preview ds-preview-page">
+            <div class="page-header">
+                <div>
+                    <nav aria-label="Breadcrumb">
+                        <ol class="breadcrumb">
+                            <li class="breadcrumb-item"><a href="#">Inductions</a></li>
+                            <li class="breadcrumb-item active" aria-current="page">Edit Induction</li>
+                        </ol>
+                    </nav>
+                    <h1 class="page-title">Edit Induction</h1>
+                </div>
+                <a href="#" class="btn btn-outline-secondary btn-sm">
+                    <i class="bi bi-pencil-square me-1" aria-hidden="true"></i>Edit Content Blocks
+                </a>
+            </div>
+        </div>
+    </div>
+    <ul class="ds-do">
+        <li>The breadcrumb replaces "Back" buttons; its last item is the current page.</li>
+        <li>Page-header buttons are <code>btn-sm</code>. The page's main create action is <code>btn-primary</code>; others are <code>btn-outline-secondary</code>.</li>
+        <li>Add a subtitle only when it tells the user something the title doesn't.</li>
+    </ul>
+</section>
+
+<!-- ===================================================================== -->
+<section class="ds-section" id="widths">
+    <h2>Content widths</h2>
+    <div class="card shadow-sm card-table">
+        <div class="table-responsive">
+            <table class="table align-middle">
+                <thead><tr><th>Class</th><th>Max width</th><th>Use for</th></tr></thead>
+                <tbody>
+                    <tr><td><code>container</code> (layout)</td><td>Bootstrap</td><td>List pages, dashboards, Settings, Media Library</td></tr>
+                    <tr><td><code>.page-narrow</code></td><td>720px</td><td>Form pages, profiles, detail pages (certificate). Wrap the page header and the card in it, so they line up.</td></tr>
+                    <tr><td><code>.container-guest</code> (layout)</td><td>420px</td><td>The guest layout's single card</td></tr>
+                    <tr><td><code>.content-canvas</code></td><td>1024px</td><td>Content Blocks reading canvas (see content_blocks_editor.md)</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <div class="ds-example mt-3">
+        <script type="text/plain" class="ds-source">
+<div class="page-narrow">
+    <div class="page-header">…breadcrumb and title…</div>
+
+    <div class="card shadow-sm">
+        <div class="card-body p-4">
+            …form…
+        </div>
+    </div>
+</div>
+        </script>
+    </div>
+</section>
+
+<!-- ===================================================================== -->
+<section class="ds-section" id="responsive">
+    <h2>Responsive</h2>
+    <p>Every page must work from a 360px phone to a wide desktop, using Bootstrap's grid. No separate mobile pages.</p>
+    <ul class="ds-do">
+        <li>Side-by-side form fields use <code>col-sm</code> (they stack on phones), never plain <code>col</code>.</li>
+        <li>Tables sit in <code>.table-responsive</code> and scroll sideways rather than squeeze.</li>
+        <li>The filter bar's search box is <code>col-12 col-sm-auto</code>.</li>
+        <li>Row actions stay on one line: <code>td.text-end.text-nowrap</code>.</li>
+        <li>Rows of buttons use a flex parent with <code>flex-wrap</code> and <code>gap-2</code>.</li>
+    </ul>
+    <ul class="ds-dont">
+        <li>Fixed pixel widths on layout elements (other than the width classes above).</li>
+    </ul>
+</section>
+
+<!-- ===================================================================== -->
+<section class="ds-section" id="buttons">
+    <h2>Buttons</h2>
+    <p>Buttons perform actions; links navigate. The exception: a call to action that navigates (Add Induction, Start, Cancel) may look like a button.</p>
+    <div class="card shadow-sm card-table mb-3">
+        <div class="table-responsive">
+            <table class="table align-middle">
+                <thead><tr><th>Role</th><th>Class</th><th>Examples</th></tr></thead>
+                <tbody>
+                    <tr><td>Main action: <strong>one per form or card</strong></td><td><code>btn-primary</code></td><td>Save, Create Induction, Submit Exam, Log In, Add Induction</td></tr>
+                    <tr><td>Secondary action, Cancel, row navigation</td><td><code>btn-outline-secondary</code></td><td>Cancel, Edit, View, Filter, Preview, Send Test Email, Print</td></tr>
+                    <tr><td>Add an item inside a builder</td><td><code>btn-outline-primary btn-sm</code></td><td>Add Question, Add Option, Add Image</td></tr>
+                    <tr><td>Destructive trigger (opens a confirmation)</td><td><code>btn-outline-danger</code></td><td>Delete, Revoke, Remove</td></tr>
+                    <tr><td>Destructive confirmation</td><td><code>btn-danger</code></td><td>Delete Induction (in the modal), Replace</td></tr>
+                    <tr><td>Tertiary, inline with text</td><td><code>btn-link</code></td><td>Preview, Clear (filters)</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <div class="ds-example">
+        <div class="ds-preview d-flex flex-wrap align-items-center gap-2">
+            <button type="button" class="btn btn-primary">Save Changes</button>
+            <a href="#" class="btn btn-outline-secondary">Cancel</a>
+            <button type="button" class="btn btn-sm btn-outline-primary"><i class="bi bi-plus-lg me-1" aria-hidden="true"></i>Add Question</button>
+            <button type="button" class="btn btn-sm btn-outline-danger">Delete</button>
+            <button type="button" class="btn btn-danger">Delete Induction</button>
+            <button type="button" class="btn btn-link btn-sm">Preview</button>
+            <button type="button" class="btn btn-primary" disabled>Disabled</button>
+        </div>
+    </div>
+    <h3>Sizes</h3>
+    <ul>
+        <li><strong>Default</strong>: form submit and Cancel, modal footers, guest pages (<code>w-100</code> in the guest card).</li>
+        <li><strong><code>btn-sm</code></strong>: page-header actions, filter bars, table rows, card toolbars, side panels.</li>
+    </ul>
+    <ul class="ds-dont">
+        <li>Two <code>btn-primary</code> buttons next to each other, or a primary button per table row (inductee "Start" is the only exception: primary marks rows that still need doing, and done rows use <code>btn-outline-secondary</code> "View").</li>
+        <li><code>btn-secondary</code> (solid grey): use <code>btn-outline-secondary</code>.</li>
+        <li>Vague labels: <em>Manage</em>, <em>Process</em>, <em>Go</em>, <em>Submit</em>. Say what happens: <em>Save Changes</em>, <em>Delete User</em>.</li>
+    </ul>
+</section>
+
+<!-- ===================================================================== -->
+<section class="ds-section" id="forms">
+    <h2>Forms</h2>
+    <p>
+        Label above field; one field or one <code>row g-3</code> of fields per <code>mb-3</code>; buttons in <code>.form-actions</code>.
+        Server-side validation drives errors: <code>is-invalid</code> on the control and <code>invalid-feedback</code> after it,
+        replacing the help text. Submitted values are kept after an error with <code>old()</code>.
+    </p>
+    <div class="ds-example">
+        <div class="ds-preview ds-preview-page">
+            <div class="card shadow-sm">
+                <div class="card-body p-4">
+                    <form method="post" action="#" novalidate>
+                        <div class="mb-3">
+                            <label for="ds-title" class="form-label">Title</label>
+                            <input type="text" class="form-control" id="ds-title" name="title" value="Site Safety Induction" required>
+                        </div>
+
+                        <div class="row g-3 mb-3">
+                            <div class="col-sm">
+                                <label for="ds-code" class="form-label">Code</label>
+                                <input type="text" class="form-control is-invalid" id="ds-code" name="code" value="SITE SAFETY" required>
+                                <div class="invalid-feedback">Code may only contain letters, numbers, and dashes.</div>
+                            </div>
+                            <div class="col-sm">
+                                <label for="ds-status" class="form-label">Status</label>
+                                <select class="form-select" id="ds-status" name="status" required>
+                                    <option value="active" selected>Active</option>
+                                    <option value="inactive">Inactive</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="ds-description" class="form-label">Description <span class="text-muted small">(optional)</span></label>
+                            <textarea class="form-control" id="ds-description" name="description" rows="2"></textarea>
+                            <div class="form-text">Shown to inductees above the content.</div>
+                        </div>
+
+                        <div class="form-actions">
+                            <button type="submit" class="btn btn-primary">Save Changes</button>
+                            <a href="#" class="btn btn-outline-secondary">Cancel</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    <p>In a view, each field follows this recipe:</p>
+    <div class="ds-example">
+        <script type="text/plain" class="ds-source">
+<div class="mb-3">
+    <label for="code" class="form-label">Code</label>
+    <input type="text" class="form-control <?= error_for($errors, 'code') ? 'is-invalid' : '' ?>"
+           id="code" name="code" value="<?= e((string) ($values['code'] ?? '')) ?>" required>
+    <?php if ($error = error_for($errors, 'code')): ?>
+        <div class="invalid-feedback"><?= e($error) ?></div>
+    <?php else: ?>
+        <div class="form-text">Letters, numbers, and dashes only.</div>
+    <?php endif; ?>
+</div>
+        </script>
+    </div>
+
+    <h3>Groups, choices and input groups</h3>
+    <div class="ds-example">
+        <div class="ds-preview">
+            <fieldset class="mb-3">
+                <legend class="form-label fs-6 mb-2">Delivery</legend>
+                <div class="form-check form-check-inline">
+                    <input type="radio" class="form-check-input" id="ds-f-instant" name="frequency" value="instant" checked>
+                    <label class="form-check-label" for="ds-f-instant">Instant</label>
+                </div>
+                <div class="form-check form-check-inline">
+                    <input type="radio" class="form-check-input" id="ds-f-weekly" name="frequency" value="weekly">
+                    <label class="form-check-label" for="ds-f-weekly">Weekly report</label>
+                </div>
+                <div class="invalid-feedback d-block">Choose how often to send.</div>
+            </fieldset>
+
+            <div class="row">
+                <div class="col-sm-4">
+                    <label for="ds-size" class="form-label">Max File Size</label>
+                    <div class="input-group">
+                        <input type="number" class="form-control" id="ds-size" name="max_file_size_mb" value="5">
+                        <span class="input-group-text">MB</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <ul class="ds-do">
+        <li>Mark <strong>optional</strong> fields with <code>&lt;span class="text-muted small"&gt;(optional)&lt;/span&gt;</code> in the label; required is the default. A field whose help text explains blank ("Blank uses the Company Name") needs no marker.</li>
+        <li>Group radios and checkboxes in a <code>fieldset</code>; its <code>legend</code> (<code>form-label fs-6</code>) must be the fieldset's first child.</li>
+        <li>When the error can't sit directly after the control (input groups, radio groups, custom pickers), use <code>invalid-feedback d-block</code>.</li>
+        <li>A form-level error ("Invalid email or password") is an <code>alert alert-danger</code> above the fields.</li>
+        <li>Use the right input type and <code>autocomplete</code> (<code>email</code>, <code>tel</code>, <code>number</code>, <code>new-password</code>…). Values the user can't change here: a <code>disabled</code> control.</li>
+        <li>Labels use the database/business term (<a href="../application/terminology.md">terminology.md</a>).</li>
+    </ul>
+    <ul class="ds-dont">
+        <li><code>text-danger small</code> for field errors, or placeholder text instead of a label.</li>
+        <li>A multi-step wizard for a long form: split it into cards or <code>fieldset</code>s instead.</li>
+    </ul>
+</section>
+
+<!-- ===================================================================== -->
+<section class="ds-section" id="cards">
+    <h2>Cards</h2>
+    <p>All content surfaces are <code>card shadow-sm</code>. Titles go inside <code>card-body</code>; the app doesn't use <code>card-header</code>.</p>
+
+    <h3>Content card</h3>
+    <div class="ds-example">
+        <div class="ds-preview ds-preview-page">
+            <div class="card shadow-sm">
+                <div class="card-body p-4">
+                    <h2 class="fs-6 mb-1">Profile</h2>
+                    <p class="text-muted small mb-3">Your name as shown throughout the application.</p>
+                    <p class="mb-0">…fields…</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <h3>Stat tile</h3>
+    <div class="ds-example">
+        <div class="ds-preview ds-preview-page">
+            <div class="row g-3">
+                <div class="col-6 col-lg-3">
+                    <div class="card shadow-sm h-100">
+                        <div class="card-body text-center">
+                            <div class="fs-3 fw-semibold text-primary">128</div>
+                            <div class="text-muted small">Inductees</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-6 col-lg-3">
+                    <div class="card shadow-sm h-100">
+                        <div class="card-body text-center">
+                            <div class="fs-3 fw-semibold text-danger">4</div>
+                            <div class="text-muted small">Expired</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <h3>Link card</h3>
+    <p>A whole card that goes somewhere (dashboard shortcuts, Tools). Hover shows it is clickable.</p>
+    <div class="ds-example">
+        <div class="ds-preview ds-preview-page">
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <a href="#" class="card shadow-sm h-100 link-card">
+                        <div class="card-body">
+                            <h3 class="fs-6 mb-1"><i class="bi bi-journal-check text-primary me-2" aria-hidden="true"></i>Inductions</h3>
+                            <p class="text-muted small mb-0">Create and edit inductions and their content blocks.</p>
+                        </div>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ===================================================================== -->
+<section class="ds-section" id="tables">
+    <h2>Tables</h2>
+
+    <h3>List table</h3>
+    <p>
+        The main list on a page: <code>.card-table</code> gives the table a white card with flush edges, padded first and last
+        columns and a quiet header row.
+    </p>
+    <div class="ds-example">
+        <div class="ds-preview ds-preview-page">
+            <div class="card shadow-sm card-table">
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle">
+                        <thead>
+                            <tr>
+                                <th>Inductee</th>
+                                <th>Certificate</th>
+                                <th>Expires</th>
+                                <th>Status</th>
+                                <th><span class="visually-hidden">Actions</span></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>
+                                    <div>Jane Citizen</div>
+                                    <div class="text-muted small">jane@example.com</div>
+                                </td>
+                                <td><code>CERT-2026-000123</code></td>
+                                <td>2027-03-01</td>
+                                <td><span class="badge text-bg-success">Active</span></td>
+                                <td class="text-end text-nowrap">
+                                    <a href="#" class="btn btn-sm btn-outline-secondary">View</a>
+                                    <button type="button" class="btn btn-sm btn-outline-danger">Revoke</button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <div>Sam Example</div>
+                                    <div class="text-muted small">sam@example.com</div>
+                                </td>
+                                <td><code>CERT-2025-000098</code></td>
+                                <td>2026-01-15</td>
+                                <td><span class="badge text-bg-danger">Expired</span></td>
+                                <td class="text-end text-nowrap">
+                                    <a href="#" class="btn btn-sm btn-outline-secondary">View</a>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    <ul class="ds-do">
+        <li>The actions column has a visually hidden heading ("Actions"). Row actions are <code>btn-sm</code>, right-aligned, on one line.</li>
+        <li>Two-line cells: main value, then <code>div.text-muted.small</code>. Codes in <code>&lt;code&gt;</code>. Dates as <code>YYYY-MM-DD</code> (<code>YYYY-MM-DD HH:MM</code> with time).</li>
+        <li>Numeric columns are <code>text-end</code>.</li>
+        <li>An empty table keeps its header and shows one row (see <a href="#empty">Empty states</a>).</li>
+        <li>Paginate long lists with Bootstrap <code>.pagination</code> (<code>pagination-sm</code>, below the card, right-aligned). It is themed.</li>
+    </ul>
+
+    <h3>Widget table</h3>
+    <p>A small table inside a titled card (dashboard): <code>table table-sm align-middle mb-0</code> inside <code>card-body</code>.</p>
+    <div class="ds-example">
+        <div class="ds-preview ds-preview-page">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <h2 class="fs-6 mb-3">Compliance by Induction</h2>
+                    <div class="table-responsive">
+                        <table class="table table-sm align-middle mb-0">
+                            <thead>
+                                <tr><th>Induction</th><th class="text-end">Compliant</th><th class="text-end">Rate</th></tr>
+                            </thead>
+                            <tbody>
+                                <tr><td>Site Safety Induction</td><td class="text-end">42</td><td class="text-end">91%</td></tr>
+                                <tr><td>Manual Handling</td><td class="text-end">17</td><td class="text-end">&mdash;</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ===================================================================== -->
+<section class="ds-section" id="filters">
+    <h2>Filter bar</h2>
+    <p>Above a list table: a GET form in one wrapping row. <strong>Clear</strong> only appears while a filter is applied.</p>
+    <div class="ds-example">
+        <div class="ds-preview ds-preview-page">
+            <form method="get" action="#" class="row g-2 align-items-center mb-3" role="search">
+                <div class="col-12 col-sm-auto">
+                    <input type="search" name="search" class="form-control form-control-sm" placeholder="Search by title or code"
+                           aria-label="Search" value="safety">
+                </div>
+                <div class="col-auto">
+                    <select name="status" class="form-select form-select-sm" aria-label="Status">
+                        <option value="">All Statuses</option>
+                        <option value="active">Active</option>
+                        <option value="inactive">Inactive</option>
+                    </select>
+                </div>
+                <div class="col-auto">
+                    <button type="submit" class="btn btn-outline-secondary btn-sm">Filter</button>
+                    <a href="#" class="btn btn-link btn-sm">Clear</a>
+                </div>
+            </form>
+        </div>
+    </div>
+    <ul class="ds-do">
+        <li>Every control has an <code>aria-label</code> (there are no visible labels). The first select option is "All …".</li>
+        <li>Clear links to the list URL with no query: <code>&lt;?php if ($search !== '' || $status !== ''): ?&gt;</code>.</li>
+    </ul>
+</section>
+
+<!-- ===================================================================== -->
+<section class="ds-section" id="badges">
+    <h2>Status badges</h2>
+    <p>
+        A status always has the same colour, everywhere. Views never choose a badge colour: they call
+        <code>status_badge()</code> (<code>app/Core/helpers.php</code>), which holds the one map.
+    </p>
+    <div class="ds-example">
+        <script type="text/plain" class="ds-source">
+<td><?= status_badge($record['status']) ?></td>                  <!-- "Active", "Expired"… -->
+<td><?= status_badge($state, 'Not Passed') ?></td>              <!-- custom label, same colour -->
+<?= status_badge('expiring', $item['expiry_date']) ?>          <!-- a date as the label -->
+        </script>
+    </div>
+    <div class="card shadow-sm card-table">
+        <div class="table-responsive">
+            <table class="table align-middle">
+                <thead><tr><th>Statuses</th><th>Variant</th><th>Renders as</th></tr></thead>
+                <tbody>
+                    <tr><td><code>active</code>, <code>compliant</code>, <code>passed</code>, <code>correct</code>, <code>saved</code></td><td><code>success</code></td><td><span class="badge text-bg-success">Active</span> <span class="badge text-bg-success">Compliant</span> <span class="badge text-bg-success">Passed</span></td></tr>
+                    <tr><td><code>expiring</code>, <code>pending</code>, <code>unsaved</code></td><td><code>warning</code></td><td><span class="badge text-bg-warning">2026-10-01</span> <span class="badge text-bg-warning">Unsaved changes</span></td></tr>
+                    <tr><td><code>expired</code>, <code>failed</code>, <code>revoked</code>, <code>suspended</code>, <code>incorrect</code></td><td><code>danger</code></td><td><span class="badge text-bg-danger">Expired</span> <span class="badge text-bg-danger">Revoked</span> <span class="badge text-bg-danger">Not Passed</span></td></tr>
+                    <tr><td><code>inactive</code>, <code>superseded</code>, <code>not_started</code>, anything else</td><td><code>secondary</code></td><td><span class="badge text-bg-secondary">Inactive</span> <span class="badge text-bg-secondary">Superseded</span> <span class="badge text-bg-secondary">Not Started</span></td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <h3>Tags</h3>
+    <p>Non-status labels (a category, a count) are neutral so they can't be mistaken for a status:</p>
+    <div class="ds-example">
+        <div class="ds-preview d-flex gap-2">
+            <span class="badge text-bg-light border">Site Photos</span>
+            <span class="badge text-bg-light border">3 occurrence(s)</span>
+        </div>
+    </div>
+    <ul class="ds-dont">
+        <li>A <code>$statusBadge = [...]</code> array in a view, or <code>text-bg-*</code> written by hand for a status.</li>
+        <li>A new status without adding it to <code>status_badge()</code> and this table.</li>
+    </ul>
+</section>
+
+<!-- ===================================================================== -->
+<section class="ds-section" id="alerts">
+    <h2>Alerts &amp; flash messages</h2>
+
+    <h3>Flash messages</h3>
+    <p>
+        The result of an action, shown after a redirect. Controllers call <code>flash('success', 'Induction created.')</code> or
+        <code>flash('error', …)</code>; <code>views/partials/flash.php</code> renders them at the top of the page (admin and inductee
+        layouts do this for you; guest pages include it inside their card). They are dismissible.
+    </p>
+    <div class="ds-example">
+        <div class="ds-preview ds-preview-page">
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                Appearance updated.
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+            <div class="alert alert-danger alert-dismissible fade show mb-0" role="alert">
+                Please fix the highlighted fields.
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        </div>
+    </div>
+
+    <h3>Page alerts</h3>
+    <p>A state the user should know about while on the page. Not dismissible. Use <code>alert-link</code> for links inside.</p>
+    <div class="ds-example">
+        <div class="ds-preview">
+            <div class="alert alert-success">
+                You are currently compliant for this induction. Expires 2027-03-01.
+                <a href="#" class="alert-link">View certificate</a>.
+            </div>
+            <div class="alert alert-warning small">
+                <i class="bi bi-exclamation-triangle me-1" aria-hidden="true"></i>
+                No Primary Email is set, so emails may be rejected. Set one under <a href="#" class="alert-link">General</a>.
+            </div>
+            <div class="alert alert-info mb-0">No matches found.</div>
+        </div>
+    </div>
+    <ul class="ds-do">
+        <li>Choose the variant by <a href="#semantic">meaning</a>. The text states the situation and, when there is one, the next step.</li>
+        <li>Supporting notes inside a card use <code>p.text-muted.small</code> with an optional <code>bi-info-circle</code> icon, not an alert.</li>
+    </ul>
+</section>
+
+<!-- ===================================================================== -->
+<section class="ds-section" id="modals">
+    <h2>Modals &amp; confirmation</h2>
+    <p>Every destructive action asks first. Pick the lightest confirmation that fits:</p>
+    <ul>
+        <li><strong>Native <code>confirm()</code></strong> for deleting or revoking one row with no options:
+            <code>onsubmit="return confirm('Delete this exam attempt? This cannot be undone.');"</code></li>
+        <li><strong>Modal</strong> when the user needs an explanation or a choice (e.g. cascade delete).</li>
+        <li><strong>Two-step page</strong> when the effect needs reviewing first (Search &amp; Replace's dry run).</li>
+    </ul>
+    <p>Wording: <em>"{Verb} {object}? {Consequence}. This cannot be undone."</em> The confirm button repeats the verb and object.</p>
+    <div class="ds-example">
+        <div class="ds-preview ds-preview-page">
+            <div class="modal" tabindex="-1" aria-labelledby="ds-modal-title">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <form method="post" action="#">
+                            <div class="modal-header">
+                                <h2 class="modal-title fs-5" id="ds-modal-title">Delete Induction</h2>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body">
+                                <p>Are you sure you want to delete <strong>Site Safety Induction</strong>? This cannot be undone.</p>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" name="cascade" value="1" id="ds-cascade">
+                                    <label class="form-check-label" for="ds-cascade">Also permanently delete its exam attempts and compliance records</label>
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+                                <button type="submit" class="btn btn-danger">Delete Induction</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <ul class="ds-do">
+        <li>Modal titles are <code>h2.modal-title.fs-5</code> linked with <code>aria-labelledby</code>. Footer: Cancel (<code>btn-outline-secondary</code>), then the action.</li>
+        <li>The row button passes <code>data-id</code>/<code>data-name</code>; a small <code>show.bs.modal</code> listener fills the form (see <code>views/admin/users/index.php</code>).</li>
+    </ul>
+</section>
+
+<!-- ===================================================================== -->
+<section class="ds-section" id="details">
+    <h2>Detail list</h2>
+    <p>Read-only label/value pairs (certificates):</p>
+    <div class="ds-example">
+        <div class="ds-preview">
+            <dl class="row mb-0">
+                <dt class="col-sm-5 text-muted fw-normal">Certificate Number</dt>
+                <dd class="col-sm-7"><code>CERT-2026-000123</code></dd>
+
+                <dt class="col-sm-5 text-muted fw-normal">Holder</dt>
+                <dd class="col-sm-7">Jane Citizen</dd>
+
+                <dt class="col-sm-5 text-muted fw-normal">Expiry Date</dt>
+                <dd class="col-sm-7 mb-0">2027-03-01</dd>
+            </dl>
+        </div>
+    </div>
+</section>
+
+<!-- ===================================================================== -->
+<section class="ds-section" id="subnav">
+    <h2>Section navigation</h2>
+    <p>Pages with several sub-pages (Settings) use a vertical <code>list-group</code> beside the content, grouped by eyebrow labels.</p>
+    <div class="ds-example">
+        <div class="ds-preview ds-preview-page">
+            <div class="row">
+                <div class="col-md-4">
+                    <nav aria-label="Settings sections">
+                        <div class="small text-uppercase text-muted fw-semibold mb-2">Core</div>
+                        <div class="list-group">
+                            <a href="#" class="list-group-item list-group-item-action active" aria-current="page"><i class="bi bi-building me-2" aria-hidden="true"></i>General</a>
+                            <a href="#" class="list-group-item list-group-item-action"><i class="bi bi-palette me-2" aria-hidden="true"></i>Appearance</a>
+                        </div>
+                    </nav>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ===================================================================== -->
+<section class="ds-section" id="empty">
+    <h2>Empty states</h2>
+    <p>Say what is missing in plain words. In a table, keep the header and use one full-width row:</p>
+    <div class="ds-example">
+        <script type="text/plain" class="ds-source">
+<?php if (empty($inductions)): ?>
+    <tr>
+        <td colspan="6" class="text-center text-muted py-4">No inductions found.</td>
+    </tr>
+<?php endif; ?>
+        </script>
+    </div>
+    <p>In a card or list: <code>&lt;p class="text-muted small mb-0"&gt;Nothing expiring in the next 30 days.&lt;/p&gt;</code></p>
+</section>
+
+<!-- ===================================================================== -->
+<section class="ds-section" id="loading">
+    <h2>Loading state</h2>
+    <p>
+        Automatic. <code>assets/js/app.js</code> disables the button that submitted any POST form and adds a spinner, so a slow
+        request can't be sent twice (it also restores the button if the user comes back with the browser's Back button).
+        Nothing to add to a page. Opt a button out with <code>data-no-loading</code>.
+    </p>
+    <div class="ds-example" data-no-code>
+        <div class="ds-preview">
+            <button type="submit" class="btn btn-primary" disabled><span class="spinner-border spinner-border-sm me-1" aria-hidden="true"></span>Save Changes</button>
+        </div>
+    </div>
+    <p>For in-page requests (fetch), show the same spinner in the button, or a status badge (the Studio's Saved / Unsaved changes).</p>
+</section>
+
+<!-- ===================================================================== -->
+<section class="ds-section" id="patterns">
+    <h2>Page patterns</h2>
+
+    <h3>List page</h3>
+    <p>Page header with the create action, filter bar, list table in a card, delete modal. Reference: <code>views/admin/inductions/index.php</code>.</p>
+    <div class="ds-example">
+        <script type="text/plain" class="ds-source">
+<div class="page-header">
+    <h1 class="page-title">Inductions</h1>
+    <a href="/admin/inductions/create.php" class="btn btn-primary btn-sm">
+        <i class="bi bi-plus-lg me-1" aria-hidden="true"></i>Add Induction
+    </a>
+</div>
+
+<form method="get" action="/admin/inductions/index.php" class="row g-2 align-items-center mb-3" role="search">
+    …filter controls…
+</form>
+
+<div class="card shadow-sm card-table">
+    <div class="table-responsive">
+        <table class="table table-hover align-middle">
+            <thead>…<th><span class="visually-hidden">Actions</span></th></thead>
+            <tbody>
+                …empty row…
+                <?php foreach ($inductions as $induction): ?>
+                    <tr>
+                        <td><?= e($induction['title']) ?></td>
+                        <td><?= status_badge((string) $induction['status']) ?></td>
+                        <td class="text-end text-nowrap">
+                            <a href="…" class="btn btn-sm btn-outline-secondary">Edit</a>
+                            <button type="button" class="btn btn-sm btn-outline-danger" data-bs-toggle="modal" …>Delete</button>
+                        </td>
+                    </tr>
+                <?php endforeach; ?>
+            </tbody>
+        </table>
+    </div>
+</div>
+        </script>
+    </div>
+
+    <h3>Form page</h3>
+    <p>Narrow page, breadcrumb, one form card, main action then Cancel. Reference: <code>views/admin/users/create.php</code>.</p>
+    <div class="ds-example">
+        <script type="text/plain" class="ds-source">
+<div class="page-narrow">
+    <div class="page-header">
+        <div>
+            <nav aria-label="Breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="/admin/users/index.php">Users</a></li>
+                    <li class="breadcrumb-item active" aria-current="page">Add User</li>
+                </ol>
+            </nav>
+            <h1 class="page-title">Add User</h1>
+        </div>
+    </div>
+
+    <div class="card shadow-sm">
+        <div class="card-body p-4">
+            <form method="post" action="/admin/users/create.php" novalidate>
+                <?= csrf_field() ?>
+                …fields…
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-primary">Create User</button>
+                    <a href="/admin/users/index.php" class="btn btn-outline-secondary">Cancel</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+        </script>
+    </div>
+
+    <h3>Detail page</h3>
+    <p>Narrow page, breadcrumb, print or secondary action in the header, one card with a feature heading, status badge and detail list. Reference: <code>views/inductee/certificates/show.php</code>.</p>
+
+    <h3>Settings-style page</h3>
+    <p>Page header, then <code>row g-4</code>: <a href="#subnav">section navigation</a> in <code>col-md-3</code>, one card per section in <code>col-md-9 page-narrow</code>. Reference: <code>views/admin/settings/index.php</code>.</p>
+
+    <h3>Guest page</h3>
+    <p>One card: <code>card shadow-sm</code> › <code>card-body p-4</code> › <code>h1.page-title.mb-3</code>, flash partial, form with a full-width <code>btn-primary w-100</code>, then centered <code>text-muted small</code> links. Reference: <code>views/auth/login.php</code>.</p>
+</section>
+
+<!-- ===================================================================== -->
+<section class="ds-section" id="class-reference">
+    <h2>Class reference</h2>
+    <p>Every class defined in <code>assets/css/app.css</code>. Anything not listed here is Bootstrap.</p>
+    <div class="card shadow-sm card-table">
+        <div class="table-responsive">
+            <table class="table table-sm align-middle">
+                <thead><tr><th>Class</th><th>app.css §</th><th>Use for</th></tr></thead>
+                <tbody>
+                    <tr><td><code>.theme-scope</code></td><td>3</td><td>An element that sets its own <code>--color-*</code> values (Appearance preview); re-applies the Bootstrap bridge inside it.</td></tr>
+                    <tr><td><code>.app-navbar</code></td><td>5</td><td>The navbar in <code>app-navbar.php</code>. Not for new markup.</td></tr>
+                    <tr><td><code>.brand-logo</code></td><td>5</td><td>Company logo beside the company name.</td></tr>
+                    <tr><td><code>.page-header</code></td><td>5</td><td>Title row at the top of every page. <a href="#page-header">↗</a></td></tr>
+                    <tr><td><code>.page-title</code></td><td>5</td><td>The page's <code>h1</code>.</td></tr>
+                    <tr><td><code>.page-subtitle</code></td><td>5</td><td>Optional one line under the title.</td></tr>
+                    <tr><td><code>.page-narrow</code></td><td>5</td><td>720px cap for form, profile and detail pages. <a href="#widths">↗</a></td></tr>
+                    <tr><td><code>.container-guest</code></td><td>5</td><td>The guest layout's column. Layout only.</td></tr>
+                    <tr><td><code>.form-actions</code></td><td>6</td><td>Buttons at the end of a form. <a href="#forms">↗</a></td></tr>
+                    <tr><td><code>.card-table</code></td><td>6</td><td>A list table filling a card. <a href="#tables">↗</a></td></tr>
+                    <tr><td><code>.link-card</code></td><td>6</td><td>A card that is one link. <a href="#cards">↗</a></td></tr>
+                    <tr><td><code>.bg-surface-subtle</code></td><td>7</td><td>A subtle panel inside a card (drop zones, the custom-colour panel).</td></tr>
+                    <tr><td><code>.border-dashed</code></td><td>7</td><td>Dashed border (drop zones).</td></tr>
+                    <tr><td><code>.logo-preview-box</code>, <code>.reminder-days</code>, <code>.email-preview-frame</code>, <code>.theme-swatch*</code>, <code>.theme-preview-header</code></td><td>8</td><td>Settings page only.</td></tr>
+                    <tr><td><code>.content-canvas</code>, <code>.content-block*</code>, <code>.cb-*</code>, <code>.teleport-highlight-pulse</code></td><td>9</td><td>Content Blocks canvas and Studio editor (content_blocks_editor.md).</td></tr>
+                    <tr><td><code>.media-thumb</code>, <code>.media-tile*</code>, <code>.media-picker-*</code></td><td>10</td><td>Media Library and the image picker modal.</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</section>
+
+<!-- ===================================================================== -->
+<section class="ds-section" id="checklist">
+    <h2>Review checklist</h2>
+    <p>Before merging a UI change, check:</p>
+    <ol>
+        <li>The page uses a layout partial and starts with <code>.page-header</code> (breadcrumb if it is below a section index).</li>
+        <li>Every class is Bootstrap or listed in the <a href="#class-reference">Class reference</a>. No <code>style=""</code> or <code>&lt;style&gt;</code> for fixed values.</li>
+        <li>No brand hex values; it still looks right with every theme in the menu above.</li>
+        <li>Statuses use <code>status_badge()</code>; coloured text uses <code>text-warning-emphasis</code>, not <code>text-warning</code>.</li>
+        <li>One <code>btn-primary</code> per form or card; Cancel is <code>btn-outline-secondary</code>; destructive actions confirm first.</li>
+        <li>Fields: label, <code>is-invalid</code> + <code>invalid-feedback</code>, optional fields marked, <code>col-sm</code> for side-by-side.</li>
+        <li>Lists: <code>.card-table</code>, visually hidden "Actions" heading, empty row, filter <code>aria-label</code>s.</li>
+        <li>Icon-only controls have <code>aria-label</code> and <code>title</code>; decorative icons have <code>aria-hidden="true"</code>.</li>
+        <li>Works at phone width with no sideways page scroll (tables may scroll inside their card).</li>
+        <li>Labels use the terms in <a href="../application/terminology.md">terminology.md</a>.</li>
+    </ol>
+</section>
+
+</main>
+</div>
+</div>
+
+<!-- No Bootstrap JS: the examples are static, so a modal's or alert's close button can't hide the example. -->
+<script>
+(function () {
+    'use strict';
+
+    // Mirrors App\Core\Theme::PRESETS (primary 900, 800, 700, accent).
+    var presets = {
+        teal: ['#022a2b', '#044647', '#0f5d5f', '#a54b17'],
+        navy: ['#0b1d36', '#132f57', '#1d4a85', '#b45309'],
+        forest: ['#0f2618', '#183d27', '#23593a', '#8a5a00'],
+        charcoal: ['#1a1d21', '#2a2f35', '#3d444c', '#b4431f'],
+        burgundy: ['#2b0912', '#4a0f20', '#7a1b34', '#7a5c12'],
+        indigo: ['#1b1238', '#2b1d5a', '#48338c', '#a3470d']
+    };
+
+    function rgb(hex) {
+        return [1, 3, 5].map(function (i) { return parseInt(hex.substr(i, 2), 16); }).join(', ');
+    }
+
+    function showTokenValues() {
+        var styles = getComputedStyle(document.documentElement);
+        document.querySelectorAll('[data-token]').forEach(function (el) {
+            el.textContent = styles.getPropertyValue(el.dataset.token).trim();
+        });
+    }
+
+    // Same custom properties theme_style_tag() sets.
+    document.getElementById('ds-theme').addEventListener('change', function () {
+        var c = presets[this.value];
+        var root = document.documentElement.style;
+        root.setProperty('--color-primary-900', c[0]);
+        root.setProperty('--color-primary-800', c[1]);
+        root.setProperty('--color-primary-700', c[2]);
+        root.setProperty('--color-primary-rgb', rgb(c[2]));
+        root.setProperty('--color-primary-800-rgb', rgb(c[1]));
+        root.setProperty('--color-accent-500', c[3]);
+        root.setProperty('--color-accent-rgb', rgb(c[3]));
+        showTokenValues();
+    });
+    showTokenValues();
+
+    function dedent(text) {
+        var lines = text.replace(/^\s*\n/, '').replace(/\s+$/, '').split('\n');
+        var indent = Math.min.apply(null, lines.filter(function (l) { return l.trim(); })
+            .map(function (l) { return l.match(/^ */)[0].length; }));
+        return lines.map(function (l) { return l.slice(indent); }).join('\n');
+    }
+
+    // Each example shows its code: an explicit ds-source block, or else the
+    // preview's own markup, so the snippet always matches what renders.
+    // data-no-code marks previews of markup a partial or script produces.
+    document.querySelectorAll('.ds-example:not([data-no-code])').forEach(function (example) {
+        var source = example.querySelector('.ds-source');
+        var preview = example.querySelector('.ds-preview');
+        var code;
+        if (source) {
+            code = dedent(source.textContent);
+        } else if (preview) {
+            code = dedent(preview.innerHTML.replace(/=""/g, ''));
+        } else {
+            return;
+        }
+
+        var wrap = document.createElement('div');
+        wrap.className = 'ds-code';
+        if (!preview) {
+            wrap.style.borderTop = '0';
+        }
+        var pre = document.createElement('pre');
+        var codeEl = document.createElement('code');
+        codeEl.textContent = code;
+        pre.appendChild(codeEl);
+        var copy = document.createElement('button');
+        copy.type = 'button';
+        copy.className = 'ds-copy btn btn-sm btn-outline-light';
+        copy.textContent = 'Copy';
+        copy.addEventListener('click', function () {
+            navigator.clipboard.writeText(code).then(function () {
+                copy.textContent = 'Copied';
+                setTimeout(function () { copy.textContent = 'Copy'; }, 1500);
+            });
+        });
+        wrap.appendChild(copy);
+        wrap.appendChild(pre);
+        example.appendChild(wrap);
+    });
+
+    // Examples are for looking at: don't follow their links or submit their forms.
+    document.addEventListener('click', function (event) {
+        if (event.target.closest('.ds-preview a[href="#"]')) {
+            event.preventDefault();
+        }
+    });
+    document.addEventListener('submit', function (event) {
+        if (event.target.closest('.ds-preview')) {
+            event.preventDefault();
+        }
+    });
+})();
+</script>
+</body>
+</html>

@@ -7,18 +7,22 @@ namespace App\Core;
 class Mailer
 {
     /**
-     * @param array{from_name?: ?string, from_email?: ?string, cc?: ?string, bcc?: ?string} $options
+     * Sends plain text, or multipart/alternative (text + HTML) when an
+     * 'html' option is given so clients without HTML support still get the
+     * readable text version.
+     *
+     * @param array{from_name?: ?string, from_email?: ?string, cc?: ?string, bcc?: ?string, html?: ?string} $options
      */
     public static function send(string $to, string $subject, string $body, array $options = []): bool
     {
-        $config = require dirname(__DIR__, 2) . '/config/app.php';
+        $site = site_settings();
 
-        $fromEmail = $options['from_email'] ?? $config['contact_email'] ?? 'no-reply@localhost';
-        $fromName = $options['from_name'] ?? $config['name'] ?? 'Induction System';
+        $fromEmail = ($options['from_email'] ?? null) ?: ($site['primary_email'] ?: 'no-reply@localhost');
+        $fromName = ($options['from_name'] ?? null) ?: $site['company_name'];
 
         $headers = [
             'From' => sprintf('%s <%s>', $fromName, $fromEmail),
-            'Content-Type' => 'text/plain; charset=UTF-8',
+            'MIME-Version' => '1.0',
         ];
 
         if (!empty($options['cc'])) {
@@ -29,21 +33,38 @@ class Mailer
             $headers['Bcc'] = $options['bcc'];
         }
 
+        if (!empty($options['html'])) {
+            $boundary = 'b' . bin2hex(random_bytes(12));
+            $headers['Content-Type'] = "multipart/alternative; boundary=\"{$boundary}\"";
+            $body = "--{$boundary}\r\n"
+                . "Content-Type: text/plain; charset=UTF-8\r\n"
+                . "Content-Transfer-Encoding: quoted-printable\r\n\r\n"
+                . quoted_printable_encode($body) . "\r\n\r\n"
+                . "--{$boundary}\r\n"
+                . "Content-Type: text/html; charset=UTF-8\r\n"
+                . "Content-Transfer-Encoding: quoted-printable\r\n\r\n"
+                . quoted_printable_encode($options['html']) . "\r\n\r\n"
+                . "--{$boundary}--";
+        } else {
+            $headers['Content-Type'] = 'text/plain; charset=UTF-8';
+        }
+
         $headerString = '';
         foreach ($headers as $name => $value) {
             $headerString .= "{$name}: {$value}\r\n";
         }
 
-        return mail($to, $subject, $body, $headerString);
+        return mail($to, mb_encode_mimeheader($subject, 'UTF-8'), $body, $headerString);
     }
 
     /**
      * Renders a plain-text email template from views/emails/. The template
      * sets $subject and echoes the body, the same way a page view sets
-     * $pageTitle and renders its content.
+     * $pageTitle and renders its content. The text is also wrapped in the
+     * branded HTML layout (views/emails/layout.php).
      *
      * @param array<string, mixed> $data
-     * @return array{subject: string, body: string}
+     * @return array{subject: string, body: string, html: string}
      */
     public static function renderTemplate(string $template, array $data): array
     {
@@ -53,7 +74,30 @@ class Mailer
         ob_start();
         require $path;
         $body = trim((string) ob_get_clean());
+        $subject = $subject ?? '';
 
-        return ['subject' => $subject ?? '', 'body' => $body];
+        return ['subject' => $subject, 'body' => $body, 'html' => self::renderLayout($subject, $body)];
+    }
+
+    private static function renderLayout(string $subject, string $body): string
+    {
+        $site = site_settings();
+        $colors = Theme::colors($site);
+        $brandDark = $colors['primary_900'];
+        $brandColor = $colors['primary_700'];
+        $companyName = $site['company_name'];
+        $logoUrl = $site['logo_url'] ? public_url($site['logo_url']) : null;
+        $primaryEmail = $site['primary_email'];
+
+        // Escape first, then turn bare URLs into links and keep line breaks.
+        $bodyHtml = nl2br(preg_replace(
+            '~(https?://[^\s<]+)~',
+            '<a href="$1" style="color:' . $brandColor . ';">$1</a>',
+            e($body)
+        ));
+
+        ob_start();
+        require dirname(__DIR__, 2) . '/views/emails/layout.php';
+        return (string) ob_get_clean();
     }
 }

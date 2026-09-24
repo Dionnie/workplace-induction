@@ -24,7 +24,7 @@ declare(strict_types=1);
     </div>
 
     <div class="row g-3 mb-3">
-        <div class="col">
+        <div class="col-sm">
             <label for="code" class="form-label">Code</label>
             <input type="text" class="form-control <?= error_for($errors, 'code') ? 'is-invalid' : '' ?>"
                    id="code" name="code" value="<?= e((string) ($values['code'] ?? '')) ?>" required
@@ -35,7 +35,7 @@ declare(strict_types=1);
                 <div class="form-text">Letters, numbers, and dashes only.</div>
             <?php endif; ?>
         </div>
-        <div class="col">
+        <div class="col-sm">
             <label for="validity_months" class="form-label">Validity (months)</label>
             <input type="number" min="1" class="form-control <?= error_for($errors, 'validity_months') ? 'is-invalid' : '' ?>"
                    id="validity_months" name="validity_months" value="<?= e((string) ($values['validity_months'] ?? '')) ?>" required>
@@ -43,7 +43,7 @@ declare(strict_types=1);
                 <div class="invalid-feedback"><?= e($error) ?></div>
             <?php endif; ?>
         </div>
-        <div class="col">
+        <div class="col-sm">
             <label for="status" class="form-label">Status</label>
             <select class="form-select <?= error_for($errors, 'status') ? 'is-invalid' : '' ?>" id="status" name="status" required>
                 <?php foreach (['active' => 'Active', 'inactive' => 'Inactive'] as $value => $label): ?>
@@ -56,13 +56,13 @@ declare(strict_types=1);
         </div>
     </div>
 
-    <div class="mb-4">
-        <label for="description" class="form-label">Description</label>
+    <div class="mb-3">
+        <label for="description" class="form-label">Description <span class="text-muted small">(optional)</span></label>
         <textarea class="form-control" id="description" name="description" rows="2"><?= e((string) ($values['description'] ?? '')) ?></textarea>
     </div>
 
-    <div class="mb-4">
-        <label for="exam_id" class="form-label">Exam</label>
+    <div class="mb-3">
+        <label for="exam_id" class="form-label">Exam <span class="text-muted small">(optional)</span></label>
         <select class="form-select <?= error_for($errors, 'exam_id') ? 'is-invalid' : '' ?>" id="exam_id" name="exam_id">
             <option value="">No exam &mdash; content only</option>
             <?php foreach ($exams as $exam): ?>
@@ -78,6 +78,8 @@ declare(strict_types=1);
         <?php endif; ?>
     </div>
 
-    <button type="submit" class="btn btn-primary"><?= e($submitLabel) ?></button>
-    <a href="/admin/inductions/index.php" class="btn btn-outline-secondary">Cancel</a>
+    <div class="form-actions">
+        <button type="submit" class="btn btn-primary"><?= e($submitLabel) ?></button>
+        <a href="/admin/inductions/index.php" class="btn btn-outline-secondary">Cancel</a>
+    </div>
 </form>

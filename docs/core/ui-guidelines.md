@@ -2,7 +2,7 @@
 
 ## Purpose
 
-These guidelines define the application's general UI and UX rules.
+These guidelines define the rules and reasoning behind the application's UI and UX.
 
 The interface should be:
 
@@ -14,9 +14,24 @@ The interface should be:
 - Easy to scan
 - Easy to operate
 
-The application uses **Bootstrap 5** as the primary UI framework.
+The application uses **Bootstrap 5.3** as its only UI framework. Do not introduce another UI framework or component library without an explicit requirement.
 
-Do not introduce another UI framework or component library without an explicit requirement.
+## How the UI Documents Fit Together
+
+| Document | Owns |
+| --- | --- |
+| [`docs/core/design-system.html`](design-system.html) | **The authority for UI markup.** Tokens, the class vocabulary, component patterns and page patterns, rendered live with copyable code. |
+| `docs/core/ui-guidelines.md` (this file) | The rules and reasoning behind the design system. |
+| `assets/css/app.css` | The implementation. Every class it defines is listed in the design system's Class Reference. |
+| `views/partials/` | The shared layouts: `head.php`, `app-navbar.php`, `flash.php`, `scripts.php`, and the admin, inductee and guest headers and footers. |
+| `status_badge()` in `app/Core/helpers.php` | The one map from status to badge colour. |
+| Settings → Appearance (`admin/settings/update-appearance.php`, `App\Core\Theme`) | The brand colour tokens, chosen by administrators at runtime. |
+
+Before building or changing a page, open the design system on the running site (`/docs/core/design-system.html`) and use its patterns.
+
+If this file and the design system disagree, the design system wins for markup and class names. Fix whichever is out of date in the same change.
+
+Content Blocks (the reading canvas and the Studio editor) follow `docs/application/content_blocks_editor.md` for their layout. They still use this system's tokens, buttons and states.
 
 ---
 
@@ -26,11 +41,11 @@ Prioritize usability over decoration.
 
 The interface should help users:
 
-1. Understand where they are.
-2. Understand what they can do.
+1. Understand where they are. (Page title, active navbar item, breadcrumb.)
+2. Understand what they can do. (One clear main action.)
 3. Complete the task quickly.
-4. Understand the result of their action.
-5. Recover easily from mistakes.
+4. Understand the result of their action. (Flash message after every change.)
+5. Recover easily from mistakes. (Confirmation before destructive actions; values kept after a validation error.)
 
 Prefer familiar UI patterns over creative ones.
 
@@ -38,138 +53,90 @@ Do not add visual elements simply because there is available space.
 
 ---
 
-# 2. Bootstrap 5
+# 2. Bootstrap First
 
-Use Bootstrap 5 components and utilities whenever they provide a suitable solution.
+Use Bootstrap 5 components and utilities whenever they provide a suitable solution: layout, grid, spacing, forms, buttons, tables, alerts, badges, navigation, breadcrumbs, dropdowns, pagination and modals.
 
-Prefer:
+Do not recreate Bootstrap components with custom CSS.
 
-```text
-Bootstrap layout
-Bootstrap grid
-Bootstrap spacing utilities
-Bootstrap forms
-Bootstrap buttons
-Bootstrap tables
-Bootstrap alerts
-Bootstrap badges
-Bootstrap navigation
-Bootstrap dropdowns
-Bootstrap pagination
-Bootstrap modals
-```
+Custom CSS is appropriate only when:
 
-Do not recreate Bootstrap components unnecessarily with custom CSS.
-
-Custom CSS is appropriate when:
-
-- The application requires a specific visual treatment.
+- A pattern repeats across pages and Bootstrap cannot express it (e.g. `.page-header`, `.card-table`).
+- The application needs a specific visual treatment (e.g. the theme, the Content Blocks canvas).
 - Bootstrap does not provide the required behavior.
-- A reusable application-specific component is needed.
 
-Keep custom CSS small and purposeful.
+When you add a class:
 
-Do not override Bootstrap globally when a local component-level solution is sufficient.
+1. Put it in the right section of `assets/css/app.css`.
+2. Add it to the design system's Class Reference and document the pattern there.
+
+Do not write page-level `<style>` blocks or `style=""` attributes. The exception is a value only known at runtime, such as a theme swatch colour read from the database.
+
+Do not override Bootstrap globally when a local, component-level rule is sufficient. The exceptions are deliberate and documented in `app.css`: the Bootstrap bridge (§3 there) and heading weight (§4 there).
 
 ---
 
 # 3. Color System
 
-The application uses a restrained palette built around **deep teal**, **warm terracotta**, and **warm neutral tones**.
+The application uses a restrained palette: one **primary** color family, one **accent**, **warm neutrals**, and Bootstrap's **semantic** colors.
 
-Colors are defined as semantic tokens rather than being selected independently for each component.
+Colors are semantic tokens (CSS custom properties) defined in `assets/css/app.css`. The token list and live swatches are in the design system (Colour).
 
-## Brand Colors
+## Brand Colors Are Themeable
 
-```css
-:root {
-  --color-primary-900: #022a2b;
-  --color-primary-800: #044647;
-  --color-primary-700: #0f5d5f;
+This is a white-label application. Administrators choose the brand colors in **Settings → Appearance**: one of the presets in `App\Core\Theme::PRESETS`, or custom Primary and Accent colors. `admin/settings/update-appearance.php` saves the choice.
 
-  --color-accent-500: #a54b17;
+The default theme is **Teal** (deep teal with a warm terracotta accent). `app.css` defines those defaults, and `theme_style_tag()`, output by `views/partials/head.php` after `app.css`, overrides them on every page.
 
-  --color-warm-500: #ea9491;
-}
-```
+For a custom theme, primary 800 and 900 are derived automatically by darkening the chosen 700.
+
+The **Bootstrap bridge** in `app.css` points Bootstrap's own variables (`--bs-primary`, link colors, focus rings, and the button, list-group, dropdown and pagination variables) at the tokens. As a result, `btn-primary`, `btn-outline-primary`, `text-primary`, `text-bg-primary`, `border-primary`, links and breadcrumbs all follow the chosen theme.
+
+Rules that follow from this:
+
+- **Never hard-code a brand hex value.** In CSS, use `var(--color-primary-700)` etc. For tints, use `rgba(var(--color-primary-rgb), 0.12)`, never `rgba(15, 93, 95, 0.12)`. In markup, use Bootstrap's primary classes.
+- Before using a Bootstrap component that is not bridged yet (switches, ranges, progress bars, nav pills, accordions), bridge it in `app.css`.
+- Every page gets its `<head>` from `views/partials/head.php`, which outputs the theme.
+- Emails cannot use CSS variables. They get the theme colors through `App\Core\Theme::colors()` (see `views/emails/layout.php`).
+- Primary and accent must stay dark enough for white text (contrast of at least 4.5:1). The presets meet this, and custom colors are validated on save.
+- Semantic colors (success, warning, danger, info) and neutrals are **not** themeable.
 
 ### Primary
 
-The primary color family is deep teal.
+| Token | Use |
+| --- | --- |
+| Primary 900 | Navbar, dark surfaces |
+| Primary 800 | Hover |
+| Primary 700 | Primary actions, links, active and selected states |
 
-```text
-Primary 900  #022A2B
-Primary 800  #044647
-Primary 700  #0F5D5F
-```
-
-Use primary teal for:
-
-- Primary actions
-- Main navigation emphasis
-- Links where appropriate
-- Active navigation states
-- Important interactive elements
-- Application branding
-
-The darkest primary values should generally be reserved for strong emphasis, headers, or dark surfaces.
+Use the primary color for what the user should act on: main actions, links, active navigation, selected items, and application branding. It remains the dominant application color.
 
 ### Accent
 
-```text
-Accent 500  #A54B17
-```
+Accent 500 is secondary brand emphasis (warm terracotta by default).
 
-The accent is a warm terracotta/brown tone.
-
-Use it selectively for:
-
-- Secondary brand emphasis
-- Important visual accents
-- Selected highlights
-- Supporting calls to action where appropriate
-
-Do not use the accent color everywhere.
-
-The primary teal remains the dominant application color.
+Use it sparingly for small secondary emphasis, such as the Lecture badge in the Studio editor. Do not use it everywhere, and never as a status color.
 
 ### Warm Supporting Color
 
-```text
-Warm 500  #EA9491
-```
-
-This is a supporting warm tone.
-
-Use sparingly for:
-
-- Visual accents
-- Supporting illustrations
-- Small highlights
-- Non-critical decorative elements
-
-It is **not** a replacement for the semantic danger color.
+Warm 500 (`#EA9491`) is a decorative highlight (e.g. the teleport-scroll pulse). It is **not** a replacement for the semantic danger color.
 
 ---
 
 # 4. Neutral Colors
 
-Use warm or restrained neutrals for backgrounds, surfaces, borders, and supporting text.
+Use the warm neutrals for backgrounds, surfaces, borders and supporting text:
 
-```css
-:root {
-  --color-background: #ffffff;
-  --color-surface: #ffffff;
-  --color-surface-subtle: #f8f6f3;
+| Token | Use |
+| --- | --- |
+| `--color-background` | Page background (warm off-white) |
+| `--color-surface` | Cards, tables, inputs, modals (white) |
+| `--color-surface-subtle` | Panels inside a surface, table header rows |
+| `--color-border` | Borders |
+| `--color-text` | Body text |
+| `--color-text-muted` | Secondary text (`text-muted`, `form-text`). Meets 4.5:1 on both backgrounds. |
 
-  --color-border: #dee2e6;
-
-  --color-text: #212529;
-  --color-text-muted: #6c757d;
-}
-```
-
-These values may align with Bootstrap's existing neutral palette where practical.
+Content sits on white surfaces over the warm page background.
 
 Do not create additional near-identical gray or beige values for individual components.
 
@@ -177,70 +144,34 @@ Do not create additional near-identical gray or beige values for individual comp
 
 # 5. Semantic Colors
 
-Brand colors and semantic colors are separate concepts.
+Brand colors and semantic colors are separate concepts. A brand color never means success, warning or error.
 
-A brand color should not automatically mean success, warning, or error.
+| Meaning | Bootstrap variant | Examples |
+| --- | --- | --- |
+| Positive, completed, valid | `success` | Active, Compliant, Passed, Saved |
+| Attention required (not failure) | `warning` | Expiring soon, Pending, Unsaved changes |
+| Negative, failed, destructive | `danger` | Expired, Failed, Revoked, Suspended, Delete |
+| Neutral information | `info` | Instructions, "No matches found" |
+| Inactive, neutral state | `secondary` | Inactive, Superseded, Not Started |
 
-Use semantic colors for system states:
-
-```text
-Success
-Warning
-Danger
-Info
-Neutral
-```
-
-Bootstrap 5's contextual colors should be used where appropriate.
-
-Example:
-
-```text
-Success → completed / valid / approved
-Warning → attention required
-Danger  → error / failed / destructive
-Info    → neutral information
-Neutral → inactive / secondary / normal
-```
-
-Do not use the terracotta accent to represent danger simply because it is visually strong.
+Do not use the accent to represent danger simply because it is visually strong.
 
 Do not use the warm pink tone to represent an error.
+
+For colored **text** on white, use `text-success`, `text-danger` or `text-warning-emphasis`. Plain `text-warning` fails contrast.
 
 Semantic meaning takes priority over brand styling.
 
 ---
 
-# 6. Bootstrap Color Mapping
+# 6. Color Usage Rules
 
-Use Bootstrap's semantic system for component states.
-
-| Meaning             | Preferred Treatment             |
-| ------------------- | ------------------------------- |
-| Primary action      | Primary teal / `btn-primary`    |
-| Secondary action    | `btn-secondary`                 |
-| Success             | Bootstrap `success`             |
-| Warning             | Bootstrap `warning`             |
-| Error / destructive | Bootstrap `danger`              |
-| Information         | Bootstrap `info`                |
-| Neutral             | Bootstrap `secondary` / neutral |
-
-Where Bootstrap's default primary does not match the application's brand, customize Bootstrap's primary token to the application's primary teal rather than creating separate button systems.
-
----
-
-# 7. Color Usage Rules
-
-Use color to communicate meaning, hierarchy, or interaction.
-
-Do not use color purely for decoration.
-
-Prefer:
+Use color to communicate meaning, hierarchy or interaction. Do not use color purely for decoration.
 
 ```text
-Primary → what should be acted on
+Primary  → what should be acted on
 Semantic → what state something is in
-Neutral → supporting information
+Neutral  → supporting information
 ```
 
 Avoid:
@@ -256,315 +187,126 @@ The same meaning must use the same color treatment throughout the application.
 
 ---
 
-# 8. Component States
+# 7. Component States
 
-Interactive components should have predictable states.
+Interactive components should have predictable states: default, hover, focus, active, disabled, loading, error and success. Only implement the states that are relevant to the component.
 
-At minimum, consider:
+### Default
 
-```text
-Default
-Hover
-Focus
-Active
-Disabled
-Loading
-Error
-Success
-```
+The normal state, using the standard palette without unnecessary emphasis.
 
-Not every component requires every state.
+### Hover
 
-Only implement states that are relevant to the component.
+Hover gives subtle feedback that an element is interactive. It must preserve readability, keep the element's meaning, and not shift the layout. Primary controls darken to primary-800. Link cards gain a primary-tinted border and a slightly deeper shadow. Do not introduce unrelated colors for hover.
 
----
+### Focus
 
-# 9. Default State
+Focus states must remain visible. The bridge gives form controls and buttons a primary-colored focus ring. Do not remove focus indicators without an accessible replacement.
 
-The default state is the normal interactive or informational state.
+### Active
 
-Components should use the standard application palette without unnecessary emphasis.
+Active means currently selected: the current navbar item, the current Settings section, a selected view mode. Use the primary color system (Bootstrap's `.active` plus `aria-current="page"` for navigation). Do not use success, warning or danger to mean "selected".
 
----
+### Disabled
 
-# 10. Hover State
+Disabled means the action is currently unavailable. Use Bootstrap's `disabled` attribute; controls should look unavailable without becoming unreadable. Authorization must still be enforced server-side even when a control is hidden or disabled.
 
-Hover provides feedback that an element is interactive.
+### Loading
 
-Hover should:
+When an action is processing, give clear feedback and prevent duplicate submissions.
 
-- Be subtle.
-- Preserve readability.
-- Not change the meaning of the element.
-- Not cause layout shifts.
-
-For primary controls, a darker primary teal may be used on hover.
-
-Do not introduce unrelated colors for hover states.
-
----
-
-# 11. Focus State
-
-Focus indicates keyboard or accessibility navigation.
-
-Focus states must remain visible.
-
-Do not remove browser or Bootstrap focus indicators without providing an accessible replacement.
-
----
-
-# 12. Active State
-
-Active indicates that an element is currently selected or being interacted with.
-
-Examples:
-
-```text
-Active navigation item
-Selected tab
-Pressed button
-Selected filter
-```
-
-Use the primary color system for application navigation and interactive selection.
-
-Do not use success, warning, or danger simply to indicate that something is currently selected.
-
----
-
-# 13. Disabled State
-
-Disabled indicates that an action is currently unavailable.
-
-Use Bootstrap's disabled styling where appropriate.
-
-Disabled controls should appear unavailable without becoming unreadable.
-
-Authorization must still be enforced server-side even if a control is hidden or disabled in the UI.
-
----
-
-# 14. Loading State
-
-When an action is processing, provide clear feedback.
-
-Example:
-
-```text
-[ Saving... ]
-```
-
-or:
-
-```text
-[ spinner ] Saving
-```
-
-Loading states should:
-
-- Prevent accidental duplicate submissions where appropriate.
-- Communicate that the request is still processing.
-- Return to the correct state after completion.
+This is automatic for every POST form: `assets/js/app.js` disables the submit button that was used and adds a spinner. Opt a button out with `data-no-loading`. For in-page (fetch) requests, show the same spinner in the button, or a status badge such as the Studio's Saved / Unsaved changes.
 
 Do not use a full-page loading overlay for small operations.
 
----
+### Error and Success
 
-# 15. Success State
-
-Use Bootstrap success styling for positive system states.
-
-Examples:
-
-```text
-Saved
-Active
-Approved
-Passed
-Verified
-Completed
-Valid
-```
-
-Success means the underlying operation or state is positive.
-
-Do not use the brand accent merely because something is important.
+Use Bootstrap's success and danger styling for the result of an action (flash messages) and for field validation. See sections 11–13.
 
 ---
 
-# 16. Warning State
+# 8. Status Badges
 
-Use Bootstrap warning styling when attention may be required.
+Use compact badges for short status values, rendered with `status_badge()`:
 
-Examples:
-
-```text
-Pending
-Expiring Soon
-Incomplete
-Attention Required
-Review Required
+```php
+<?= status_badge($record['status']) ?>
+<?= status_badge($state, 'Not Passed') ?>   // custom label, same color
 ```
 
-Warning does not mean failure.
+`status_badge()` is the only place that maps a status to a color. Views never write `text-bg-*` for a status and never define their own status → color arrays. When you add a status, add it to `status_badge()` and to the design system's status table.
+
+Non-status labels (a media category, a count) use a neutral tag, `badge text-bg-light border`, so they cannot be mistaken for a status.
+
+Status terminology must remain consistent. Do not use different colors for the same status in different areas of the application.
 
 ---
 
-# 17. Danger State
+# 9. Color Must Not Be the Only Indicator
 
-Use Bootstrap danger styling for:
+Important states must not rely on color alone. The text must communicate the state even when color is unavailable ("Expired", not a red dot).
 
-```text
-Delete
-Failed
-Invalid
-Expired
-Suspended
-Error
-Rejected
-```
-
-Danger should be reserved for genuine negative or destructive states.
-
-Do not use danger styling merely to attract attention.
+This applies particularly to status badges, validation messages, alerts, tables, charts and form errors.
 
 ---
 
-# 18. Info State
+# 10. Layout and Navigation
 
-Use Bootstrap info styling for neutral informational messages.
-
-Examples:
-
-```text
-Information
-Instructions
-Additional Details
-System Information
-```
-
-Info should not imply success, warning, or failure.
+- Every page uses a layout partial (admin, inductee or guest). Never hand-write a `<head>`, navbar or footer.
+- Every page starts with a `.page-header`: the page title, an optional one-line subtitle, and the page's actions.
+- Pages below a section's index (create, edit, detail, exam) show a breadcrumb in the page header. It replaces ad-hoc "Back" buttons.
+- Form, profile and detail pages are capped with `.page-narrow`.
+- The navbar is one shared component. Its active item comes from the view's `$currentPage`, and account links live in its dropdown.
+- Every page must work from phone width up without horizontal page scrolling. Use Bootstrap's grid: side-by-side fields use `col-sm` so they stack on phones.
 
 ---
 
-# 19. Status Badges
-
-Use compact badges for short status values.
-
-Example:
-
-```html
-<span class="badge text-bg-success">Active</span>
-```
-
-```html
-<span class="badge text-bg-warning">Pending</span>
-```
-
-```html
-<span class="badge text-bg-danger">Failed</span>
-```
-
-```html
-<span class="badge text-bg-secondary">Inactive</span>
-```
-
-Status terminology must remain consistent.
-
-Do not use different colors for the same status in different areas of the application.
-
----
-
-# 20. Color Must Not Be the Only Indicator
-
-Important states must not rely on color alone.
-
-For example:
-
-```text
-Active
-Pending
-Failed
-```
-
-The text must communicate the state even when color is unavailable.
-
-This applies particularly to:
-
-- Status badges
-- Validation messages
-- Alerts
-- Tables
-- Charts
-- Form errors
-
----
-
-# 21. Forms
+# 11. Forms
 
 Forms should be straightforward and predictable.
 
 Rules:
 
-- Labels must match established database/business terminology.
-- Use predictable field names.
-- Group related fields.
-- Keep related fields together.
-- Clearly identify required and optional fields.
-- Use appropriate HTML input types.
-- Provide useful validation messages.
-- Preserve submitted values after validation errors where appropriate.
-- Place the primary action clearly.
+- Labels match the established database/business terminology.
+- Use predictable field names and appropriate input types, with `autocomplete` where it helps.
+- Group related fields: side by side in a `row g-3`, or in a `fieldset` with a `legend`.
+- Required is the default; mark **optional** fields with "(optional)" in the label. A field whose help text explains what blank means needs no marker.
+- Validation happens server-side. Show errors with `is-invalid` and `invalid-feedback` next to the field (`invalid-feedback d-block` when the message cannot sit directly after the control). Show form-level errors as an `alert alert-danger` above the fields.
+- Preserve submitted values after validation errors (`old()`).
+- Put buttons in `.form-actions`: the main action first, then Cancel.
 - Avoid unnecessary fields.
 
-Example:
-
-```text
-Name
-[________________________]
-
-Email
-[________________________]
-
-Status
-[ Active ▼ ]
-
-[Save]
-[Cancel]
-```
-
-Do not make forms unnecessarily long.
-
-If a form becomes large, divide it into logical sections rather than introducing a multi-step wizard automatically.
+Do not make forms unnecessarily long. If a form becomes large, divide it into cards or fieldsets rather than introducing a multi-step wizard.
 
 ---
 
-# 22. Labels and Terminology
+# 12. Feedback Messages
 
-UI terminology must remain consistent throughout the application.
+- **After an action**, the controller sets a flash message (`flash('success', …)` or `flash('error', …)`) and redirects. The layout shows it as a dismissible alert.
+- **A state on the page** (e.g. "Your compliance has expired") is a page alert: not dismissible, in the color that matches its meaning, stating the next step when there is one.
+- **Supporting notes** inside a card are `text-muted small` text, not alerts.
 
-Database/business concepts should not randomly change names in the interface.
+---
 
-For example, if the established concept is:
+# 13. Destructive Actions
 
-```text
-Induction
-```
+Every destructive action asks for confirmation first. Use the lightest confirmation that fits:
 
-do not arbitrarily change it to:
+- A native `confirm()` to delete or revoke a single row with no options.
+- A modal when the user needs an explanation or a choice (e.g. cascade delete).
+- A two-step page when the effect needs reviewing first (Search & Replace's dry run).
 
-```text
-Program
-Training
-Course
-```
+Wording: "{Verb} {object}? {Consequence}. This cannot be undone." The confirm button repeats the verb and object (e.g. "Delete Induction").
 
-in another screen.
+---
 
-Labels should clearly describe the underlying field or action.
+# 14. Labels and Terminology
 
-Avoid vague labels such as:
+UI terminology must remain consistent throughout the application. Use the terms in `docs/application/terminology.md` before introducing a new one.
+
+Database/business concepts must not change names between screens. If the concept is **Induction**, do not call it Program, Training or Course elsewhere.
+
+Labels should clearly describe the underlying field or action. Avoid vague labels such as:
 
 ```text
 Manage
@@ -573,8 +315,6 @@ Handle
 Details
 Go
 ```
-
-when a more specific label is available.
 
 Prefer:
 
@@ -589,89 +329,67 @@ Verify
 Renew
 ```
 
-Use the application's established terminology before introducing a new term.
+---
+
+# 15. Buttons
+
+| Role | Treatment |
+| --- | --- |
+| Main action | `btn-primary`. One per form or card; never two primary buttons side by side. |
+| Secondary action, Cancel, row navigation | `btn-outline-secondary` |
+| Add an item inside a builder | `btn-outline-primary btn-sm` |
+| Destructive trigger | `btn-outline-danger` (opens a confirmation) |
+| Destructive confirmation | `btn-danger` |
+| Tertiary, inline with text | `btn-link` |
+
+Use `btn-sm` in page headers, filter bars, table rows and side panels, and the default size for form and modal buttons.
+
+A page should have one obvious main action. On the inductee dashboard, rows that still need doing get a primary button (Start, Renew, Retry), and completed rows get an outline "View".
+
+Do not use solid `btn-secondary`.
 
 ---
 
-# 23. Buttons
+# 16. Links vs Buttons
 
-Use buttons consistently.
+**Links** navigate: View Details, Edit User, Go to Dashboard.
 
-### Primary action
+**Buttons** act: Save, Delete, Send, Verify, Generate.
 
-Use the primary teal treatment for the main action.
-
-```html
-<button class="btn btn-primary">Save</button>
-```
-
-### Secondary action
-
-Use secondary buttons for supporting actions.
-
-### Destructive action
-
-Use Bootstrap danger styling for destructive actions.
-
-Avoid presenting multiple competing primary buttons.
-
-A page should generally have one obvious primary action.
+A call to action that navigates (Add Induction, Start, Cancel) may be styled as a button. Otherwise, do not use buttons simply to navigate. A card whose purpose is navigation is a `.link-card`, not a card with a button in it.
 
 ---
 
-# 24. Links vs Buttons
+# 17. Tables
 
-Use:
-
-**Links** for navigation.
-
-```text
-View Details
-Edit User
-Go to Dashboard
-```
-
-Use:
-
-**Buttons** for actions.
-
-```text
-Save
-Delete
-Send
-Verify
-Generate
-```
-
-Do not use buttons simply to navigate when a normal link is appropriate.
-
----
-
-# 25. Tables
-
-Administrative data should generally use practical tables.
-
-Prefer:
+Administrative data should use practical tables.
 
 ```text
 ┌────────────┬────────────┬──────────┬─────────┐
-│ Name       │ Status     │ Created  │ Actions │
+│ Name       │ Status     │ Created  │         │
 ├────────────┼────────────┼──────────┼─────────┤
-│ Example    │ Active     │ Date     │ View    │
+│ Example    │ Active     │ Date     │ Edit    │
 └────────────┴────────────┴──────────┴─────────┘
 ```
 
 Tables should:
 
-- Have clear column headings.
-- Keep columns concise.
-- Use consistent alignment.
-- Keep actions predictable.
+- Sit in a `.card-table` card, inside `.table-responsive` so wide tables scroll within the card instead of squeezing columns.
+- Have clear, concise column headings. The actions column has a visually hidden "Actions" heading.
+- Use consistent alignment: numbers right-aligned, row actions right-aligned on one line.
+- Keep actions predictable: Edit or View, then the destructive action.
 - Avoid unnecessary columns.
+- Show dates as `YYYY-MM-DD` (and `YYYY-MM-DD HH:MM` with a time).
+- Provide a useful empty state: one full-width row saying what is missing.
+- Have a filter bar above them when the list can grow. Every filter control has an `aria-label`, and "Clear" only appears while a filter is applied.
 - Support pagination when appropriate.
-- Provide useful empty states.
-- Remain usable with realistic amounts of data.
 
-Use Bootstrap table utilities.
+---
 
-For wide tables, allow horizontal scrolling rather than forcing columns into unreadable width
+# 18. Accessibility Basics
+
+- One `h1` per page (`.page-title`). Heading levels follow the page structure; size comes from classes.
+- Every form control has a label (visible, or `aria-label` in filter bars).
+- Icon-only buttons have an `aria-label` and a `title`. Decorative icons have `aria-hidden="true"`.
+- Modals are labelled by their title (`aria-labelledby`).
+- Text meets 4.5:1 contrast. The tokens and bridge are chosen for this; do not lighten text colors.

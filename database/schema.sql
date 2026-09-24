@@ -131,20 +131,52 @@ CREATE TABLE compliance_records (
     CONSTRAINT fk_compliance_renewed_from FOREIGN KEY (renewed_from_id) REFERENCES compliance_records (id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+-- Single-row settings record (id is always 1) holding the white-label
+-- branding shown in page headers and emails. Falls back to config/app.php
+-- when no row exists. logo_url is a root-relative media library path.
+-- theme_preset is a key of App\Core\Theme::PRESETS, or 'custom' to use
+-- theme_primary/theme_accent (#rrggbb).
+CREATE TABLE site_settings (
+    id TINYINT UNSIGNED NOT NULL DEFAULT 1,
+    company_name VARCHAR(150) NOT NULL,
+    logo_url VARCHAR(255) NULL,
+    primary_email VARCHAR(255) NULL,
+    theme_preset VARCHAR(30) NOT NULL DEFAULT 'teal',
+    theme_primary CHAR(7) NULL,
+    theme_accent CHAR(7) NULL,
+    updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    PRIMARY KEY (id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
 -- Single-row settings record (id is always 1) controlling how the
 -- application's notification emails are sent and who else receives them.
--- cc/bcc are comma-separated address lists for "other concerned people"
+-- Emails to inductees (including account emails) use the inductee_* sender;
+-- emails to administrators use the admin_* sender. A blank sender name or
+-- email falls back to site_settings' company name / primary email.
+-- *_cc/*_bcc are comma-separated address lists for "other concerned people"
 -- who are not necessarily system users.
+-- admin_notification_frequency controls whether administrators get one email
+-- per event ('instant') or one summary report per period; inductee emails are
+-- always sent immediately. admin_report_last_sent_at marks the end of the last
+-- reported period.
 CREATE TABLE email_settings (
     id TINYINT UNSIGNED NOT NULL DEFAULT 1,
-    sender_name VARCHAR(150) NOT NULL,
-    sender_email VARCHAR(255) NULL,
-    cc VARCHAR(500) NULL,
-    bcc VARCHAR(500) NULL,
+    inductee_sender_name VARCHAR(150) NULL,
+    inductee_sender_email VARCHAR(255) NULL,
+    inductee_cc VARCHAR(500) NULL,
+    inductee_bcc VARCHAR(500) NULL,
+    admin_sender_name VARCHAR(150) NULL,
+    admin_sender_email VARCHAR(255) NULL,
+    admin_cc VARCHAR(500) NULL,
+    admin_bcc VARCHAR(500) NULL,
+    admin_notification_frequency ENUM('instant', 'daily', 'weekly', 'monthly') NOT NULL DEFAULT 'weekly',
+    notify_admin_on_registration TINYINT(1) NOT NULL DEFAULT 1,
     notify_admin_on_completion TINYINT(1) NOT NULL DEFAULT 1,
     notify_inductee_on_completion TINYINT(1) NOT NULL DEFAULT 1,
     notify_inductee_on_expiry TINYINT(1) NOT NULL DEFAULT 1,
+    notify_admin_on_expired TINYINT(1) NOT NULL DEFAULT 1,
     expiry_reminder_days SMALLINT UNSIGNED NOT NULL DEFAULT 30,
+    admin_report_last_sent_at DATETIME NULL,
     updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     PRIMARY KEY (id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
