@@ -679,7 +679,10 @@
                     return imgPreview
                         + '<div class="content-block-inner">'
                         + '<div class="cb-settings-panel">'
-                        + '<input type="url" class="form-control form-control-sm mb-2" data-field="url" placeholder="Image URL (https://...)" value="' + escapeHtml(block.url) + '">'
+                        + '<div class="input-group input-group-sm mb-2">'
+                        + '<input type="url" class="form-control" data-field="url" placeholder="Image URL (https://...)" value="' + escapeHtml(block.url) + '">'
+                        + '<button type="button" class="btn btn-outline-secondary" data-browse-library>' + iconHtml('bi-images', 'me-1') + 'Browse Library</button>'
+                        + '</div>'
                         + '<div class="row g-2">'
                         + '<div class="col-6 col-md-3">' + selectHtml('width', IMAGE_WIDTHS, { full: 'Full Width', content: 'Content Width', small: 'Small', smaller: 'Smaller' }, block.width) + '</div>'
                         + '<div class="col-6 col-md-3">' + selectHtml('align', IMAGE_ALIGNS, { left: 'Left', center: 'Center', right: 'Right' }, block.align) + '</div>'
@@ -708,7 +711,10 @@
                         + selectHtml('columns', GALLERY_COLUMNS.map(String), { '2': '2 Columns', '3': '3 Columns', '4': '4 Columns' }, String(block.columns))
                         + '</div></div>'
                         + '<div data-gallery-list>' + galleryRows + '</div>'
-                        + '<button type="button" class="btn btn-sm btn-outline-primary mt-1" data-add-image>' + iconHtml('bi-plus-lg', 'me-1') + 'Add Image</button>'
+                        + '<div class="d-flex gap-2 mt-1">'
+                        + '<button type="button" class="btn btn-sm btn-outline-primary" data-add-image>' + iconHtml('bi-plus-lg', 'me-1') + 'Add Image</button>'
+                        + '<button type="button" class="btn btn-sm btn-outline-secondary" data-browse-library-gallery>' + iconHtml('bi-images', 'me-1') + 'Browse Library</button>'
+                        + '</div>'
                         + '</div></div>';
                 case 'iframe':
                     var ratioClass = block.aspect_ratio === '4:3' ? 'ratio-4x3' : 'ratio-16x9';
@@ -819,6 +825,51 @@
                 wrapper.querySelectorAll('[data-set-variant]').forEach(function (btn) {
                     btn.addEventListener('click', function () { self.setVariant(id, btn.dataset.setVariant); });
                 });
+
+                // Opens the shared MediaPicker modal (assets/js/media-picker.js)
+                // instead of requiring a URL to be typed/pasted by hand. The
+                // manual URL input stays fully functional alongside this --
+                // useful for external images not yet in the library.
+                var browseImageBtn = wrapper.querySelector('[data-browse-library]');
+                if (browseImageBtn && window.MediaPicker) {
+                    browseImageBtn.addEventListener('click', function () {
+                        window.MediaPicker.open({ multiple: false, csrfToken: self.csrfToken }).then(function (items) {
+                            if (!items.length) {
+                                return;
+                            }
+                            var block = self.blocks.find(function (b) { return b.id === id; });
+                            if (!block) {
+                                return;
+                            }
+                            block.url = items[0].url;
+                            self.markDirty();
+                            self.render();
+                        });
+                    });
+                }
+
+                var browseGalleryBtn = wrapper.querySelector('[data-browse-library-gallery]');
+                if (browseGalleryBtn && window.MediaPicker) {
+                    browseGalleryBtn.addEventListener('click', function () {
+                        window.MediaPicker.open({ multiple: true, csrfToken: self.csrfToken }).then(function (items) {
+                            if (!items.length) {
+                                return;
+                            }
+                            var block = self.blocks.find(function (b) { return b.id === id; });
+                            if (!block) {
+                                return;
+                            }
+                            if (!Array.isArray(block.images)) {
+                                block.images = [];
+                            }
+                            items.forEach(function (item) {
+                                block.images.push({ id: generateId('img'), url: item.url, caption: '' });
+                            });
+                            self.markDirty();
+                            self.render();
+                        });
+                    });
+                }
 
                 wrapper.addEventListener('click', function (e) {
                     if (e.target.closest('.cb-block-controls') || e.target.closest('[data-set-variant]')) {

@@ -77,6 +77,7 @@ $appName = app_config()['name'];
 </main>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="/assets/js/media-picker.js"></script>
 <script src="/assets/js/course-editor.js"></script>
 <script>
     CourseEditor.init({

@@ -519,3 +519,44 @@ a:hover {
   display: inline-block;
   animation: cb-spin 0.8s linear infinite;
 }
+
+/* MediaPicker modal (assets/js/media-picker.js) -- reusable image picker
+   used by the Content Blocks Studio editor's image/gallery blocks. */
+.media-picker-grid {
+  min-height: 6rem;
+}
+
+.media-picker-thumb {
+  cursor: pointer;
+  border: 2px solid transparent;
+}
+
+.media-picker-thumb img {
+  aspect-ratio: 1 / 1;
+  object-fit: cover;
+}
+
+.media-picker-thumb:hover {
+  border-color: var(--color-border);
+}
+
+.media-picker-check {
+  color: var(--color-primary-700);
+  font-size: 1.25rem;
+  background-color: var(--color-surface);
+  border-radius: 50%;
+  line-height: 1;
+  opacity: 0;
+}
+
+.media-picker-thumb-selected {
+  border-color: var(--color-primary-700);
+}
+
+.media-picker-thumb-selected .media-picker-check {
+  opacity: 1;
+}
+
+.media-picker-dropzone {
+  cursor: pointer;
+}
