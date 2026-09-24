@@ -5,10 +5,12 @@
  * messages inside their card. See docs/core/design-system.html#page-shell.
  *
  * @var string $pageTitle
+ * @var string $guestContainerClass Optional width class; default .container-guest.
  */
 $appName = site_settings()['company_name'];
 $appLogo = site_settings()['logo_url'];
 $documentTitle = $pageTitle . ' · ' . $appName;
+$guestContainerClass = $guestContainerClass ?? 'container-guest';
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -27,4 +29,4 @@ $documentTitle = $pageTitle . ' · ' . $appName;
 </header>
 
 <main class="py-5">
-    <div class="container container-guest">
+    <div class="container <?= e($guestContainerClass) ?>">

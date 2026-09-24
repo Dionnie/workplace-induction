@@ -96,6 +96,7 @@
         <a href="#alerts">Alerts &amp; flash</a>
         <a href="#danger-zone">Danger Zone</a>
         <a href="#details">Detail list</a>
+        <a href="#certificate">Certificate card</a>
         <a href="#subnav">Section navigation</a>
         <a href="#empty">Empty states</a>
         <a href="#loading">Loading state</a>
@@ -1161,6 +1162,61 @@ require __DIR__ . '/../../partials/admin-header.php';
 </section>
 
 <!-- ===================================================================== -->
+<section class="ds-section" id="certificate">
+    <h2>Certificate card</h2>
+    <p>
+        A Certificate is shown as a pocket-sized pass: an ID card (CR80, 85.6 × 54 mm) with the company's logo and name, the
+        holder, the induction, the certificate number, issue and expiry dates, and a QR code that opens the public
+        verification page. Render it with <code>views/partials/certificate-card.php</code>; never rebuild it by hand.
+    </p>
+    <div class="ds-example" data-no-code>
+        <div class="ds-preview ds-preview-page">
+            <article class="cert-card" aria-label="Certificate CERT-2026-000123">
+                <header class="cert-card-header">
+                    <span class="cert-card-brand"><span class="cert-card-company">Company Name</span></span>
+                    <span class="cert-card-kind">Induction<br>Certificate</span>
+                </header>
+                <div class="cert-card-body">
+                    <div class="cert-card-main">
+                        <div class="cert-card-holder">Jane Citizen</div>
+                        <div class="cert-card-induction">Site Safety Induction</div>
+                        <dl class="cert-card-details">
+                            <div><dt>Certificate No.</dt><dd>CERT-2026-000123</dd></div>
+                            <div><dt>Issued</dt><dd>2026-03-01</dd></div>
+                            <div><dt>Expires</dt><dd>2028-03-01</dd></div>
+                        </dl>
+                    </div>
+                    <div class="cert-card-verify">
+                        <div class="cert-card-qr" data-cert-qr="https://example.com/certificate.php?token=sample" role="img" aria-label="QR code (example)"></div>
+                        <div class="cert-card-verify-label">Scan to verify</div>
+                    </div>
+                </div>
+            </article>
+        </div>
+    </div>
+    <div class="ds-example">
+        <script type="text/plain" class="ds-source">
+<?php
+$certificate = [
+    'holder' => $holderName,
+    'induction_title' => $record['induction_title'],
+    'certificate_number' => $record['certificate_number'],
+    'issue_date' => $record['issue_date'],
+    'expiry_date' => $record['expiry_date'],
+    'verification_token' => $record['verification_token'],
+];
+require __DIR__ . '/../partials/certificate-card.php';
+?>
+        </script>
+    </div>
+    <ul class="ds-do">
+        <li>Everything inside is sized in <code>cqw</code> (1% of the card's width), so one layout scales from the on-screen preview (up to 560px) to the printed card. The public verification page uses <code>.container-certificate</code> (set <code>$guestContainerClass</code> before the guest header) so the page is exactly as wide as the card.</li>
+        <li>Printing the page prints only the card, at 85.6 mm, with a thin cut line (<code>@media print</code> in <code>app.css</code> §11). The page offers a Print button (full width on the guest page).</li>
+        <li>Show the live status on the page, never on the card: a printed card can't change, and the QR code always checks the current status. The public page leads with a verdict alert (Valid / Expired / Revoked / Replaced).</li>
+        <li>The card is white throughout, header included, with dark text and a thin dark rule under the header, <strong>not</strong> the Appearance theme: a document that gets printed and handed around must stay legible with any logo and any theme.</li>
+    </ul>
+</section>
+
 <section class="ds-section" id="subnav">
     <h2>Section navigation</h2>
     <p>Pages with several sub-pages (Settings) use a vertical <code>list-group</code> beside the content, grouped by eyebrow labels.</p>
@@ -1325,6 +1381,7 @@ require __DIR__ . '/../../partials/admin-header.php';
                     <tr><td><code>.logo-preview-box</code>, <code>.reminder-days</code>, <code>.email-preview-frame</code>, <code>.theme-swatch*</code>, <code>.theme-preview-header</code></td><td>8</td><td>Settings page only.</td></tr>
                     <tr><td><code>.content-canvas</code>, <code>.content-block*</code>, <code>.cb-*</code>, <code>.teleport-highlight-pulse</code></td><td>9</td><td>Content Blocks canvas and both Studio editors (content_blocks_editor.md, exam_blocks_editor.md).</td></tr>
                     <tr><td><code>.media-thumb</code>, <code>.media-tile*</code>, <code>.media-picker-*</code></td><td>10</td><td>Media Library and the image picker modal.</td></tr>
+                    <tr><td><code>.cert-card</code>, <code>.cert-card-*</code>, <code>.container-certificate</code></td><td>11</td><td>The Certificate as an ID-card-sized pass, via <code>certificate-card.php</code>. <a href="#certificate">↗</a></td></tr>
                 </tbody>
             </table>
         </div>
@@ -1355,6 +1412,18 @@ require __DIR__ . '/../../partials/admin-header.php';
 </div>
 
 <!-- No Bootstrap JS: the examples are static, so a modal's or alert's close button can't hide the example. -->
+<script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.min.js"></script>
+<script>
+    // The certificate card example's QR code, drawn as certificate-card.php does.
+    document.querySelectorAll('[data-cert-qr]').forEach(function (el) {
+        if (window.qrcode) {
+            var qr = window.qrcode(0, 'M');
+            qr.addData(el.dataset.certQr);
+            qr.make();
+            el.innerHTML = qr.createSvgTag({ cellSize: 2, margin: 4, scalable: true });
+        }
+    });
+</script>
 <script>
 (function () {
     'use strict';
