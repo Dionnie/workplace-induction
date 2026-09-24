@@ -2,11 +2,10 @@
 
 declare(strict_types=1);
 
-use App\Core\Auth;
-
 /**
- * Top navbar shared by the admin and inductee layouts
- * (docs/core/design-system.html#navbar).
+ * Top navbar with horizontal links, for layouts with only a few sections
+ * (the inductee area). The admin area uses a sidebar instead; see
+ * admin-header.php and docs/core/design-system.html#navigation.
  *
  * @var array<string, array{0: string, 1: string}> $navItems key => [label, url]
  * @var string $currentPage Key of the active item ('profile' for My Profile).
@@ -16,8 +15,7 @@ use App\Core\Auth;
  */
 $appName = site_settings()['company_name'];
 $appLogo = site_settings()['logo_url'];
-$authUser = Auth::user();
-$accountName = trim(($authUser['first_name'] ?? '') . ' ' . ($authUser['last_name'] ?? '')) ?: (string) ($authUser['email'] ?? '');
+$accountNameClass = '';
 ?>
 <nav class="navbar navbar-expand-<?= e($navbarExpand) ?> navbar-dark app-navbar d-print-none">
     <div class="container">
@@ -31,31 +29,15 @@ $accountName = trim(($authUser['first_name'] ?? '') . ' ' . ($authUser['last_nam
         </button>
         <div class="collapse navbar-collapse" id="app-navbar-menu">
             <ul class="navbar-nav me-auto">
-                <?php foreach ($navItems as $key => [$label, $url]): ?>
+                <?php // Loop variables are prefixed: views share this scope. ?>
+                <?php foreach ($navItems as $navKey => [$navLabel, $navUrl]): ?>
                     <li class="nav-item">
-                        <a class="nav-link <?= $currentPage === $key ? 'active' : '' ?>" href="<?= e($url) ?>"
-                            <?= $currentPage === $key ? 'aria-current="page"' : '' ?>><?= e($label) ?></a>
+                        <a class="nav-link <?= $currentPage === $navKey ? 'active' : '' ?>" href="<?= e($navUrl) ?>"
+                            <?= $currentPage === $navKey ? 'aria-current="page"' : '' ?>><?= e($navLabel) ?></a>
                     </li>
                 <?php endforeach; ?>
             </ul>
-            <ul class="navbar-nav">
-                <li class="nav-item dropdown">
-                    <a class="nav-link dropdown-toggle <?= $currentPage === 'profile' ? 'active' : '' ?>" href="#" role="button"
-                       data-bs-toggle="dropdown" aria-expanded="false" aria-label="Account">
-                        <i class="bi bi-person-circle" aria-hidden="true"></i>
-                        <span class="d-<?= e($navbarExpand) ?>-none ms-1"><?= e($accountName) ?></span>
-                    </a>
-                    <ul class="dropdown-menu dropdown-menu-end">
-                        <li><span class="dropdown-item-text small text-muted text-truncate"><?= e($accountName) ?></span></li>
-                        <li><hr class="dropdown-divider"></li>
-                        <li>
-                            <a class="dropdown-item <?= $currentPage === 'profile' ? 'active' : '' ?>" href="<?= e($profileUrl) ?>"
-                                <?= $currentPage === 'profile' ? 'aria-current="page"' : '' ?>>My Profile</a>
-                        </li>
-                        <li><a class="dropdown-item" href="/logout.php">Log Out</a></li>
-                    </ul>
-                </li>
-            </ul>
+            <?php require __DIR__ . '/account-menu.php'; ?>
         </div>
     </div>
 </nav>

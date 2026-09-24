@@ -33,7 +33,7 @@ $filterInputs = '<input type="hidden" name="category_id" value="' . ($categoryId
 </div>
 
 <div class="row g-4">
-    <div class="col-lg-8">
+    <div class="col-xl-8">
         <div class="card shadow-sm mb-3">
             <div class="card-body">
                 <form method="get" action="/admin/media-library/index.php" id="media-filter-form" class="row g-2 align-items-end mb-3">
@@ -233,7 +233,7 @@ $filterInputs = '<input type="hidden" name="category_id" value="' . ($categoryId
         <?php endif; ?>
     </div>
 
-    <div class="col-lg-4">
+    <div class="col-xl-4">
         <div class="card shadow-sm mb-3">
             <div class="card-body">
                 <h2 class="fs-6 mb-3">Categories</h2>

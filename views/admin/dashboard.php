@@ -10,14 +10,8 @@ $pageTitle = 'Dashboard';
 $currentPage = 'dashboard';
 require __DIR__ . '/../partials/admin-header.php';
 
-$shortcuts = [
-    ['Inductions', 'bi-journal-check', '/admin/inductions/index.php', 'Create and edit inductions and their content blocks.'],
-    ['Exams', 'bi-ui-checks', '/admin/exams/index.php', 'Create and edit exams and their questions.'],
-    ['Exam Attempts', 'bi-clipboard-data', '/admin/exam-attempts/index.php', 'Review every exam attempt submitted by inductees.'],
-    ['Compliance', 'bi-patch-check', '/admin/compliance/index.php', 'View compliance records and revoke them where necessary.'],
-    ['Users', 'bi-people', '/admin/users/index.php', 'Create and edit administrator and inductee accounts.'],
-    ['Settings', 'bi-gear', '/admin/settings/index.php', 'Company details, appearance, email senders and notifications.'],
-];
+// Same sections, groups and order as the sidebar.
+$adminMenu = require __DIR__ . '/../partials/admin-menu.php';
 ?>
 
 <div class="page-header">
@@ -63,7 +57,7 @@ $shortcuts = [
 </div>
 
 <div class="row g-3 mb-4">
-    <div class="col-12 col-lg-7">
+    <div class="col-12 col-xl-7">
         <div class="card shadow-sm h-100">
             <div class="card-body">
                 <h2 class="fs-6 mb-3">Compliance by Induction</h2>
@@ -97,7 +91,7 @@ $shortcuts = [
             </div>
         </div>
     </div>
-    <div class="col-12 col-lg-5">
+    <div class="col-12 col-xl-5">
         <div class="card shadow-sm h-100">
             <div class="card-body">
                 <h2 class="fs-6 mb-3">Expiring Soon</h2>
@@ -121,19 +115,22 @@ $shortcuts = [
     </div>
 </div>
 
-<h2 class="fs-6 mb-3">Administration</h2>
-
-<div class="row g-3">
-    <?php foreach ($shortcuts as [$label, $icon, $url, $description]): ?>
-        <div class="col-12 col-md-6 col-lg-4">
-            <a href="<?= e($url) ?>" class="card shadow-sm h-100 link-card">
-                <div class="card-body">
-                    <h3 class="fs-6 mb-1"><i class="bi <?= e($icon) ?> text-primary me-2" aria-hidden="true"></i><?= e($label) ?></h3>
-                    <p class="text-muted small mb-0"><?= e($description) ?></p>
+<?php foreach ($adminMenu as $groupLabel => $items): ?>
+    <section class="mb-4" aria-labelledby="shortcuts-<?= e(strtolower($groupLabel)) ?>">
+        <h2 class="small text-uppercase text-muted fw-semibold mb-2" id="shortcuts-<?= e(strtolower($groupLabel)) ?>"><?= e($groupLabel) ?></h2>
+        <div class="row g-3">
+            <?php foreach ($items as $item): ?>
+                <div class="col-12 col-md-6 col-xl-3">
+                    <a href="<?= e($item['url']) ?>" class="card shadow-sm h-100 link-card">
+                        <div class="card-body">
+                            <h3 class="fs-6 mb-1"><i class="bi <?= e($item['icon']) ?> text-primary me-2" aria-hidden="true"></i><?= e($item['label']) ?></h3>
+                            <p class="text-muted small mb-0"><?= e($item['description']) ?></p>
+                        </div>
+                    </a>
                 </div>
-            </a>
+            <?php endforeach; ?>
         </div>
-    <?php endforeach; ?>
-</div>
+    </section>
+<?php endforeach; ?>
 
 <?php require __DIR__ . '/../partials/admin-footer.php'; ?>

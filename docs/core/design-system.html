@@ -41,6 +41,7 @@
         .ds-swatch { height: 3.5rem; border-radius: 0.375rem; border: 1px solid rgba(0, 0, 0, 0.08); }
         .ds-preview .modal { position: static; display: block; z-index: auto; }
         .ds-preview .modal-dialog { margin: 0; }
+        .ds-sidebar-demo { width: 15rem; background: var(--color-surface); border: 1px solid var(--color-border); border-radius: 0.375rem; }
         .ds-do, .ds-dont { padding-left: 0; list-style: none; }
         .ds-do li, .ds-dont li { position: relative; padding-left: 1.5rem; margin-bottom: 0.35rem; }
         .ds-do li::before, .ds-dont li::before { position: absolute; left: 0; font-family: 'bootstrap-icons'; }
@@ -81,7 +82,7 @@
         <a href="#icons">Icons</a>
         <div class="ds-toc-group">Layout</div>
         <a href="#page-shell">Page shell</a>
-        <a href="#navbar">Navbar</a>
+        <a href="#navigation">Navigation</a>
         <a href="#page-header">Page header</a>
         <a href="#widths">Content widths</a>
         <a href="#responsive">Responsive</a>
@@ -126,7 +127,8 @@
                     <tr><td><code>docs/core/design-system.html</code></td><td><strong>This document.</strong> Tokens, class vocabulary, component markup and page patterns. The authority.</td></tr>
                     <tr><td><code>docs/core/ui-guidelines.md</code></td><td>The rules and reasoning behind the system: principles, colour meaning, states, forms, terminology.</td></tr>
                     <tr><td><code>assets/css/app.css</code></td><td>The implementation. Every class it defines is listed in the <a href="#class-reference">Class reference</a>.</td></tr>
-                    <tr><td><code>views/partials/</code></td><td>Layouts shared by every page: <code>head.php</code>, <code>app-navbar.php</code>, <code>flash.php</code>, <code>scripts.php</code> and the admin, inductee and guest headers and footers.</td></tr>
+                    <tr><td><code>views/partials/</code></td><td>Layouts shared by every page: <code>head.php</code>, <code>app-navbar.php</code>, <code>account-menu.php</code>, <code>flash.php</code>, <code>scripts.php</code> and the admin, inductee and guest headers and footers.</td></tr>
+                    <tr><td><code>views/partials/admin-menu.php</code></td><td>Every admin section, grouped Application / Core. Feeds the admin sidebar and the dashboard shortcuts. See <a href="#navigation">Navigation</a>.</td></tr>
                     <tr><td><code>status_badge()</code> in <code>app/Core/helpers.php</code></td><td>The one status → colour map. See <a href="#badges">Status badges</a>.</td></tr>
                     <tr><td><code>assets/js/app.js</code></td><td>App-wide behaviour, currently the <a href="#loading">loading state</a>.</td></tr>
                     <tr><td>Settings → Appearance<br><code>admin/settings/update-appearance.php</code>, <code>App\Core\Theme</code></td><td>Sets the brand colour tokens at runtime. See <a href="#colour">Colour</a>.</td></tr>
@@ -210,7 +212,7 @@
         </div>
     </div>
     <p class="small text-muted">
-        Also bridged: <code>border-primary</code>, <code>bg-primary</code>, breadcrumbs, list-group active items, dropdown active
+        Also bridged: <code>border-primary</code>, <code>bg-primary</code>, breadcrumbs, nav-link and close-button focus rings, list-group active items, dropdown active
         items and pagination. <strong>Not bridged yet</strong> (unused so far): form switches, ranges, progress bars, nav pills,
         accordions. Bridge them in <code>app.css</code> §3 before first use.
     </p>
@@ -354,14 +356,18 @@
                     <tr><td>Media Library / choose image</td><td><i class="bi bi-images"></i></td><td><code>bi-images</code></td></tr>
                     <tr><td>Information</td><td><i class="bi bi-info-circle"></i></td><td><code>bi-info-circle</code></td></tr>
                     <tr><td>Warning</td><td><i class="bi bi-exclamation-triangle"></i></td><td><code>bi-exclamation-triangle</code></td></tr>
+                    <tr><td>Dashboard</td><td><i class="bi bi-speedometer2"></i></td><td><code>bi-speedometer2</code></td></tr>
                     <tr><td>Inductions</td><td><i class="bi bi-journal-check"></i></td><td><code>bi-journal-check</code></td></tr>
                     <tr><td>Exams</td><td><i class="bi bi-ui-checks"></i></td><td><code>bi-ui-checks</code></td></tr>
                     <tr><td>Exam Attempts</td><td><i class="bi bi-clipboard-data"></i></td><td><code>bi-clipboard-data</code></td></tr>
                     <tr><td>Compliance</td><td><i class="bi bi-patch-check"></i></td><td><code>bi-patch-check</code></td></tr>
                     <tr><td>Certificates</td><td><i class="bi bi-award"></i></td><td><code>bi-award</code></td></tr>
                     <tr><td>Users</td><td><i class="bi bi-people"></i></td><td><code>bi-people</code></td></tr>
+                    <tr><td>Tools</td><td><i class="bi bi-tools"></i></td><td><code>bi-tools</code></td></tr>
                     <tr><td>Settings</td><td><i class="bi bi-gear"></i></td><td><code>bi-gear</code></td></tr>
-                    <tr><td>Account</td><td><i class="bi bi-person-circle"></i></td><td><code>bi-person-circle</code></td></tr>
+                    <tr><td>Account menu</td><td><i class="bi bi-person-circle"></i></td><td><code>bi-person-circle</code></td></tr>
+                    <tr><td>My Profile</td><td><i class="bi bi-person"></i></td><td><code>bi-person</code></td></tr>
+                    <tr><td>Log Out</td><td><i class="bi bi-box-arrow-right"></i></td><td><code>bi-box-arrow-right</code></td></tr>
                 </tbody>
             </table>
         </div>
@@ -377,8 +383,8 @@
             <table class="table align-middle">
                 <thead><tr><th>Layout</th><th>Partials</th><th>Used by</th></tr></thead>
                 <tbody>
-                    <tr><td>Admin</td><td><code>admin-header.php</code> / <code>admin-footer.php</code></td><td>Everything under <code>/admin</code>. Navbar collapses below <code>xl</code>.</td></tr>
-                    <tr><td>Inductee</td><td><code>inductee-header.php</code> / <code>inductee-footer.php</code></td><td>Everything under <code>/inductee</code>. Navbar collapses below <code>md</code>. <code>$wideContainer = true</code> for the Content Blocks page.</td></tr>
+                    <tr><td>Admin</td><td><code>admin-header.php</code> / <code>admin-footer.php</code></td><td>Everything under <code>/admin</code>. Top bar and <a href="#navigation">sidebar</a>; the sidebar becomes a drawer below <code>lg</code>. Content sits in a left-aligned <code>container-xxl</code>.</td></tr>
+                    <tr><td>Inductee</td><td><code>inductee-header.php</code> / <code>inductee-footer.php</code></td><td>Everything under <code>/inductee</code>. Top navbar that collapses below <code>md</code>. <code>$wideContainer = true</code> for the Content Blocks page.</td></tr>
                     <tr><td>Guest</td><td><code>guest-header.php</code> / <code>guest-footer.php</code></td><td>Log in, register, password reset, email verification, certificate verification. One centered card (<code>.container-guest</code>).</td></tr>
                     <tr><td>Public page</td><td><code>head.php</code> in <code>index.php</code></td><td>The landing page (<code>docs/core/public_page.md</code>).</td></tr>
                     <tr><td>Studio</td><td><code>head.php</code> in <code>views/admin/inductions/editor.php</code></td><td>The Content Blocks editor (<code>docs/application/content_blocks_editor.md</code>).</td></tr>
@@ -388,7 +394,10 @@
     </div>
     <p class="mt-3">
         The shared partials: <code>head.php</code> (meta, Bootstrap, Bootstrap Icons, <code>app.css</code>, <code>theme_style_tag()</code>),
-        <code>app-navbar.php</code>, <code>flash.php</code> (flash messages), and <code>scripts.php</code> (Bootstrap JS and <code>app.js</code>).
+        <code>app-navbar.php</code> (inductee top navbar), <code>account-menu.php</code>, <code>flash.php</code> (flash messages), and
+        <code>scripts.php</code> (Bootstrap JS and <code>app.js</code>). Layout partials name their own variables distinctly
+        (<code>$sidebarItems</code>, <code>$navKey</code>, <code>$flashMessage</code>…), because views run in the same scope and
+        a generic <code>$items</code> would overwrite the view's data.
         A view sets two variables and requires its layout:
     </p>
     <div class="ds-example">
@@ -417,13 +426,79 @@ require __DIR__ . '/../../partials/admin-header.php';
 </section>
 
 <!-- ===================================================================== -->
-<section class="ds-section" id="navbar">
-    <h2>Navbar</h2>
+<section class="ds-section" id="navigation">
+    <h2>Navigation</h2>
     <p>
-        One component for the admin and inductee areas: <code>views/partials/app-navbar.php</code>, on <code>--color-primary-900</code>.
-        Each layout header defines <code>$navItems</code>; the view's <code>$currentPage</code> marks the active item
-        (<code>.active</code> and <code>aria-current="page"</code>). Account links sit in the right-hand dropdown.
-        Shown here expanded; the partial renders it, so there is no markup to copy.
+        Both areas have a top bar on <code>--color-primary-900</code> with the brand on the left and the account menu
+        (<code>account-menu.php</code>: My Profile, Log Out) on the right. The view's <code>$currentPage</code> marks the active
+        item (<code>.active</code> and <code>aria-current="page"</code>). The partials render all of this, so there is no markup to copy.
+    </p>
+
+    <h3>Admin: grouped sidebar</h3>
+    <p>
+        The admin area lists its sections in a sidebar, grouped into <strong>Application</strong> (the induction features) and
+        <strong>Core</strong> (platform functions every deployment has), with Dashboard above both. A vertical list has room for
+        any number of sections, where a horizontal navbar runs out of width. From <code>lg</code> up the sidebar sticks beside the
+        page and scrolls on its own; below <code>lg</code> the same markup becomes a drawer (<code>.offcanvas-lg</code>),
+        opened by the menu button in the top bar.
+    </p>
+    <div class="ds-example" data-no-code>
+        <div class="ds-preview ds-preview-page">
+            <div class="ds-sidebar-demo">
+                <nav class="admin-nav" aria-label="Administration (example)">
+                    <ul class="nav flex-column">
+                        <li class="nav-item"><a class="nav-link" href="#"><i class="bi bi-speedometer2" aria-hidden="true"></i>Dashboard</a></li>
+                    </ul>
+                    <div class="admin-nav-group small text-uppercase text-muted fw-semibold">Application</div>
+                    <ul class="nav flex-column">
+                        <li class="nav-item"><a class="nav-link active" href="#" aria-current="page"><i class="bi bi-journal-check" aria-hidden="true"></i>Inductions</a></li>
+                        <li class="nav-item"><a class="nav-link" href="#"><i class="bi bi-ui-checks" aria-hidden="true"></i>Exams</a></li>
+                        <li class="nav-item"><a class="nav-link" href="#"><i class="bi bi-clipboard-data" aria-hidden="true"></i>Exam Attempts</a></li>
+                        <li class="nav-item"><a class="nav-link" href="#"><i class="bi bi-patch-check" aria-hidden="true"></i>Compliance</a></li>
+                    </ul>
+                    <div class="admin-nav-group small text-uppercase text-muted fw-semibold">Core</div>
+                    <ul class="nav flex-column">
+                        <li class="nav-item"><a class="nav-link" href="#"><i class="bi bi-people" aria-hidden="true"></i>Users</a></li>
+                        <li class="nav-item"><a class="nav-link" href="#"><i class="bi bi-images" aria-hidden="true"></i>Media Library</a></li>
+                        <li class="nav-item"><a class="nav-link" href="#"><i class="bi bi-tools" aria-hidden="true"></i>Tools</a></li>
+                        <li class="nav-item"><a class="nav-link" href="#"><i class="bi bi-gear" aria-hidden="true"></i>Settings</a></li>
+                    </ul>
+                </nav>
+            </div>
+        </div>
+    </div>
+
+    <h3>Adding an admin page</h3>
+    <p>
+        Add one entry to <code>views/partials/admin-menu.php</code>, under its group. It then appears in the sidebar <em>and</em>
+        as a dashboard shortcut. The key is the value the page sets as <code>$currentPage</code>.
+    </p>
+    <div class="ds-example">
+        <script type="text/plain" class="ds-source">
+'Core' => [
+    …
+    'audit-log' => [
+        'label' => 'Audit Log',
+        'icon' => 'bi-journal-text',
+        'url' => '/admin/audit-log/index.php',
+        'description' => 'See who changed what, and when.',
+    ],
+],
+        </script>
+    </div>
+    <ul class="ds-do">
+        <li><strong>Application</strong>: a feature of the induction domain (documented under <code>docs/application/</code>).
+            <strong>Core</strong>: something any white-label deployment has (users, media, tools, settings; <code>docs/core/</code>).
+            This matches the Core / Application grouping in Settings.</li>
+        <li>Order items within a group by how often they are used. Pages without their own entry (forms, a certificate, an exam)
+            set <code>$currentPage</code> to their parent section.</li>
+        <li>If a group grows past about eight items, split it into a new labelled group rather than nesting menus.</li>
+    </ul>
+
+    <h3>Inductee: top navbar</h3>
+    <p>
+        The inductee area has only two sections, so its links stay in the top bar (<code>app-navbar.php</code>, collapsing below
+        <code>md</code>), with fewer taps on a phone. Its items are the <code>$navItems</code> array in <code>inductee-header.php</code>.
     </p>
     <div class="ds-example" data-no-code>
         <div class="ds-preview p-0">
@@ -432,23 +507,19 @@ require __DIR__ . '/../../partials/admin-header.php';
                     <a class="navbar-brand d-flex align-items-center gap-2" href="#"><span class="text-truncate">Company Name</span></a>
                     <ul class="navbar-nav me-auto">
                         <li class="nav-item"><a class="nav-link active" href="#" aria-current="page">Dashboard</a></li>
-                        <li class="nav-item"><a class="nav-link" href="#">Inductions</a></li>
                         <li class="nav-item"><a class="nav-link" href="#">Compliance</a></li>
                     </ul>
                     <ul class="navbar-nav">
-                        <li class="nav-item"><a class="nav-link dropdown-toggle" href="#" aria-label="Account"><i class="bi bi-person-circle" aria-hidden="true"></i></a></li>
+                        <li class="nav-item"><a class="nav-link dropdown-toggle" href="#"><i class="bi bi-person-circle" aria-hidden="true"></i><span class="ms-1">Jane Citizen</span></a></li>
                     </ul>
                 </div>
             </nav>
         </div>
     </div>
-    <ul class="ds-do">
-        <li>Add a section by adding one entry to <code>$navItems</code> in the layout header.</li>
-        <li>Pages without their own nav item (a certificate, an exam) set <code>$currentPage</code> to their parent section.</li>
-    </ul>
     <ul class="ds-dont">
-        <li>Give a navbar an inline background, or use primary-700 for it.</li>
-        <li>Build a second navbar markup for one area.</li>
+        <li>Hand-list admin sections anywhere else: read <code>admin-menu.php</code>, as the dashboard does.</li>
+        <li>Put section links in the admin top bar, or nest menus in the sidebar.</li>
+        <li>Give a bar an inline background, or use primary-700 for it.</li>
     </ul>
 </section>
 
@@ -518,7 +589,8 @@ require __DIR__ . '/../../partials/admin-header.php';
             <table class="table align-middle">
                 <thead><tr><th>Class</th><th>Max width</th><th>Use for</th></tr></thead>
                 <tbody>
-                    <tr><td><code>container</code> (layout)</td><td>Bootstrap</td><td>List pages, dashboards, Settings, Media Library</td></tr>
+                    <tr><td><code>container-xxl mx-0</code> (admin layout)</td><td>1320px, left-aligned beside the sidebar</td><td>Every admin page: lists, dashboard, Settings, Media Library</td></tr>
+                    <tr><td><code>container</code> (inductee layout)</td><td>Bootstrap</td><td>Inductee pages</td></tr>
                     <tr><td><code>.page-narrow</code></td><td>720px</td><td>Form pages, profiles, detail pages (certificate). Wrap the page header and the card in it, so they line up.</td></tr>
                     <tr><td><code>.container-guest</code> (layout)</td><td>420px</td><td>The guest layout's single card</td></tr>
                     <tr><td><code>.content-canvas</code></td><td>1024px</td><td>Content Blocks reading canvas (see content_blocks_editor.md)</td></tr>
@@ -549,6 +621,7 @@ require __DIR__ . '/../../partials/admin-header.php';
         <li>Side-by-side form fields use <code>col-sm</code> (they stack on phones), never plain <code>col</code>.</li>
         <li>Tables sit in <code>.table-responsive</code> and scroll sideways rather than squeeze.</li>
         <li>The filter bar's search box is <code>col-12 col-sm-auto</code>.</li>
+        <li>In admin pages, split into side-by-side columns at <code>xl</code>, not <code>lg</code>: from <code>lg</code> the sidebar takes 240px, so an <code>lg</code> split is cramped (e.g. <code>col-xl-8</code> / <code>col-xl-4</code> in the Media Library).</li>
         <li>Row actions stay on one line: <code>td.text-end.text-nowrap</code>.</li>
         <li>Rows of buttons use a flex parent with <code>flex-wrap</code> and <code>gap-2</code>.</li>
     </ul>
@@ -747,7 +820,11 @@ require __DIR__ . '/../../partials/admin-header.php';
     </div>
 
     <h3>Link card</h3>
-    <p>A whole card that goes somewhere (dashboard shortcuts, Tools). Hover shows it is clickable.</p>
+    <p>
+        A whole card that goes somewhere (the Tools index, dashboard shortcuts). Hover shows it is clickable. The admin dashboard
+        renders one per <code>admin-menu.php</code> entry, under the same Application and Core labels as the sidebar
+        (<code>h2.small.text-uppercase.text-muted.fw-semibold</code>).
+    </p>
     <div class="ds-example">
         <div class="ds-preview ds-preview-page">
             <div class="row g-3">
@@ -1180,7 +1257,9 @@ require __DIR__ . '/../../partials/admin-header.php';
                 <thead><tr><th>Class</th><th>app.css §</th><th>Use for</th></tr></thead>
                 <tbody>
                     <tr><td><code>.theme-scope</code></td><td>3</td><td>An element that sets its own <code>--color-*</code> values (Appearance preview); re-applies the Bootstrap bridge inside it.</td></tr>
-                    <tr><td><code>.app-navbar</code></td><td>5</td><td>The navbar in <code>app-navbar.php</code>. Not for new markup.</td></tr>
+                    <tr><td><code>.app-navbar</code></td><td>5</td><td>The top bar of both areas (<code>admin-header.php</code>, <code>app-navbar.php</code>). Not for new markup.</td></tr>
+                    <tr><td><code>.admin-shell</code>, <code>.admin-sidebar</code>, <code>.admin-main</code></td><td>5</td><td>The admin layout: sidebar column beside the page. Layout only. <a href="#navigation">↗</a></td></tr>
+                    <tr><td><code>.admin-nav</code>, <code>.admin-nav-group</code></td><td>5</td><td>The sidebar's links and group labels, rendered from <code>admin-menu.php</code>.</td></tr>
                     <tr><td><code>.brand-logo</code></td><td>5</td><td>Company logo beside the company name.</td></tr>
                     <tr><td><code>.page-header</code></td><td>5</td><td>Title row at the top of every page. <a href="#page-header">↗</a></td></tr>
                     <tr><td><code>.page-title</code></td><td>5</td><td>The page's <code>h1</code>.</td></tr>
@@ -1207,6 +1286,7 @@ require __DIR__ . '/../../partials/admin-header.php';
     <p>Before merging a UI change, check:</p>
     <ol>
         <li>The page uses a layout partial and starts with <code>.page-header</code> (breadcrumb if it is below a section index).</li>
+        <li>A new admin section is one entry in <code>admin-menu.php</code>, under Application or Core. Nothing else lists sections.</li>
         <li>Every class is Bootstrap or listed in the <a href="#class-reference">Class reference</a>. No <code>style=""</code> or <code>&lt;style&gt;</code> for fixed values.</li>
         <li>No brand hex values; it still looks right with every theme in the menu above.</li>
         <li>Statuses use <code>status_badge()</code>; coloured text uses <code>text-warning-emphasis</code>, not <code>text-warning</code>.</li>

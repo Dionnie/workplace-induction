@@ -23,7 +23,8 @@ The application uses **Bootstrap 5.3** as its only UI framework. Do not introduc
 | [`docs/core/design-system.html`](design-system.html) | **The authority for UI markup.** Tokens, the class vocabulary, component patterns and page patterns, rendered live with copyable code. |
 | `docs/core/ui-guidelines.md` (this file) | The rules and reasoning behind the design system. |
 | `assets/css/app.css` | The implementation. Every class it defines is listed in the design system's Class Reference. |
-| `views/partials/` | The shared layouts: `head.php`, `app-navbar.php`, `flash.php`, `scripts.php`, and the admin, inductee and guest headers and footers. |
+| `views/partials/` | The shared layouts: `head.php`, `app-navbar.php`, `account-menu.php`, `flash.php`, `scripts.php`, and the admin, inductee and guest headers and footers. |
+| `views/partials/admin-menu.php` | The one list of admin sections, grouped Application / Core. It feeds the admin sidebar and the dashboard shortcuts. |
 | `status_badge()` in `app/Core/helpers.php` | The one map from status to badge colour. |
 | Settings → Appearance (`admin/settings/update-appearance.php`, `App\Core\Theme`) | The brand colour tokens, chosen by administrators at runtime. |
 
@@ -41,7 +42,7 @@ Prioritize usability over decoration.
 
 The interface should help users:
 
-1. Understand where they are. (Page title, active navbar item, breadcrumb.)
+1. Understand where they are. (Page title, active navigation item, breadcrumb.)
 2. Understand what they can do. (One clear main action.)
 3. Complete the task quickly.
 4. Understand the result of their action. (Flash message after every change.)
@@ -256,8 +257,11 @@ This applies particularly to status badges, validation messages, alerts, tables,
 - Every page starts with a `.page-header`: the page title, an optional one-line subtitle, and the page's actions.
 - Pages below a section's index (create, edit, detail, exam) show a breadcrumb in the page header. It replaces ad-hoc "Back" buttons.
 - Form, profile and detail pages are capped with `.page-narrow`.
-- The navbar is one shared component. Its active item comes from the view's `$currentPage`, and account links live in its dropdown.
-- Every page must work from phone width up without horizontal page scrolling. Use Bootstrap's grid: side-by-side fields use `col-sm` so they stack on phones.
+- Both areas have a top bar with the brand and the account menu (My Profile, Log Out). The active item comes from the view's `$currentPage`.
+- **Admin** sections live in a sidebar, grouped into **Application** (the induction features: Inductions, Exams, Exam Attempts, Compliance) and **Core** (platform functions any deployment has: Users, Media Library, Tools, Settings), the same split as `docs/application/` and `docs/core/` and the Settings tabs. A vertical list scales to any number of sections; below `lg` it becomes a drawer.
+- `views/partials/admin-menu.php` is the only list of admin sections. It feeds both the sidebar and the dashboard shortcuts, so a new admin page is one entry there. Never hand-list sections elsewhere.
+- **Inductee** sections (only two) stay as links in the top navbar, which is quicker to use on a phone.
+- Every page must work from phone width up without horizontal page scrolling. Use Bootstrap's grid: side-by-side fields use `col-sm` so they stack on phones. In admin pages, split into columns at `xl`, because the sidebar takes 240px from `lg` up.
 
 ---
 

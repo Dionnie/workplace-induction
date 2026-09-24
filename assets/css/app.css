@@ -147,6 +147,14 @@
   box-shadow: 0 0 0 0.25rem rgba(var(--color-primary-rgb), 0.25);
 }
 
+.nav-link:focus-visible {
+  box-shadow: 0 0 0 0.25rem rgba(var(--color-primary-rgb), 0.25);
+}
+
+.btn-close {
+  --bs-btn-close-focus-shadow: 0 0 0 0.25rem rgba(var(--color-primary-rgb), 0.25);
+}
+
 /*
  * Not bridged yet because nothing uses them: form switches, ranges,
  * progress bars, nav pills, accordions. Bridge them here before first use.
@@ -166,7 +174,7 @@ h1, h2, h3, h4, h5, h6,
 
 /* 5. Layout --------------------------------------------------------------- */
 
-/* Top navbar of the admin and inductee areas (views/partials/app-navbar.php). */
+/* Top bar of the admin and inductee areas (admin-header.php, app-navbar.php). */
 .app-navbar {
   --bs-navbar-color: rgba(255, 255, 255, 0.75);
   background-color: var(--color-primary-900);
@@ -177,13 +185,80 @@ h1, h2, h3, h4, h5, h6,
   max-width: 16rem;
 }
 
-.app-navbar .navbar-nav .nav-link {
-  font-size: 0.9375rem;
-  white-space: nowrap;
-}
-
 .app-navbar .nav-link.active {
   font-weight: 600;
+}
+
+/* The primary focus ring would vanish on the dark bar. */
+.app-navbar .nav-link:focus-visible {
+  box-shadow: 0 0 0 0.2rem rgba(255, 255, 255, 0.5);
+}
+
+/*
+ * Admin layout (admin-header.php): the sticky top bar, then the sidebar
+ * beside the page. From lg up the sidebar is a fixed-width column that
+ * sticks below the top bar and scrolls on its own, so any number of
+ * sections fits. Below lg the same markup is an offcanvas drawer
+ * (.offcanvas-lg), opened from the top bar.
+ */
+.admin-shell {
+  display: flex;
+}
+
+.admin-main {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+@media (min-width: 992px) {
+  .admin-sidebar {
+    flex: 0 0 15rem;
+    position: sticky;
+    top: 3.5rem; /* the top bar's height */
+    align-self: flex-start;
+    height: calc(100vh - 3.5rem);
+    overflow-y: auto;
+    background-color: var(--color-surface);
+    border-right: 1px solid var(--color-border);
+  }
+}
+
+/* Sidebar navigation: group labels (Application, Core) and links. */
+.admin-nav {
+  width: 100%;
+  padding: 1rem 0.75rem;
+}
+
+.admin-nav-group {
+  margin: 1.25rem 0.75rem 0.375rem;
+}
+
+.admin-nav .nav-link {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+  padding: 0.45rem 0.75rem;
+  border-radius: 0.375rem;
+  color: var(--color-text);
+}
+
+.admin-nav .nav-link .bi {
+  color: var(--color-text-muted);
+}
+
+.admin-nav .nav-link:hover {
+  background-color: var(--color-surface-subtle);
+  color: var(--color-text);
+}
+
+.admin-nav .nav-link.active {
+  background-color: rgba(var(--color-primary-rgb), 0.1);
+  color: var(--color-primary-700);
+  font-weight: 600;
+}
+
+.admin-nav .nav-link.active .bi {
+  color: inherit;
 }
 
 /* Company logo beside the company name in page headers. */
