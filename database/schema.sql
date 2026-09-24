@@ -9,6 +9,9 @@ CREATE TABLE users (
     password VARCHAR(255) NOT NULL,
     user_type ENUM('admin', 'inductee') NOT NULL,
     status ENUM('active', 'inactive', 'suspended') NOT NULL DEFAULT 'active',
+    -- 1 once the user has completed the profile their user type requires
+    -- (docs/core/auth.md #12); inductees can't start inductions until then.
+    profile_completed TINYINT(1) NOT NULL DEFAULT 0,
     email_verified_at DATETIME NULL,
     email_verification_token VARCHAR(64) NULL,
     email_verification_expires_at DATETIME NULL,

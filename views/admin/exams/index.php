@@ -68,11 +68,6 @@ require __DIR__ . '/../../partials/admin-header.php';
                         <td><?= e(date('Y-m-d', strtotime((string) $exam['created_at']))) ?></td>
                         <td class="text-end text-nowrap">
                             <a href="/admin/exams/edit.php?id=<?= (int) $exam['id'] ?>" class="btn btn-sm btn-outline-secondary">Edit</a>
-                            <button type="button" class="btn btn-sm btn-outline-danger" data-bs-toggle="modal" data-bs-target="#deleteExamModal"
-                                    data-id="<?= (int) $exam['id'] ?>"
-                                    data-name="<?= e($exam['title']) ?>">
-                                Delete
-                            </button>
                         </td>
                     </tr>
                 <?php endforeach; ?>
@@ -80,47 +75,5 @@ require __DIR__ . '/../../partials/admin-header.php';
         </table>
     </div>
 </div>
-
-<div class="modal fade" id="deleteExamModal" tabindex="-1" aria-labelledby="deleteExamModalTitle" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <form method="post" action="/admin/exams/delete.php">
-                <?= csrf_field() ?>
-                <input type="hidden" name="id" id="deleteExamId" value="">
-                <div class="modal-header">
-                    <h2 class="modal-title fs-5" id="deleteExamModalTitle">Delete Exam</h2>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <p>Are you sure you want to delete <strong id="deleteExamName"></strong>? This cannot be undone.</p>
-                    <div class="alert alert-warning small mb-3">
-                        As an administrator, you can permanently delete this exam even if it is used by inductions
-                        or has exam attempts. If related data exists, deletion is blocked unless cascade delete is
-                        enabled below.
-                    </div>
-                    <div class="form-check">
-                        <input class="form-check-input" type="checkbox" name="cascade" value="1" id="deleteExamCascade">
-                        <label class="form-check-label" for="deleteExamCascade">
-                            Also detach this exam from any induction using it and permanently delete its exam attempts
-                            (cascade delete)
-                        </label>
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
-                    <button type="submit" class="btn btn-danger">Delete Exam</button>
-                </div>
-            </form>
-        </div>
-    </div>
-</div>
-
-<script>
-document.getElementById('deleteExamModal').addEventListener('show.bs.modal', function (event) {
-    var button = event.relatedTarget;
-    document.getElementById('deleteExamId').value = button.getAttribute('data-id');
-    document.getElementById('deleteExamName').textContent = button.getAttribute('data-name');
-});
-</script>
 
 <?php require __DIR__ . '/../../partials/admin-footer.php'; ?>

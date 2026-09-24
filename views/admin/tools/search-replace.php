@@ -38,7 +38,7 @@ require __DIR__ . '/../../partials/admin-header.php';
     <div class="card-body p-4">
         <form method="get" action="/admin/tools/search-replace.php">
             <fieldset class="mb-3">
-                <legend class="form-label fs-6 mb-2">Tables</legend>
+                <legend class="form-label fs-6 mb-2 required">Tables</legend>
                 <div class="form-check mb-1">
                     <input class="form-check-input" type="checkbox" id="sr-select-all">
                     <label class="form-check-label small text-muted" for="sr-select-all">Select all</label>
@@ -56,12 +56,12 @@ require __DIR__ . '/../../partials/admin-header.php';
 
             <div class="row g-3 mb-3">
                 <div class="col-md-6">
-                    <label for="find" class="form-label">Find</label>
+                    <label for="find" class="form-label required">Find</label>
                     <input type="text" class="form-control" id="find" name="find" value="<?= e($find) ?>"
                            placeholder="e.g. https://old-domain.com" required>
                 </div>
                 <div class="col-md-6">
-                    <label for="replace" class="form-label">Replace With <span class="text-muted small">(optional)</span></label>
+                    <label for="replace" class="form-label">Replace With</label>
                     <input type="text" class="form-control" id="replace" name="replace" value="<?= e($replace) ?>"
                            placeholder="e.g. https://new-domain.com">
                     <div class="form-text">Leave blank to remove the found text entirely.</div>

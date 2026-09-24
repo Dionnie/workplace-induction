@@ -152,21 +152,21 @@
 (function () {
     'use strict';
 
-    // Every category row starts here: name + rename/delete icons, on one
-    // line. Renaming swaps the whole line for an input below it; deleting
-    // just swaps the rename/delete icons for confirm/cancel icons in place,
-    // so the row never grows or wraps.
+    // Every category row starts as its name + an Edit icon. Edit swaps the
+    // row for the rename input; only from there can the category be deleted
+    // (docs/core/design-system.html#danger-zone: no delete buttons in lists),
+    // and "Delete category" still asks to confirm.
+    function showDeleteConfirm(li, show) {
+        var confirmForm = li.querySelector('.category-delete-confirm');
+        confirmForm.classList.toggle('d-none', !show);
+        confirmForm.classList.toggle('d-flex', show);
+        li.querySelector('.category-delete-btn').classList.toggle('d-none', show);
+    }
+
     function reset(li) {
         li.querySelector('.category-view').classList.remove('d-none');
-        li.querySelector('.category-actions').classList.remove('d-none');
-
-        var deleteConfirm = li.querySelector('.category-delete-confirm');
-        deleteConfirm.classList.remove('d-flex');
-        deleteConfirm.classList.add('d-none');
-
-        var editForm = li.querySelector('.category-edit-form');
-        editForm.classList.remove('d-flex');
-        editForm.classList.add('d-none');
+        li.querySelector('.category-edit').classList.add('d-none');
+        showDeleteConfirm(li, false);
     }
 
     document.querySelectorAll('.category-rename-btn').forEach(function (btn) {
@@ -174,10 +174,8 @@
             var li = btn.closest('li');
             reset(li);
             li.querySelector('.category-view').classList.add('d-none');
-            var form = li.querySelector('.category-edit-form');
-            form.classList.remove('d-none');
-            form.classList.add('d-flex');
-            var input = form.querySelector('input[name="name"]');
+            li.querySelector('.category-edit').classList.remove('d-none');
+            var input = li.querySelector('.category-edit input[name="name"]');
             input.focus();
             input.select();
         });
@@ -185,22 +183,23 @@
 
     document.querySelectorAll('.category-delete-btn').forEach(function (btn) {
         btn.addEventListener('click', function () {
-            var li = btn.closest('li');
-            reset(li);
-            li.querySelector('.category-actions').classList.add('d-none');
-            var confirmForm = li.querySelector('.category-delete-confirm');
-            confirmForm.classList.remove('d-none');
-            confirmForm.classList.add('d-flex');
+            showDeleteConfirm(btn.closest('li'), true);
         });
     });
 
-    document.querySelectorAll('.category-cancel-btn, .category-delete-cancel-btn').forEach(function (btn) {
+    document.querySelectorAll('.category-delete-cancel-btn').forEach(function (btn) {
+        btn.addEventListener('click', function () {
+            showDeleteConfirm(btn.closest('li'), false);
+        });
+    });
+
+    document.querySelectorAll('.category-cancel-btn').forEach(function (btn) {
         btn.addEventListener('click', function () {
             reset(btn.closest('li'));
         });
     });
 
-    document.querySelectorAll('.category-edit-form, .category-delete-confirm').forEach(function (panel) {
+    document.querySelectorAll('.category-edit').forEach(function (panel) {
         panel.addEventListener('keydown', function (event) {
             if (event.key === 'Escape') {
                 reset(panel.closest('li'));

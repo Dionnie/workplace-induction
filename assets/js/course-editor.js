@@ -8,9 +8,9 @@
  * image/video/alert preview) so editing IS the preview, not a separate form.
  * Server-side (ContentBlockRenderer) renders the same block types for the
  * inductee page; this file's preview markup is a deliberate, independent
- * duplicate for live client-side editing, matching this project's existing
- * content-blocks.js/exam-blocks.js pattern of parallel client
- * implementations rather than a network round trip per edit.
+ * duplicate for live client-side editing, matching this project's pattern
+ * of parallel client/server implementations (exam-editor.js does the same)
+ * rather than a network round trip per edit.
  */
 (function () {
     'use strict';
@@ -431,6 +431,14 @@
                 }
             });
 
+            // Leaving with unsaved changes asks first.
+            window.addEventListener('beforeunload', function (e) {
+                if (self.dirty) {
+                    e.preventDefault();
+                    e.returnValue = '';
+                }
+            });
+
             document.addEventListener('click', function (e) {
                 if (e.target.closest('.cb-block') || e.target.closest('.cb-quick-insert')) {
                     return;
@@ -527,8 +535,8 @@
         /**
          * Live course-structure outline, mirroring CourseOutlineBuilder.php's
          * logic client-side (a deliberate parallel implementation, not a
-         * network round trip — same pattern as content-blocks.js/
-         * exam-blocks.js elsewhere in this project). Every "section" block
+         * network round trip — the same pattern exam-editor.js follows
+         * with ExamService). Every "section" block
          * starts a new node; only "lecture" blocks nest under it as items —
          * every other block type is canvas content, not a navigable outline
          * item. A lecture appearing before any section gets an implicit
@@ -924,7 +932,7 @@
                 // Gallery's "images" array isn't a flat [data-field] on the
                 // block, so it's managed directly against self.blocks rather
                 // than through the generic field sync above (matching
-                // exam-blocks.js's add/remove-row pattern for its own
+                // exam-editor.js's add/remove-row pattern for its own
                 // nested "options" array).
                 var galleryAddImageBtn = wrapper.querySelector('[data-add-image]');
                 if (galleryAddImageBtn) {

@@ -21,8 +21,8 @@ $result = (new ExamAttemptService())->delete($id);
 
 if ($result['success']) {
     flash('success', 'Exam attempt deleted.');
-} else {
-    flash('error', $result['errors']['form'] ?? 'Unable to delete exam attempt.');
+    redirect('/admin/exam-attempts/index.php');
 }
 
-redirect('/admin/exam-attempts/index.php');
+flash('error', $result['errors']['form'] ?? 'Unable to delete exam attempt.');
+redirect('/admin/exam-attempts/show.php?id=' . $id);

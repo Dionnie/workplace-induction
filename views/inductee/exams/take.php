@@ -31,7 +31,7 @@ require __DIR__ . '/../../partials/inductee-header.php';
     <?php foreach ($questions as $index => $question): ?>
         <div class="card shadow-sm mb-3">
             <fieldset class="card-body">
-                <legend class="fs-6 fw-semibold mb-2">Question <?= $index + 1 ?></legend>
+                <legend class="fs-6 fw-semibold mb-2 required">Question <?= $index + 1 ?></legend>
                 <p><?= nl2br(e($question['question'])) ?></p>
 
                 <?php if (!empty($question['diagram_img_url'])): ?>

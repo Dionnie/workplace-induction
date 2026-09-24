@@ -16,14 +16,14 @@ require __DIR__ . '/../partials/guest-header.php';
             <?= csrf_field() ?>
 
             <div class="mb-3">
-                <label for="email" class="form-label">Email</label>
+                <label for="email" class="form-label required">Email</label>
                 <input type="email" class="form-control" id="email" name="email" value="<?= old('email') ?>"
                        autocomplete="email" required autofocus>
             </div>
 
             <div class="mb-3">
                 <div class="d-flex justify-content-between align-items-baseline">
-                    <label for="password" class="form-label">Password</label>
+                    <label for="password" class="form-label required">Password</label>
                     <a href="/forgot-password.php" class="small">Forgot your password?</a>
                 </div>
                 <input type="password" class="form-control" id="password" name="password" autocomplete="current-password" required>

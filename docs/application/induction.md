@@ -46,6 +46,7 @@ exams
 ```
 
 `exam_blocks` contains questions only.
+Admins build them in the Exam Blocks editor (`docs/application/exam_blocks_editor.md`).
 
 ```json
 [

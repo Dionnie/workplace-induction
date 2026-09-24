@@ -306,6 +306,19 @@ h1, h2, h3, h4, h5, h6,
 
 /* 6. Components ----------------------------------------------------------- */
 
+/*
+ * Required-field marker: <label class="form-label required"> (or a legend).
+ * The red asterisk is visual only (empty alt text); the control's required
+ * attribute is what assistive technology announces. The first `content` is
+ * the fallback for browsers without the alt-text syntax.
+ */
+.required::after {
+  content: "*";
+  content: "*" / "";
+  margin-left: 0.2rem;
+  color: var(--bs-danger);
+}
+
 /* Buttons at the end of a form: submit first, then Cancel. */
 .form-actions {
   display: flex;
@@ -573,6 +586,11 @@ h1, h2, h3, h4, h5, h6,
   margin-top: 2rem;
 }
 
+/* Exam Blocks Studio: each question is its own unit, like the exam page's cards. */
+.cb-block[data-type="question"] {
+  margin-top: 1.5rem;
+}
+
 .cb-block:first-child,
 .content-block:first-child {
   margin-top: 0;
@@ -691,6 +709,11 @@ h1, h2, h3, h4, h5, h6,
   font-weight: 400;
   color: var(--color-text-muted);
   opacity: 1;
+}
+
+/* Exam Blocks Studio question text: a borderless textarea, like the title inputs. */
+.cb-question-input {
+  resize: vertical;
 }
 
 .cb-richtext {
@@ -902,6 +925,12 @@ h1, h2, h3, h4, h5, h6,
 .cb-type-badge-lecture {
   background-color: rgba(var(--color-accent-rgb), 0.12);
   color: var(--color-accent-500);
+}
+
+/* Exam Blocks Studio. */
+.cb-type-badge-question {
+  background-color: rgba(var(--color-primary-rgb), 0.12);
+  color: var(--color-primary-700);
 }
 
 /* Spinner icon shown on the Save button while a save request is in flight. */

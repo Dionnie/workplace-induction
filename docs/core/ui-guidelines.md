@@ -274,7 +274,9 @@ Rules:
 - Labels match the established database/business terminology.
 - Use predictable field names and appropriate input types, with `autocomplete` where it helps.
 - Group related fields: side by side in a `row g-3`, or in a `fieldset` with a `legend`.
-- Required is the default; mark **optional** fields with "(optional)" in the label. A field whose help text explains what blank means needs no marker.
+- Mark every **required** field with a red asterisk (`.required` on its label, or on the `legend` of a required group) and give the control the `required` attribute, so screen readers announce it; the asterisk itself is hidden from them. A field without an asterisk is optional; do not also write "(optional)".
+- "Required" follows the server-side validation: the form is rejected without it. A field whose blank value has a meaning ("Blank uses the Company Name", "Leave blank to keep the current password") is optional. Fields labelled only by `aria-label` (filters, one-field inline forms) carry no asterisk.
+- The red asterisk is the one use of the danger color that is not a negative state. It is kept because it is a universally understood convention.
 - Validation happens server-side. Show errors with `is-invalid` and `invalid-feedback` next to the field (`invalid-feedback d-block` when the message cannot sit directly after the control). Show form-level errors as an `alert alert-danger` above the fields.
 - Preserve submitted values after validation errors (`old()`).
 - Put buttons in `.form-actions`: the main action first, then Cancel.
@@ -294,7 +296,15 @@ Do not make forms unnecessarily long. If a form becomes large, divide it into ca
 
 # 13. Destructive Actions
 
-Every destructive action asks for confirmation first. Use the lightest confirmation that fits:
+Destructive actions must never look like everyday actions.
+
+- **Lists only navigate.** Table rows and list items offer Edit (editable records) or View (read-only records), never Delete or Revoke.
+- **Destructive actions live inside the record**, in a **Danger Zone** card at the bottom of its page. Each action states what it does, including what happens to related records. Records without an edit page get a read-only detail page to hold their Danger Zone (Compliance Record, Exam Attempt).
+- Collections without per-item pages delete through a deliberate step: select files, then "Delete Selected" (Media Library), or open a category's edit state to find "Delete category".
+- An action that isn't allowed stays visible but disabled, with the reason given (e.g. you cannot delete your own account). The server enforces the same rule.
+- After a successful delete, return to the list. If the action is refused, or after a revoke, return to the record so the message appears in context.
+
+Every destructive action also asks for confirmation. Use the lightest confirmation that fits:
 
 - A native `confirm()` to delete or revoke a single row with no options.
 - A modal when the user needs an explanation or a choice (e.g. cascade delete).
@@ -381,7 +391,7 @@ Tables should:
 - Sit in a `.card-table` card, inside `.table-responsive` so wide tables scroll within the card instead of squeezing columns.
 - Have clear, concise column headings. The actions column has a visually hidden "Actions" heading.
 - Use consistent alignment: numbers right-aligned, row actions right-aligned on one line.
-- Keep actions predictable: Edit or View, then the destructive action.
+- Keep row actions to navigation: Edit or View. Destructive actions belong in the record's Danger Zone (section 13).
 - Avoid unnecessary columns.
 - Show dates as `YYYY-MM-DD` (and `YYYY-MM-DD HH:MM` with a time).
 - Provide a useful empty state: one full-width row saying what is missing.

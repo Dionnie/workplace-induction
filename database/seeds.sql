@@ -2,12 +2,13 @@
 -- Email: admin@example.com
 -- Password: ChangeMe123!  (change this after first login)
 
-INSERT INTO users (email, password, user_type, status, email_verified_at)
+INSERT INTO users (email, password, user_type, status, profile_completed, email_verified_at)
 VALUES (
     'admin@example.com',
     '$2y$10$oSF7TVTKg1loGxicO3bCp.f346jcY0Rhd9oK/f8Lt03ehoCnYggV2',
     'admin',
     'active',
+    1,
     NOW()
 );
 

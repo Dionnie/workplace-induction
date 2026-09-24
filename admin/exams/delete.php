@@ -23,8 +23,8 @@ $result = (new ExamService())->delete($id, $cascade);
 
 if ($result['success']) {
     flash('success', 'Exam deleted.');
-} else {
-    flash('error', $result['errors']['form'] ?? 'Unable to delete exam.');
+    redirect('/admin/exams/index.php');
 }
 
-redirect('/admin/exams/index.php');
+flash('error', $result['errors']['form'] ?? 'Unable to delete exam.');
+redirect('/admin/exams/edit.php?id=' . $id);

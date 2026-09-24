@@ -95,12 +95,7 @@ require __DIR__ . '/../../partials/admin-header.php';
                         <td><?= status_badge((string) $attempt['result']) ?></td>
                         <td><?= e(date('Y-m-d H:i', strtotime((string) $attempt['created_at']))) ?></td>
                         <td class="text-end text-nowrap">
-                            <form method="post" action="/admin/exam-attempts/delete.php" class="d-inline"
-                                  onsubmit="return confirm('Delete this exam attempt? Any compliance record referencing it keeps its record but loses the reference. This cannot be undone.');">
-                                <?= csrf_field() ?>
-                                <input type="hidden" name="id" value="<?= (int) $attempt['id'] ?>">
-                                <button type="submit" class="btn btn-sm btn-outline-danger">Delete</button>
-                            </form>
+                            <a href="/admin/exam-attempts/show.php?id=<?= (int) $attempt['id'] ?>" class="btn btn-sm btn-outline-secondary">View</a>
                         </td>
                     </tr>
                 <?php endforeach; ?>

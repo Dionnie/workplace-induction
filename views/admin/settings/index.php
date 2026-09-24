@@ -66,7 +66,7 @@ $frequency = old_raw('admin_notification_frequency', (string) $settings['admin_n
                         <?= csrf_field() ?>
 
                         <div class="mb-3">
-                            <label for="company_name" class="form-label">Company Name</label>
+                            <label for="company_name" class="form-label required">Company Name</label>
                             <input type="text" class="form-control <?= error_for($errors, 'company_name') ? 'is-invalid' : '' ?>"
                                    id="company_name" name="company_name" maxlength="150" required
                                    value="<?= old('company_name', (string) $site['company_name']) ?>">
@@ -76,7 +76,7 @@ $frequency = old_raw('admin_notification_frequency', (string) $settings['admin_n
                         </div>
 
                         <div class="mb-3">
-                            <label class="form-label d-block" for="logo-choose">Company Logo <span class="text-muted small">(optional)</span></label>
+                            <label class="form-label d-block" for="logo-choose">Company Logo</label>
                             <input type="hidden" id="logo_url" name="logo_url" value="<?= e($logoUrl) ?>">
                             <div class="d-flex flex-wrap align-items-center gap-3">
                                 <!-- Shown on the navbar colour, since that's where the logo appears. -->
@@ -99,7 +99,7 @@ $frequency = old_raw('admin_notification_frequency', (string) $settings['admin_n
                         </div>
 
                         <div class="mb-3">
-                            <label for="primary_email" class="form-label">Primary Email <span class="text-muted small">(optional)</span></label>
+                            <label for="primary_email" class="form-label">Primary Email</label>
                             <input type="email" class="form-control <?= error_for($errors, 'primary_email') ? 'is-invalid' : '' ?>"
                                    id="primary_email" name="primary_email" placeholder="e.g. hse@example.com"
                                    value="<?= old('primary_email', (string) ($site['primary_email'] ?? '')) ?>">
@@ -128,7 +128,7 @@ $frequency = old_raw('admin_notification_frequency', (string) $settings['admin_n
             // One radio per theme; data-color-* feed the live preview.
             $themeRadio = function (string $key, array $colors) use ($themePreset): string {
                 return sprintf(
-                    '<input type="radio" class="btn-check" name="theme_preset" id="theme_%1$s" value="%1$s" '
+                    '<input type="radio" class="btn-check" name="theme_preset" id="theme_%1$s" value="%1$s" required '
                     . 'data-color-dark="%2$s" data-color-hover="%3$s" data-color-main="%4$s" data-color-accent="%5$s"%6$s>',
                     e($key), e($colors['primary_900']), e($colors['primary_800']), e($colors['primary_700']), e($colors['accent']),
                     $themePreset === $key ? ' checked' : ''
@@ -153,7 +153,7 @@ $frequency = old_raw('admin_notification_frequency', (string) $settings['admin_n
                         <?= csrf_field() ?>
 
                         <fieldset class="mb-4">
-                            <legend class="form-label fs-6 mb-2">Colour Theme</legend>
+                            <legend class="form-label fs-6 mb-2 required">Colour Theme</legend>
                             <div class="row row-cols-3 row-cols-md-6 g-2">
                                 <?php foreach (Theme::PRESETS as $key => $preset): ?>
                                     <div class="col">
@@ -188,10 +188,10 @@ $frequency = old_raw('admin_notification_frequency', (string) $settings['admin_n
                                         'theme_accent' => ['Accent', $themeAccent, 'Small highlights, used sparingly.'],
                                     ] as $name => [$label, $color, $help]): ?>
                                         <div class="col-sm-6">
-                                            <label for="<?= e($name) ?>" class="form-label"><?= e($label) ?></label>
+                                            <label for="<?= e($name) ?>" class="form-label required"><?= e($label) ?></label>
                                             <div class="d-flex align-items-center gap-2">
                                                 <input type="color" class="form-control form-control-color <?= error_for($errors, $name) ? 'is-invalid' : '' ?>"
-                                                       id="<?= e($name) ?>" name="<?= e($name) ?>" value="<?= e($color) ?>">
+                                                       id="<?= e($name) ?>" name="<?= e($name) ?>" value="<?= e($color) ?>" required>
                                                 <code class="small text-body" data-hex-for="<?= e($name) ?>"><?= e($color) ?></code>
                                                 <span class="badge text-bg-danger" data-contrast-warning="<?= e($name) ?>" hidden>Too light</span>
                                             </div>
@@ -383,7 +383,7 @@ $frequency = old_raw('admin_notification_frequency', (string) $settings['admin_n
                                 <div class="reminder-days input-group input-group-sm mt-2 ms-4">
                                     <span class="input-group-text">Remind</span>
                                     <input type="number" min="1" max="365" class="form-control <?= error_for($errors, 'expiry_reminder_days') ? 'is-invalid' : '' ?>"
-                                           id="expiry_reminder_days" name="expiry_reminder_days" aria-label="Days before expiry"
+                                           id="expiry_reminder_days" name="expiry_reminder_days" aria-label="Days before expiry" required
                                            value="<?= old('expiry_reminder_days', (string) $settings['expiry_reminder_days']) ?>">
                                     <span class="input-group-text">days before</span>
                                 </div>
@@ -402,10 +402,10 @@ $frequency = old_raw('admin_notification_frequency', (string) $settings['admin_n
                         <p class="text-muted small mb-3">Sent to all active administrators, from the sender set under <a href="/admin/settings/index.php?tab=email">Email</a>.</p>
 
                         <fieldset class="mb-3">
-                            <legend class="form-label fs-6 mb-2">Delivery</legend>
+                            <legend class="form-label fs-6 mb-2 required">Delivery</legend>
                             <?php foreach (EmailSettingsService::ADMIN_FREQUENCIES as $value => $label): ?>
                                 <div class="form-check form-check-inline">
-                                    <input type="radio" class="form-check-input" id="frequency_<?= e($value) ?>" name="admin_notification_frequency"
+                                    <input type="radio" class="form-check-input" id="frequency_<?= e($value) ?>" name="admin_notification_frequency" required
                                            value="<?= e($value) ?>" <?= $frequency === $value ? 'checked' : '' ?>>
                                     <label class="form-check-label" for="frequency_<?= e($value) ?>"><?= e($label) ?></label>
                                 </div>

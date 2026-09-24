@@ -31,7 +31,7 @@ class NotificationService
      * Instant mode only: tells administrators a new inductee registered.
      * Otherwise the registration is included in the next admin report.
      *
-     * @param array<string, mixed> $inductee email, first_name, last_name, company
+     * @param array<string, mixed> $inductee email (a new registration has no profile details yet)
      */
     public function notifyAdminsOfRegistration(array $inductee): void
     {

@@ -32,6 +32,17 @@ $actionLabel = [
     </div>
 </div>
 
+<?php if (empty($authUser['profile_completed'])): ?>
+    <!-- Persistent until the profile is complete: inductions stay locked until then. -->
+    <div class="alert alert-warning d-flex flex-wrap align-items-center justify-content-between gap-2">
+        <div>
+            <i class="bi bi-person-exclamation me-1" aria-hidden="true"></i>
+            <strong>Complete your profile</strong> before starting your inductions.
+        </div>
+        <a href="/inductee/profile/index.php" class="btn btn-primary btn-sm">Complete Profile</a>
+    </div>
+<?php endif; ?>
+
 <div class="card shadow-sm card-table">
     <div class="table-responsive">
         <table class="table table-hover align-middle">

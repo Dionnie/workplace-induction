@@ -21,6 +21,17 @@ $adminMenu = require __DIR__ . '/../partials/admin-menu.php';
     </div>
 </div>
 
+<?php if (empty($authUser['profile_completed'])): ?>
+    <!-- Persistent until the profile is complete. -->
+    <div class="alert alert-warning d-flex flex-wrap align-items-center justify-content-between gap-2">
+        <div>
+            <i class="bi bi-person-exclamation me-1" aria-hidden="true"></i>
+            <strong>Complete your profile</strong> by adding your name.
+        </div>
+        <a href="/admin/profile/index.php" class="btn btn-primary btn-sm">Complete Profile</a>
+    </div>
+<?php endif; ?>
+
 <div class="row g-3 mb-4">
     <div class="col-6 col-lg-3">
         <div class="card shadow-sm h-100">

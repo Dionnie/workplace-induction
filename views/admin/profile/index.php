@@ -26,7 +26,7 @@ require __DIR__ . '/../../partials/admin-header.php';
 
                 <div class="row g-3 mb-3">
                     <div class="col-sm">
-                        <label for="first_name" class="form-label">First Name</label>
+                        <label for="first_name" class="form-label required">First Name</label>
                         <input type="text" class="form-control <?= error_for($errors, 'first_name') ? 'is-invalid' : '' ?>"
                                id="first_name" name="first_name" value="<?= old('first_name', (string) $user['first_name']) ?>" required autofocus>
                         <?php if ($error = error_for($errors, 'first_name')): ?>
@@ -34,7 +34,7 @@ require __DIR__ . '/../../partials/admin-header.php';
                         <?php endif; ?>
                     </div>
                     <div class="col-sm">
-                        <label for="last_name" class="form-label">Last Name</label>
+                        <label for="last_name" class="form-label required">Last Name</label>
                         <input type="text" class="form-control <?= error_for($errors, 'last_name') ? 'is-invalid' : '' ?>"
                                id="last_name" name="last_name" value="<?= old('last_name', (string) $user['last_name']) ?>" required>
                         <?php if ($error = error_for($errors, 'last_name')): ?>

@@ -26,7 +26,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         'description' => trim($_POST['description'] ?? ''),
         'pass_percentage' => trim($_POST['pass_percentage'] ?? ''),
         'status' => $_POST['status'] ?? '',
-        'exam_blocks' => $_POST['exam_blocks'] ?? '[]',
     ];
 
     $result = $service->update($id, $data);

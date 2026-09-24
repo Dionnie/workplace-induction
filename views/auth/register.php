@@ -5,7 +5,8 @@ require __DIR__ . '/../partials/guest-header.php';
 ?>
 <div class="card shadow-sm">
     <div class="card-body p-4">
-        <h1 class="page-title mb-3">Register</h1>
+        <h1 class="page-title mb-1">Register</h1>
+        <p class="text-muted small mb-3">After you verify your email, you'll complete your profile before starting your inductions.</p>
 
         <?php if ($error = error_for($errors, 'form')): ?>
             <div class="alert alert-danger"><?= e($error) ?></div>
@@ -15,57 +16,16 @@ require __DIR__ . '/../partials/guest-header.php';
             <?= csrf_field() ?>
 
             <div class="mb-3">
-                <label for="first_name" class="form-label">First Name</label>
-                <input type="text" class="form-control <?= error_for($errors, 'first_name') ? 'is-invalid' : '' ?>"
-                       id="first_name" name="first_name" value="<?= old('first_name') ?>" required autofocus>
-                <?php if ($error = error_for($errors, 'first_name')): ?>
-                    <div class="invalid-feedback"><?= e($error) ?></div>
-                <?php endif; ?>
-            </div>
-
-            <div class="mb-3">
-                <label for="last_name" class="form-label">Last Name</label>
-                <input type="text" class="form-control <?= error_for($errors, 'last_name') ? 'is-invalid' : '' ?>"
-                       id="last_name" name="last_name" value="<?= old('last_name') ?>" required>
-                <?php if ($error = error_for($errors, 'last_name')): ?>
-                    <div class="invalid-feedback"><?= e($error) ?></div>
-                <?php endif; ?>
-            </div>
-
-            <div class="mb-3">
-                <label for="company" class="form-label">Company</label>
-                <input type="text" class="form-control <?= error_for($errors, 'company') ? 'is-invalid' : '' ?>"
-                       id="company" name="company" value="<?= old('company') ?>" required>
-                <?php if ($error = error_for($errors, 'company')): ?>
-                    <div class="invalid-feedback"><?= e($error) ?></div>
-                <?php endif; ?>
-            </div>
-
-            <div class="mb-3">
-                <label for="employment_type" class="form-label">Employment Type</label>
-                <select class="form-select <?= error_for($errors, 'employment_type') ? 'is-invalid' : '' ?>"
-                        id="employment_type" name="employment_type" required>
-                    <option value="">Select&hellip;</option>
-                    <?php foreach (['Full-time', 'Part-time', 'Casual', 'Contractor', 'Sub-contractor', 'Apprentice', 'Trainee', 'Shift-worker', 'Other'] as $type): ?>
-                        <option value="<?= e($type) ?>" <?= old('employment_type') === $type ? 'selected' : '' ?>><?= e($type) ?></option>
-                    <?php endforeach; ?>
-                </select>
-                <?php if ($error = error_for($errors, 'employment_type')): ?>
-                    <div class="invalid-feedback"><?= e($error) ?></div>
-                <?php endif; ?>
-            </div>
-
-            <div class="mb-3">
-                <label for="email" class="form-label">Email</label>
+                <label for="email" class="form-label required">Email</label>
                 <input type="email" class="form-control <?= error_for($errors, 'email') ? 'is-invalid' : '' ?>"
-                       id="email" name="email" value="<?= old('email') ?>" autocomplete="email" required>
+                       id="email" name="email" value="<?= old('email') ?>" autocomplete="email" required autofocus>
                 <?php if ($error = error_for($errors, 'email')): ?>
                     <div class="invalid-feedback"><?= e($error) ?></div>
                 <?php endif; ?>
             </div>
 
             <div class="mb-3">
-                <label for="password" class="form-label">Password</label>
+                <label for="password" class="form-label required">Password</label>
                 <input type="password" class="form-control <?= error_for($errors, 'password') ? 'is-invalid' : '' ?>"
                        id="password" name="password" autocomplete="new-password" required>
                 <?php if ($error = error_for($errors, 'password')): ?>
@@ -76,7 +36,7 @@ require __DIR__ . '/../partials/guest-header.php';
             </div>
 
             <div class="mb-3">
-                <label for="password_confirmation" class="form-label">Confirm Password</label>
+                <label for="password_confirmation" class="form-label required">Confirm Password</label>
                 <input type="password" class="form-control <?= error_for($errors, 'password_confirmation') ? 'is-invalid' : '' ?>"
                        id="password_confirmation" name="password_confirmation" autocomplete="new-password" required>
                 <?php if ($error = error_for($errors, 'password_confirmation')): ?>

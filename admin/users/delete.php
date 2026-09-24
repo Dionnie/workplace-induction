@@ -19,12 +19,17 @@ verify_csrf();
 $id = (int) ($_POST['id'] ?? 0);
 $cascade = !empty($_POST['cascade']);
 
+if ($id === Auth::id()) {
+    flash('error', 'You cannot delete your own account.');
+    redirect('/admin/users/edit.php?id=' . $id);
+}
+
 $result = (new UserManagementService())->delete($id, $cascade);
 
 if ($result['success']) {
     flash('success', 'User deleted.');
-} else {
-    flash('error', $result['errors']['form'] ?? 'Unable to delete user.');
+    redirect('/admin/users/index.php');
 }
 
-redirect('/admin/users/index.php');
+flash('error', $result['errors']['form'] ?? 'Unable to delete user.');
+redirect('/admin/users/edit.php?id=' . $id);

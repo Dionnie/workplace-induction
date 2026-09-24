@@ -49,9 +49,9 @@ class UserRepository
     {
         $stmt = $this->db->prepare(
             'INSERT INTO users
-                (email, password, user_type, status, email_verified_at, email_verification_token, email_verification_expires_at)
+                (email, password, user_type, status, profile_completed, email_verified_at, email_verification_token, email_verification_expires_at)
              VALUES
-                (:email, :password, :user_type, :status, :email_verified_at, :email_verification_token, :email_verification_expires_at)'
+                (:email, :password, :user_type, :status, :profile_completed, :email_verified_at, :email_verification_token, :email_verification_expires_at)'
         );
 
         $stmt->execute([
@@ -59,6 +59,7 @@ class UserRepository
             'password' => $data['password'],
             'user_type' => $data['user_type'],
             'status' => $data['status'] ?? 'active',
+            'profile_completed' => !empty($data['profile_completed']) ? 1 : 0,
             'email_verified_at' => $data['email_verified_at'] ?? null,
             'email_verification_token' => $data['email_verification_token'] ?? null,
             'email_verification_expires_at' => $data['email_verification_expires_at'] ?? null,
@@ -67,41 +68,30 @@ class UserRepository
         return (int) $this->db->lastInsertId();
     }
 
-    public function createInducteeProfile(
-        int $userId,
-        string $firstName,
-        string $lastName,
-        ?string $company = null,
-        ?string $employmentType = null
-    ): void {
-        $stmt = $this->db->prepare(
-            'INSERT INTO inductee_profiles (user_id, first_name, last_name, company, employment_type)
-             VALUES (:user_id, :first_name, :last_name, :company, :employment_type)'
-        );
-        $stmt->execute([
-            'user_id' => $userId,
-            'first_name' => $firstName,
-            'last_name' => $lastName,
-            'company' => $company,
-            'employment_type' => $employmentType,
-        ]);
-    }
-
-    public function createAdminProfile(int $userId, string $firstName, string $lastName): void
-    {
-        $stmt = $this->db->prepare(
-            'INSERT INTO admin_profiles (user_id, first_name, last_name) VALUES (:user_id, :first_name, :last_name)'
-        );
-        $stmt->execute(['user_id' => $userId, 'first_name' => $firstName, 'last_name' => $lastName]);
-    }
-
+    /**
+     * Saves the name in the user's profile, creating the profile row if the
+     * account doesn't have one yet (accounts created by an administrator or
+     * by registration start without one).
+     */
     public function updateProfile(int $userId, string $userType, string $firstName, string $lastName): void
     {
         $table = $userType === 'admin' ? 'admin_profiles' : 'inductee_profiles';
         $stmt = $this->db->prepare(
-            "UPDATE {$table} SET first_name = :first_name, last_name = :last_name WHERE user_id = :user_id"
+            "INSERT INTO {$table} (user_id, first_name, last_name) VALUES (:user_id, :first_name, :last_name)
+             ON DUPLICATE KEY UPDATE first_name = VALUES(first_name), last_name = VALUES(last_name)"
         );
         $stmt->execute(['first_name' => $firstName, 'last_name' => $lastName, 'user_id' => $userId]);
+    }
+
+    /**
+     * Records whether the user has completed the profile their user type
+     * requires (docs/core/auth.md #12). What "complete" means belongs to the
+     * profile type, e.g. App\Inductee\InducteeProfileService.
+     */
+    public function setProfileCompleted(int $id, bool $completed): void
+    {
+        $stmt = $this->db->prepare('UPDATE users SET profile_completed = ? WHERE id = ?');
+        $stmt->execute([$completed ? 1 : 0, $id]);
     }
 
     public function findByVerificationToken(string $token): ?array
@@ -183,7 +173,7 @@ class UserRepository
         $stmt = $this->db->prepare(
             "SELECT u.id, u.email, u.created_at, ip.first_name, ip.last_name, ip.company
              FROM users u
-             JOIN inductee_profiles ip ON ip.user_id = u.id
+             LEFT JOIN inductee_profiles ip ON ip.user_id = u.id
              WHERE u.user_type = 'inductee'
                AND u.created_at >= :from AND u.created_at < :to
              ORDER BY u.created_at"
@@ -194,7 +184,7 @@ class UserRepository
 
     public function allWithProfiles(?string $userType = null, ?string $search = null): array
     {
-        $sql = "SELECT u.id, u.email, u.user_type, u.status, u.email_verified_at, u.created_at,
+        $sql = "SELECT u.id, u.email, u.user_type, u.status, u.profile_completed, u.email_verified_at, u.created_at,
                        COALESCE(ap.first_name, ip.first_name) AS first_name,
                        COALESCE(ap.last_name, ip.last_name) AS last_name
                 FROM users u

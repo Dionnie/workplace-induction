@@ -94,7 +94,7 @@
         <a href="#filters">Filter bar</a>
         <a href="#badges">Status badges</a>
         <a href="#alerts">Alerts &amp; flash</a>
-        <a href="#modals">Modals &amp; confirmation</a>
+        <a href="#danger-zone">Danger Zone</a>
         <a href="#details">Detail list</a>
         <a href="#subnav">Section navigation</a>
         <a href="#empty">Empty states</a>
@@ -132,7 +132,7 @@
                     <tr><td><code>status_badge()</code> in <code>app/Core/helpers.php</code></td><td>The one status → colour map. See <a href="#badges">Status badges</a>.</td></tr>
                     <tr><td><code>assets/js/app.js</code></td><td>App-wide behaviour, currently the <a href="#loading">loading state</a>.</td></tr>
                     <tr><td>Settings → Appearance<br><code>admin/settings/update-appearance.php</code>, <code>App\Core\Theme</code></td><td>Sets the brand colour tokens at runtime. See <a href="#colour">Colour</a>.</td></tr>
-                    <tr><td><code>docs/application/content_blocks_editor.md</code></td><td>The Content Blocks canvas and Studio editor (<code>.content-*</code>, <code>.cb-*</code>). They use this system's tokens and buttons but have their own layout rules.</td></tr>
+                    <tr><td><code>docs/application/content_blocks_editor.md</code></td><td>The Content Blocks canvas and the Studio editors (<code>.content-*</code>, <code>.cb-*</code>); the Exam Blocks Studio reuses the same layout (<code>docs/application/exam_blocks_editor.md</code>). They use this system's tokens and buttons but have their own layout rules.</td></tr>
                 </tbody>
             </table>
         </div>
@@ -387,7 +387,7 @@
                     <tr><td>Inductee</td><td><code>inductee-header.php</code> / <code>inductee-footer.php</code></td><td>Everything under <code>/inductee</code>. Top navbar that collapses below <code>md</code>. <code>$wideContainer = true</code> for the Content Blocks page.</td></tr>
                     <tr><td>Guest</td><td><code>guest-header.php</code> / <code>guest-footer.php</code></td><td>Log in, register, password reset, email verification, certificate verification. One centered card (<code>.container-guest</code>).</td></tr>
                     <tr><td>Public page</td><td><code>head.php</code> in <code>index.php</code></td><td>The landing page (<code>docs/core/public_page.md</code>).</td></tr>
-                    <tr><td>Studio</td><td><code>head.php</code> in <code>views/admin/inductions/editor.php</code></td><td>The Content Blocks editor (<code>docs/application/content_blocks_editor.md</code>).</td></tr>
+                    <tr><td>Studio</td><td><code>head.php</code> in <code>views/admin/inductions/editor.php</code> and <code>views/admin/exams/editor.php</code></td><td>The Content Blocks and Exam Blocks editors: a full-screen page with its own top bar, outline and canvas (<code>docs/application/content_blocks_editor.md</code>, <code>exam_blocks_editor.md</code>).</td></tr>
                 </tbody>
             </table>
         </div>
@@ -642,7 +642,7 @@ require __DIR__ . '/../../partials/admin-header.php';
                     <tr><td>Main action: <strong>one per form or card</strong></td><td><code>btn-primary</code></td><td>Save, Create Induction, Submit Exam, Log In, Add Induction</td></tr>
                     <tr><td>Secondary action, Cancel, row navigation</td><td><code>btn-outline-secondary</code></td><td>Cancel, Edit, View, Filter, Preview, Send Test Email, Print</td></tr>
                     <tr><td>Add an item inside a builder</td><td><code>btn-outline-primary btn-sm</code></td><td>Add Question, Add Option, Add Image</td></tr>
-                    <tr><td>Destructive trigger (opens a confirmation)</td><td><code>btn-outline-danger</code></td><td>Delete, Revoke, Remove</td></tr>
+                    <tr><td>Destructive trigger, only in a record's <a href="#danger-zone">Danger Zone</a> (opens a confirmation)</td><td><code>btn-outline-danger</code></td><td>Delete Induction, Revoke Compliance Record</td></tr>
                     <tr><td>Destructive confirmation</td><td><code>btn-danger</code></td><td>Delete Induction (in the modal), Replace</td></tr>
                     <tr><td>Tertiary, inline with text</td><td><code>btn-link</code></td><td>Preview, Clear (filters)</td></tr>
                 </tbody>
@@ -686,18 +686,18 @@ require __DIR__ . '/../../partials/admin-header.php';
                 <div class="card-body p-4">
                     <form method="post" action="#" novalidate>
                         <div class="mb-3">
-                            <label for="ds-title" class="form-label">Title</label>
+                            <label for="ds-title" class="form-label required">Title</label>
                             <input type="text" class="form-control" id="ds-title" name="title" value="Site Safety Induction" required>
                         </div>
 
                         <div class="row g-3 mb-3">
                             <div class="col-sm">
-                                <label for="ds-code" class="form-label">Code</label>
+                                <label for="ds-code" class="form-label required">Code</label>
                                 <input type="text" class="form-control is-invalid" id="ds-code" name="code" value="SITE SAFETY" required>
                                 <div class="invalid-feedback">Code may only contain letters, numbers, and dashes.</div>
                             </div>
                             <div class="col-sm">
-                                <label for="ds-status" class="form-label">Status</label>
+                                <label for="ds-status" class="form-label required">Status</label>
                                 <select class="form-select" id="ds-status" name="status" required>
                                     <option value="active" selected>Active</option>
                                     <option value="inactive">Inactive</option>
@@ -706,7 +706,7 @@ require __DIR__ . '/../../partials/admin-header.php';
                         </div>
 
                         <div class="mb-3">
-                            <label for="ds-description" class="form-label">Description <span class="text-muted small">(optional)</span></label>
+                            <label for="ds-description" class="form-label">Description</label>
                             <textarea class="form-control" id="ds-description" name="description" rows="2"></textarea>
                             <div class="form-text">Shown to inductees above the content.</div>
                         </div>
@@ -724,7 +724,7 @@ require __DIR__ . '/../../partials/admin-header.php';
     <div class="ds-example">
         <script type="text/plain" class="ds-source">
 <div class="mb-3">
-    <label for="code" class="form-label">Code</label>
+    <label for="code" class="form-label required">Code</label>
     <input type="text" class="form-control <?= error_for($errors, 'code') ? 'is-invalid' : '' ?>"
            id="code" name="code" value="<?= e((string) ($values['code'] ?? '')) ?>" required>
     <?php if ($error = error_for($errors, 'code')): ?>
@@ -740,13 +740,13 @@ require __DIR__ . '/../../partials/admin-header.php';
     <div class="ds-example">
         <div class="ds-preview">
             <fieldset class="mb-3">
-                <legend class="form-label fs-6 mb-2">Delivery</legend>
+                <legend class="form-label fs-6 mb-2 required">Delivery</legend>
                 <div class="form-check form-check-inline">
-                    <input type="radio" class="form-check-input" id="ds-f-instant" name="frequency" value="instant" checked>
+                    <input type="radio" class="form-check-input" id="ds-f-instant" name="frequency" value="instant" required checked>
                     <label class="form-check-label" for="ds-f-instant">Instant</label>
                 </div>
                 <div class="form-check form-check-inline">
-                    <input type="radio" class="form-check-input" id="ds-f-weekly" name="frequency" value="weekly">
+                    <input type="radio" class="form-check-input" id="ds-f-weekly" name="frequency" value="weekly" required>
                     <label class="form-check-label" for="ds-f-weekly">Weekly report</label>
                 </div>
                 <div class="invalid-feedback d-block">Choose how often to send.</div>
@@ -754,9 +754,9 @@ require __DIR__ . '/../../partials/admin-header.php';
 
             <div class="row">
                 <div class="col-sm-4">
-                    <label for="ds-size" class="form-label">Max File Size</label>
+                    <label for="ds-size" class="form-label required">Max File Size</label>
                     <div class="input-group">
-                        <input type="number" class="form-control" id="ds-size" name="max_file_size_mb" value="5">
+                        <input type="number" class="form-control" id="ds-size" name="max_file_size_mb" value="5" required>
                         <span class="input-group-text">MB</span>
                     </div>
                 </div>
@@ -764,7 +764,9 @@ require __DIR__ . '/../../partials/admin-header.php';
         </div>
     </div>
     <ul class="ds-do">
-        <li>Mark <strong>optional</strong> fields with <code>&lt;span class="text-muted small"&gt;(optional)&lt;/span&gt;</code> in the label; required is the default. A field whose help text explains blank ("Blank uses the Company Name") needs no marker.</li>
+        <li>Mark every <strong>required</strong> field with a red asterisk: add <code>required</code> to its <code>form-label</code> (or to the <code>legend</code> of a required group), and give the control the <code>required</code> attribute, which is what screen readers announce. The asterisk itself is hidden from them. A field without an asterisk is optional; don't add "(optional)".</li>
+        <li>"Required" means the server rejects the form without it. A field whose blank value has a meaning ("Blank uses the Company Name", "Leave blank to keep the current password") is optional. A field required only in some cases (Primary and Accent, when Custom colours is chosen) gets the asterisk where it is shown.</li>
+        <li>Fields labelled only by <code>aria-label</code> (filter bars, one-field inline forms such as "New category name") have no visible label to carry an asterisk; their purpose makes them obviously required.</li>
         <li>Group radios and checkboxes in a <code>fieldset</code>; its <code>legend</code> (<code>form-label fs-6</code>) must be the fieldset's first child.</li>
         <li>When the error can't sit directly after the control (input groups, radio groups, custom pickers), use <code>invalid-feedback d-block</code>.</li>
         <li>A form-level error ("Invalid email or password") is an <code>alert alert-danger</code> above the fields.</li>
@@ -875,7 +877,6 @@ require __DIR__ . '/../../partials/admin-header.php';
                                 <td><span class="badge text-bg-success">Active</span></td>
                                 <td class="text-end text-nowrap">
                                     <a href="#" class="btn btn-sm btn-outline-secondary">View</a>
-                                    <button type="button" class="btn btn-sm btn-outline-danger">Revoke</button>
                                 </td>
                             </tr>
                             <tr>
@@ -897,7 +898,7 @@ require __DIR__ . '/../../partials/admin-header.php';
         </div>
     </div>
     <ul class="ds-do">
-        <li>The actions column has a visually hidden heading ("Actions"). Row actions are <code>btn-sm</code>, right-aligned, on one line.</li>
+        <li>The actions column has a visually hidden heading ("Actions"). Row actions only navigate: <strong>Edit</strong> for editable records, <strong>View</strong> for read-only ones (<code>btn-sm btn-outline-secondary</code>, right-aligned). Delete and Revoke live on the record's page, in its <a href="#danger-zone">Danger Zone</a>.</li>
         <li>Two-line cells: main value, then <code>div.text-muted.small</code>. Codes in <code>&lt;code&gt;</code>. Dates as <code>YYYY-MM-DD</code> (<code>YYYY-MM-DD HH:MM</code> with time).</li>
         <li>Numeric columns are <code>text-end</code>.</li>
         <li>An empty table keeps its header and shows one row (see <a href="#empty">Empty states</a>).</li>
@@ -978,8 +979,8 @@ require __DIR__ . '/../../partials/admin-header.php';
             <table class="table align-middle">
                 <thead><tr><th>Statuses</th><th>Variant</th><th>Renders as</th></tr></thead>
                 <tbody>
-                    <tr><td><code>active</code>, <code>compliant</code>, <code>passed</code>, <code>correct</code>, <code>saved</code></td><td><code>success</code></td><td><span class="badge text-bg-success">Active</span> <span class="badge text-bg-success">Compliant</span> <span class="badge text-bg-success">Passed</span></td></tr>
-                    <tr><td><code>expiring</code>, <code>pending</code>, <code>unsaved</code></td><td><code>warning</code></td><td><span class="badge text-bg-warning">2026-10-01</span> <span class="badge text-bg-warning">Unsaved changes</span></td></tr>
+                    <tr><td><code>active</code>, <code>compliant</code>, <code>passed</code>, <code>correct</code>, <code>saved</code>, <code>complete</code></td><td><code>success</code></td><td><span class="badge text-bg-success">Active</span> <span class="badge text-bg-success">Compliant</span> <span class="badge text-bg-success">Passed</span></td></tr>
+                    <tr><td><code>expiring</code>, <code>pending</code>, <code>unsaved</code>, <code>incomplete</code></td><td><code>warning</code></td><td><span class="badge text-bg-warning">2026-10-01</span> <span class="badge text-bg-warning">Unsaved changes</span> <span class="badge text-bg-warning">Incomplete</span></td></tr>
                     <tr><td><code>expired</code>, <code>failed</code>, <code>revoked</code>, <code>suspended</code>, <code>incorrect</code></td><td><code>danger</code></td><td><span class="badge text-bg-danger">Expired</span> <span class="badge text-bg-danger">Revoked</span> <span class="badge text-bg-danger">Not Passed</span></td></tr>
                     <tr><td><code>inactive</code>, <code>superseded</code>, <code>not_started</code>, anything else</td><td><code>secondary</code></td><td><span class="badge text-bg-secondary">Inactive</span> <span class="badge text-bg-secondary">Superseded</span> <span class="badge text-bg-secondary">Not Started</span></td></tr>
                 </tbody>
@@ -1046,13 +1047,63 @@ require __DIR__ . '/../../partials/admin-header.php';
 </section>
 
 <!-- ===================================================================== -->
-<section class="ds-section" id="modals">
-    <h2>Modals &amp; confirmation</h2>
+<section class="ds-section" id="danger-zone">
+    <h2>Danger Zone</h2>
+    <p>
+        Destructive actions (Delete, Revoke) never sit in a list next to everyday buttons. Lists only navigate:
+        their rows offer <strong>Edit</strong> or <strong>View</strong>. The destructive actions live inside the record,
+        in a <strong>Danger Zone</strong> card at the bottom of its page, set apart from the form or details above. Each
+        action says what it will do, and still asks for confirmation.
+    </p>
+    <div class="ds-example">
+        <div class="ds-preview ds-preview-page">
+            <div class="card border-danger-subtle shadow-sm">
+                <div class="card-body p-4">
+                    <h2 class="fs-6 text-danger mb-1">Danger Zone</h2>
+                    <p class="text-muted small mb-2">These actions can't be undone.</p>
+                    <div class="list-group list-group-flush">
+                        <div class="list-group-item px-0 py-3 d-flex flex-wrap flex-sm-nowrap justify-content-between align-items-center gap-3">
+                            <div>
+                                <div class="fw-semibold">Revoke this compliance record</div>
+                                <div class="text-muted small">The certificate stops being valid straight away. The record stays in the compliance history.</div>
+                            </div>
+                            <button type="button" class="btn btn-outline-danger btn-sm text-nowrap flex-shrink-0">Revoke Compliance Record</button>
+                        </div>
+                        <div class="list-group-item px-0 py-3 d-flex flex-wrap flex-sm-nowrap justify-content-between align-items-center gap-3">
+                            <div>
+                                <div class="fw-semibold">Delete this compliance record</div>
+                                <div class="text-muted small">Permanently removes the record and its certificate. Use only to correct a mistake.</div>
+                            </div>
+                            <button type="button" class="btn btn-outline-danger btn-sm text-nowrap flex-shrink-0">Delete Compliance Record</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <ul class="ds-do">
+        <li>Place it last on the record's page, after the form card (<code>mt-4</code> inside the page's <code>.page-narrow</code>). Edit pages have one (Induction, Exam, User); read-only records get a detail page to hold it (Compliance Record, Exam Attempt).</li>
+        <li>One row per action: what it does in plain words, including what happens to related records, then an <code>btn-outline-danger btn-sm</code> button naming the action and the object ("Delete Induction").</li>
+        <li>An action that isn't available stays visible but disabled, with the reason as its description (e.g. deleting your own account).</li>
+        <li>Controllers: after a successful delete, redirect to the list. If the action is refused (e.g. related records exist), or after a revoke, redirect back to the record page so the message appears next to the Danger Zone. Enforce every rule on the server as well, not only in the view.</li>
+    </ul>
+    <ul class="ds-dont">
+        <li>Delete, Revoke or trash icons in a table row, a list item or a card grid.</li>
+        <li>Danger Zone buttons in solid <code>btn-danger</code>: that is only for the final confirm button.</li>
+    </ul>
+
+    <h3>Lists of items without their own page</h3>
+    <ul>
+        <li><strong>Selectable collections</strong> (Media Library files): select items, then use the toolbar's "Delete Selected", which confirms.</li>
+        <li><strong>Small inline editors</strong> (Media Library categories): the row shows only Edit; "Delete category" appears in the edit state, and confirms.</li>
+    </ul>
+
+    <h3>Confirmation</h3>
     <p>Every destructive action asks first. Pick the lightest confirmation that fits:</p>
     <ul>
-        <li><strong>Native <code>confirm()</code></strong> for deleting or revoking one row with no options:
+        <li><strong>Native <code>confirm()</code></strong> for an action with no options:
             <code>onsubmit="return confirm('Delete this exam attempt? This cannot be undone.');"</code></li>
-        <li><strong>Modal</strong> when the user needs an explanation or a choice (e.g. cascade delete).</li>
+        <li><strong>Modal</strong> when the user needs an explanation or a choice (e.g. cascade delete). The modal lives on the record page, with the record's id in its form.</li>
         <li><strong>Two-step page</strong> when the effect needs reviewing first (Search &amp; Replace's dry run).</li>
     </ul>
     <p>Wording: <em>"{Verb} {object}? {Consequence}. This cannot be undone."</em> The confirm button repeats the verb and object.</p>
@@ -1084,8 +1135,8 @@ require __DIR__ . '/../../partials/admin-header.php';
         </div>
     </div>
     <ul class="ds-do">
-        <li>Modal titles are <code>h2.modal-title.fs-5</code> linked with <code>aria-labelledby</code>. Footer: Cancel (<code>btn-outline-secondary</code>), then the action.</li>
-        <li>The row button passes <code>data-id</code>/<code>data-name</code>; a small <code>show.bs.modal</code> listener fills the form (see <code>views/admin/users/index.php</code>).</li>
+        <li>Modal titles are <code>h2.modal-title.fs-5</code> linked with <code>aria-labelledby</code>. Footer: Cancel (<code>btn-outline-secondary</code>), then the action in solid <code>btn-danger</code>.</li>
+        <li>Reference: <code>views/admin/inductions/edit.php</code> (modal) and <code>views/admin/compliance/show.php</code> (two <code>confirm()</code> actions).</li>
     </ul>
 </section>
 
@@ -1167,7 +1218,7 @@ require __DIR__ . '/../../partials/admin-header.php';
     <h2>Page patterns</h2>
 
     <h3>List page</h3>
-    <p>Page header with the create action, filter bar, list table in a card, delete modal. Reference: <code>views/admin/inductions/index.php</code>.</p>
+    <p>Page header with the create action, filter bar, list table in a card; rows only link to the record (Edit or View). Reference: <code>views/admin/inductions/index.php</code>.</p>
     <div class="ds-example">
         <script type="text/plain" class="ds-source">
 <div class="page-header">
@@ -1193,7 +1244,6 @@ require __DIR__ . '/../../partials/admin-header.php';
                         <td><?= status_badge((string) $induction['status']) ?></td>
                         <td class="text-end text-nowrap">
                             <a href="…" class="btn btn-sm btn-outline-secondary">Edit</a>
-                            <button type="button" class="btn btn-sm btn-outline-danger" data-bs-toggle="modal" …>Delete</button>
                         </td>
                     </tr>
                 <?php endforeach; ?>
@@ -1205,7 +1255,7 @@ require __DIR__ . '/../../partials/admin-header.php';
     </div>
 
     <h3>Form page</h3>
-    <p>Narrow page, breadcrumb, one form card, main action then Cancel. Reference: <code>views/admin/users/create.php</code>.</p>
+    <p>Narrow page, breadcrumb, one form card, main action then Cancel. An <em>edit</em> page ends with the record's <a href="#danger-zone">Danger Zone</a>. Reference: <code>views/admin/users/create.php</code>, <code>views/admin/users/edit.php</code>.</p>
     <div class="ds-example">
         <script type="text/plain" class="ds-source">
 <div class="page-narrow">
@@ -1238,7 +1288,7 @@ require __DIR__ . '/../../partials/admin-header.php';
     </div>
 
     <h3>Detail page</h3>
-    <p>Narrow page, breadcrumb, print or secondary action in the header, one card with a feature heading, status badge and detail list. Reference: <code>views/inductee/certificates/show.php</code>.</p>
+    <p>Narrow page, breadcrumb, print or secondary action in the header, one card with a feature heading, status badge and detail list; for an admin record, then its <a href="#danger-zone">Danger Zone</a>. Reference: <code>views/inductee/certificates/show.php</code>, <code>views/admin/compliance/show.php</code>.</p>
 
     <h3>Settings-style page</h3>
     <p>Page header, then <code>row g-4</code>: <a href="#subnav">section navigation</a> in <code>col-md-3</code>, one card per section in <code>col-md-9 page-narrow</code>. Reference: <code>views/admin/settings/index.php</code>.</p>
@@ -1266,13 +1316,14 @@ require __DIR__ . '/../../partials/admin-header.php';
                     <tr><td><code>.page-subtitle</code></td><td>5</td><td>Optional one line under the title.</td></tr>
                     <tr><td><code>.page-narrow</code></td><td>5</td><td>720px cap for form, profile and detail pages. <a href="#widths">↗</a></td></tr>
                     <tr><td><code>.container-guest</code></td><td>5</td><td>The guest layout's column. Layout only.</td></tr>
+                    <tr><td><code>.required</code></td><td>6</td><td>On a <code>form-label</code> or <code>legend</code>: adds the red required asterisk. <a href="#forms">↗</a></td></tr>
                     <tr><td><code>.form-actions</code></td><td>6</td><td>Buttons at the end of a form. <a href="#forms">↗</a></td></tr>
                     <tr><td><code>.card-table</code></td><td>6</td><td>A list table filling a card. <a href="#tables">↗</a></td></tr>
                     <tr><td><code>.link-card</code></td><td>6</td><td>A card that is one link. <a href="#cards">↗</a></td></tr>
                     <tr><td><code>.bg-surface-subtle</code></td><td>7</td><td>A subtle panel inside a card (drop zones, the custom-colour panel).</td></tr>
                     <tr><td><code>.border-dashed</code></td><td>7</td><td>Dashed border (drop zones).</td></tr>
                     <tr><td><code>.logo-preview-box</code>, <code>.reminder-days</code>, <code>.email-preview-frame</code>, <code>.theme-swatch*</code>, <code>.theme-preview-header</code></td><td>8</td><td>Settings page only.</td></tr>
-                    <tr><td><code>.content-canvas</code>, <code>.content-block*</code>, <code>.cb-*</code>, <code>.teleport-highlight-pulse</code></td><td>9</td><td>Content Blocks canvas and Studio editor (content_blocks_editor.md).</td></tr>
+                    <tr><td><code>.content-canvas</code>, <code>.content-block*</code>, <code>.cb-*</code>, <code>.teleport-highlight-pulse</code></td><td>9</td><td>Content Blocks canvas and both Studio editors (content_blocks_editor.md, exam_blocks_editor.md).</td></tr>
                     <tr><td><code>.media-thumb</code>, <code>.media-tile*</code>, <code>.media-picker-*</code></td><td>10</td><td>Media Library and the image picker modal.</td></tr>
                 </tbody>
             </table>
@@ -1290,8 +1341,8 @@ require __DIR__ . '/../../partials/admin-header.php';
         <li>Every class is Bootstrap or listed in the <a href="#class-reference">Class reference</a>. No <code>style=""</code> or <code>&lt;style&gt;</code> for fixed values.</li>
         <li>No brand hex values; it still looks right with every theme in the menu above.</li>
         <li>Statuses use <code>status_badge()</code>; coloured text uses <code>text-warning-emphasis</code>, not <code>text-warning</code>.</li>
-        <li>One <code>btn-primary</code> per form or card; Cancel is <code>btn-outline-secondary</code>; destructive actions confirm first.</li>
-        <li>Fields: label, <code>is-invalid</code> + <code>invalid-feedback</code>, optional fields marked, <code>col-sm</code> for side-by-side.</li>
+        <li>One <code>btn-primary</code> per form or card; Cancel is <code>btn-outline-secondary</code>; Delete and Revoke only in the record's Danger Zone, never in a list, and they confirm first.</li>
+        <li>Fields: label, <code>is-invalid</code> + <code>invalid-feedback</code>, required fields marked (<code>.required</code> on the label plus the <code>required</code> attribute), <code>col-sm</code> for side-by-side.</li>
         <li>Lists: <code>.card-table</code>, visually hidden "Actions" heading, empty row, filter <code>aria-label</code>s.</li>
         <li>Icon-only controls have <code>aria-label</code> and <code>title</code>; decorative icons have <code>aria-hidden="true"</code>.</li>
         <li>Works at phone width with no sideways page scroll (tables may scroll inside their card).</li>

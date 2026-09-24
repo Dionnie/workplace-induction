@@ -33,35 +33,80 @@ class ExamService
     }
 
     /**
-     * @return array{success: bool, errors: array<string, string>}
+     * Creates an exam from its details. A new exam has no questions yet, so
+     * it starts inactive: questions are added in the Exam Blocks editor, then
+     * the exam is made active (see update()).
+     *
+     * @return array{success: bool, errors: array<string, string>, id?: int}
      */
     public function create(array $data): array
     {
-        [$normalized, $errors] = $this->validate($data);
+        $data['status'] = 'inactive';
+        [$normalized, $errors] = $this->validate($data, 0);
         if ($errors) {
             return ['success' => false, 'errors' => $errors];
         }
 
-        $this->exams->create($normalized);
-        return ['success' => true, 'errors' => []];
+        $normalized['exam_blocks'] = '[]';
+        $id = $this->exams->create($normalized);
+        return ['success' => true, 'errors' => [], 'id' => $id];
     }
 
     /**
+     * Updates an exam's details. Its questions are saved separately, by
+     * updateExamBlocks().
+     *
      * @return array{success: bool, errors: array<string, string>}
      */
     public function update(int $id, array $data): array
     {
-        if (!$this->exams->find($id)) {
+        $exam = $this->exams->find($id);
+        if (!$exam) {
             return ['success' => false, 'errors' => ['form' => 'Exam not found.']];
         }
 
-        [$normalized, $errors] = $this->validate($data);
+        [$normalized, $errors] = $this->validate($data, $this->questionCount($exam));
         if ($errors) {
             return ['success' => false, 'errors' => $errors];
         }
 
         $this->exams->update($id, $normalized);
         return ['success' => true, 'errors' => []];
+    }
+
+    /**
+     * Saves the questions built in the Exam Blocks editor. Every question
+     * must be complete; a problem is reported with the question's number and
+     * block id, so the editor can take the admin straight to it.
+     *
+     * @return array{success: bool, errors: array<string, string>, block_id?: string}
+     */
+    public function updateExamBlocks(int $id, string $json): array
+    {
+        $exam = $this->exams->find($id);
+        if (!$exam) {
+            return ['success' => false, 'errors' => ['form' => 'Exam not found.']];
+        }
+
+        [$questions, $error] = $this->parseExamBlocks($json);
+        if ($error !== null) {
+            return ['success' => false, 'errors' => ['exam_blocks' => $error['message']], 'block_id' => $error['block_id']];
+        }
+
+        if (!$questions && $exam['status'] === 'active') {
+            return ['success' => false, 'errors' => ['exam_blocks' => 'An active exam needs at least one question. Make the exam inactive first to remove them all.']];
+        }
+
+        $this->exams->updateExamBlocks($id, json_encode($questions));
+        return ['success' => true, 'errors' => []];
+    }
+
+    /**
+     * @param array<string, mixed> $exam
+     */
+    public function questionCount(array $exam): int
+    {
+        return count(json_decode((string) $exam['exam_blocks'], true) ?: []);
     }
 
     /**
@@ -146,9 +191,12 @@ class ExamService
     }
 
     /**
+     * Validates an exam's details. An exam can only be active once it has
+     * questions, so inductees are never given an empty exam.
+     *
      * @return array{0: array<string, mixed>, 1: array<string, string>}
      */
-    private function validate(array $data): array
+    private function validate(array $data, int $questionCount): array
     {
         $errors = [];
 
@@ -167,13 +215,8 @@ class ExamService
         $status = $data['status'] ?? '';
         if (!in_array($status, self::STATUSES, true)) {
             $errors['status'] = 'Select a valid status.';
-        }
-
-        $examBlocks = $this->parseExamBlocks($data['exam_blocks'] ?? '[]');
-        if ($examBlocks === null) {
-            $errors['exam_blocks'] = 'Exam contains invalid questions.';
-        } elseif (empty($examBlocks)) {
-            $errors['exam_blocks'] = 'Add at least one question.';
+        } elseif ($status === 'active' && $questionCount === 0) {
+            $errors['status'] = 'Add at least one question in the Exam Blocks editor before making this exam active.';
         }
 
         $normalized = [
@@ -181,45 +224,52 @@ class ExamService
             'description' => $description,
             'status' => $status,
             'pass_percentage' => (int) $passPercentage,
-            'exam_blocks' => $examBlocks !== null ? json_encode($examBlocks) : '[]',
         ];
 
         return [$normalized, $errors];
     }
 
     /**
-     * @return array<int, array<string, mixed>>|null Null when the input is malformed.
+     * Checks and normalizes the questions from the Exam Blocks editor. The
+     * editor (assets/js/exam-editor.js) shows the same problems as warnings
+     * while editing; this is the authoritative check.
+     *
+     * @return array{0: array<int, array<string, mixed>>, 1: array{message: string, block_id: ?string}|null}
      */
-    private function parseExamBlocks(string $json): ?array
+    private function parseExamBlocks(string $json): array
     {
         $decoded = json_decode($json, true);
-        if (!is_array($decoded)) {
-            return null;
+        if (!is_array($decoded) || !array_is_list($decoded)) {
+            return [[], ['message' => 'The exam blocks could not be read. Reload the editor and try again.', 'block_id' => null]];
         }
 
         $questions = [];
 
-        foreach ($decoded as $question) {
+        foreach ($decoded as $index => $question) {
             if (!is_array($question) || !isset($question['id'], $question['options']) || !is_array($question['options'])) {
-                return null;
+                return [[], ['message' => 'The exam blocks could not be read. Reload the editor and try again.', 'block_id' => null]];
             }
+
+            $number = $index + 1;
+            $blockId = (string) $question['id'];
+            $fail = fn (string $problem): array => [[], ['message' => "Question {$number}: {$problem}", 'block_id' => $blockId]];
 
             $questionText = trim((string) ($question['question'] ?? ''));
             if ($questionText === '') {
-                continue;
+                return $fail('enter the question.');
             }
 
             $options = [];
             $correctCount = 0;
 
-            foreach ($question['options'] as $option) {
+            foreach ($question['options'] as $optionIndex => $option) {
                 if (!is_array($option) || !isset($option['id'])) {
-                    return null;
+                    return [[], ['message' => 'The exam blocks could not be read. Reload the editor and try again.', 'block_id' => null]];
                 }
 
                 $optionText = trim((string) ($option['text'] ?? ''));
                 if ($optionText === '') {
-                    continue;
+                    return $fail('option ' . ($optionIndex + 1) . ' is empty. Fill it in or remove it.');
                 }
 
                 $correct = !empty($option['correct']);
@@ -234,17 +284,21 @@ class ExamService
                 ];
             }
 
-            if (count($options) < 2 || $correctCount !== 1) {
-                return null;
+            if (count($options) < 2) {
+                return $fail('add at least two options.');
+            }
+
+            if ($correctCount !== 1) {
+                return $fail('mark the one correct answer.');
             }
 
             $diagramUrl = trim((string) ($question['diagram_img_url'] ?? ''));
             if ($diagramUrl !== '' && !filter_var($diagramUrl, FILTER_VALIDATE_URL)) {
-                return null;
+                return $fail('the diagram image URL is not a valid web address.');
             }
 
             $questions[] = [
-                'id' => (string) $question['id'],
+                'id' => $blockId,
                 'type' => 'question',
                 'question' => $questionText,
                 'diagram_img_url' => $diagramUrl,
@@ -253,6 +307,6 @@ class ExamService
             ];
         }
 
-        return $questions;
+        return [$questions, null];
     }
 }

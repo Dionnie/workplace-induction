@@ -16,7 +16,7 @@ namespace App\ContentBlocks;
  * This is a deliberate, independent duplicate of the equivalent JS outline
  * builder in the Studio editor (see course-editor.js) rather than a shared
  * network round trip — the same pattern this project already uses for
- * content-blocks.js/exam-blocks.js as parallel client/server implementations.
+ * course-editor.js/exam-editor.js as parallel client/server implementations.
  */
 class CourseOutlineBuilder
 {

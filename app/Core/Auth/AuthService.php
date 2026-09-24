@@ -10,10 +10,6 @@ use DateTimeImmutable;
 
 class AuthService
 {
-    private const EMPLOYMENT_TYPES = [
-        'Full-time', 'Part-time', 'Casual', 'Contractor', 'Sub-contractor', 'Apprentice', 'Trainee', 'Shift-worker', 'Other',
-    ];
-
     private UserRepository $users;
 
     public function __construct()
@@ -22,19 +18,17 @@ class AuthService
     }
 
     /**
-     * Public self-registration. Always creates an Inductee account.
+     * Public self-registration. Always creates an Inductee account, with only
+     * what authentication needs (email and password). The account starts
+     * with an incomplete profile: after verifying their email and logging
+     * in, the inductee completes their profile before starting an induction
+     * (docs/core/auth.md #5, #12).
      *
      * @return array{success: bool, errors: array<string, string>}
      */
-    public function registerInductee(
-        string $email,
-        string $password,
-        string $firstName,
-        string $lastName,
-        string $company,
-        string $employmentType
-    ): array {
-        $errors = $this->validateNewAccount($email, $password, $firstName, $lastName, $company, $employmentType);
+    public function registerInductee(string $email, string $password, string $passwordConfirmation): array
+    {
+        $errors = $this->validateNewAccount($email, $password, $passwordConfirmation);
         if ($errors) {
             return ['success' => false, 'errors' => $errors];
         }
@@ -42,24 +36,19 @@ class AuthService
         $token = bin2hex(random_bytes(32));
         $expiresAt = (new DateTimeImmutable('+24 hours'))->format('Y-m-d H:i:s');
 
-        $userId = $this->users->create([
+        $this->users->create([
             'email' => $email,
             'password' => password_hash($password, PASSWORD_DEFAULT),
             'user_type' => 'inductee',
             'status' => 'active',
+            'profile_completed' => false,
             'email_verification_token' => $token,
             'email_verification_expires_at' => $expiresAt,
         ]);
 
-        $this->users->createInducteeProfile($userId, $firstName, $lastName, $company, $employmentType);
         $this->sendVerificationEmail($email, $token);
 
-        do_action('inductee_registered', [
-            'email' => $email,
-            'first_name' => $firstName,
-            'last_name' => $lastName,
-            'company' => $company,
-        ]);
+        do_action('inductee_registered', ['email' => $email]);
 
         return ['success' => true, 'errors' => []];
     }
@@ -142,23 +131,9 @@ class AuthService
     /**
      * @return array<string, string>
      */
-    private function validateNewAccount(
-        string $email,
-        string $password,
-        string $firstName,
-        string $lastName,
-        string $company,
-        string $employmentType
-    ): array {
+    private function validateNewAccount(string $email, string $password, string $passwordConfirmation): array
+    {
         $errors = [];
-
-        if ($firstName === '') {
-            $errors['first_name'] = 'First name is required.';
-        }
-
-        if ($lastName === '') {
-            $errors['last_name'] = 'Last name is required.';
-        }
 
         if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
             $errors['email'] = 'Enter a valid email address.';
@@ -166,17 +141,7 @@ class AuthService
             $errors['email'] = 'An account with this email already exists.';
         }
 
-        if ($company === '') {
-            $errors['company'] = 'Company is required.';
-        }
-
-        if (!in_array($employmentType, self::EMPLOYMENT_TYPES, true)) {
-            $errors['employment_type'] = 'Select a valid employment type.';
-        }
-
-        $errors = array_merge($errors, $this->validatePassword($password, $password));
-
-        return $errors;
+        return array_merge($errors, $this->validatePassword($password, $passwordConfirmation));
     }
 
     /**

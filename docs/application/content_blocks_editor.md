@@ -44,16 +44,14 @@ rather than the whole section.
 
 This spec covers the admin authoring experience and the inductee-facing
 rendering of an induction's `content_blocks`. It does not cover **Exam
-Blocks** (`assets/js/exam-blocks.js`, `views/admin/exams/_form.php`) — a
-separate, parallel system for exam questions, per
-`docs/application/terminology.md`.
+Blocks** — a separate, parallel system for exam questions, per
+`docs/application/terminology.md`, with its own Studio that reuses this
+spec's layout and editing model (`docs/application/exam_blocks_editor.md`).
 
-Exam Blocks are cited only as an existing precedent for the modular
-block-editor UI pattern already established in this codebase (a container
-+ hidden input + serialize-on-save). They are a different data concept and
-must stay separate — a reference implementation this spec draws from (see
-§9) explicitly removed a `quiz` block type from its own content-block
-system in favor of a dedicated exam system, which is exactly the separation
+Exam Blocks are a different data concept and must stay separate — a
+reference implementation this spec draws from (see §9) explicitly removed a
+`quiz` block type from its own content-block system in favor of a
+dedicated exam system, which is exactly the separation
 this project's terminology already enforces.
 
 ---
@@ -355,7 +353,7 @@ pattern for a nav tree, not a "nested block."
   editor (recomputed on every add/remove/reorder/edit), and once
   server-side in PHP (`CourseOutlineBuilder`, §3) for the inductee view.
   This duplication is accepted, matching the existing
-  `content-blocks.js`/`exam-blocks.js` parallel-file convention in this
+  `course-editor.js`/`exam-editor.js` parallel-file convention in this
   codebase — it is not a defect to consolidate later.
 - **Mobile offcanvas**: below `lg`, the sidebar is replaced by Bootstrap's
   native `.offcanvas.offcanvas-start` component, opened by a topbar button
@@ -525,6 +523,6 @@ field accepts a plain URL directly, exactly as `image.url` works today.
   "keep custom CSS small and purposeful" rule, and the semantic
   info/warning/danger/success color system reused by the `alert` block
   type.
-- `assets/js/exam-blocks.js` / `views/admin/exams/_form.php` — the
-  existing sibling modular block-editor pattern (a different system; see
-  §1).
+- `docs/application/exam_blocks_editor.md` — the Exam Blocks Studio, which
+  reuses this Studio's layout for exam questions (a different data concept;
+  see §1).

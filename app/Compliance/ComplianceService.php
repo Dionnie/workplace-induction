@@ -94,6 +94,15 @@ class ComplianceService
     }
 
     /**
+     * One record with its inductee and induction, for the admin record page.
+     */
+    public function findForAdmin(int $id): ?array
+    {
+        $this->records->expireLapsed();
+        return $this->records->findForAdmin($id);
+    }
+
+    /**
      * Manually invalidates a compliance record. Only a currently active record
      * can be revoked -- an expired or superseded record is already not
      * current, and a revoked record cannot be revoked again.

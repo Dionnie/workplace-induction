@@ -67,12 +67,16 @@ class ExamRepository
         return (int) $this->db->lastInsertId();
     }
 
+    /**
+     * Updates the exam's details. Its questions (exam_blocks) are saved
+     * separately by the Exam Blocks editor, via updateExamBlocks().
+     */
     public function update(int $id, array $data): void
     {
         $stmt = $this->db->prepare(
             'UPDATE exams
              SET title = :title, description = :description, status = :status,
-                 pass_percentage = :pass_percentage, exam_blocks = :exam_blocks
+                 pass_percentage = :pass_percentage
              WHERE id = :id'
         );
 
@@ -81,9 +85,14 @@ class ExamRepository
             'description' => $data['description'] !== '' ? $data['description'] : null,
             'status' => $data['status'],
             'pass_percentage' => $data['pass_percentage'],
-            'exam_blocks' => $data['exam_blocks'],
             'id' => $id,
         ]);
+    }
+
+    public function updateExamBlocks(int $id, string $json): void
+    {
+        $stmt = $this->db->prepare('UPDATE exams SET exam_blocks = :exam_blocks WHERE id = :id');
+        $stmt->execute(['exam_blocks' => $json, 'id' => $id]);
     }
 
     public function delete(int $id): void

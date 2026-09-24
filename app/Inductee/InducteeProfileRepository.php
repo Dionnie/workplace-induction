@@ -16,31 +16,48 @@ class InducteeProfileRepository
         $this->db = Database::connection();
     }
 
+    /**
+     * The inductee's profile with their email and profile_completed flag.
+     * An account without a profile row yet (new registrations, accounts
+     * created by an administrator) returns its email with empty fields.
+     */
     public function find(int $userId): ?array
     {
         $stmt = $this->db->prepare(
-            'SELECT ip.*, u.email
-             FROM inductee_profiles ip
-             JOIN users u ON u.id = ip.user_id
-             WHERE ip.user_id = ?'
+            'SELECT u.email, u.profile_completed,
+                    ip.first_name, ip.last_name, ip.job_position, ip.company, ip.employment_type,
+                    ip.contact_number, ip.emergency_contact_name, ip.emergency_contact_phone
+             FROM users u
+             LEFT JOIN inductee_profiles ip ON ip.user_id = u.id
+             WHERE u.id = ?'
         );
         $stmt->execute([$userId]);
         $profile = $stmt->fetch();
         return $profile ?: null;
     }
 
-    public function update(int $userId, array $data): void
+    /**
+     * Saves the profile, creating the row on the inductee's first save.
+     */
+    public function save(int $userId, array $data): void
     {
         $stmt = $this->db->prepare(
-            'UPDATE inductee_profiles
-             SET first_name = :first_name, last_name = :last_name, job_position = :job_position,
-                 company = :company, employment_type = :employment_type,
-                 contact_number = :contact_number, emergency_contact_name = :emergency_contact_name,
-                 emergency_contact_phone = :emergency_contact_phone
-             WHERE user_id = :user_id'
+            'INSERT INTO inductee_profiles
+                (user_id, first_name, last_name, job_position, company, employment_type,
+                 contact_number, emergency_contact_name, emergency_contact_phone)
+             VALUES
+                (:user_id, :first_name, :last_name, :job_position, :company, :employment_type,
+                 :contact_number, :emergency_contact_name, :emergency_contact_phone)
+             ON DUPLICATE KEY UPDATE
+                first_name = VALUES(first_name), last_name = VALUES(last_name),
+                job_position = VALUES(job_position), company = VALUES(company),
+                employment_type = VALUES(employment_type), contact_number = VALUES(contact_number),
+                emergency_contact_name = VALUES(emergency_contact_name),
+                emergency_contact_phone = VALUES(emergency_contact_phone)'
         );
 
         $stmt->execute([
+            'user_id' => $userId,
             'first_name' => $data['first_name'],
             'last_name' => $data['last_name'],
             'job_position' => $data['job_position'] !== '' ? $data['job_position'] : null,
@@ -49,7 +66,6 @@ class InducteeProfileRepository
             'contact_number' => $data['contact_number'] !== '' ? $data['contact_number'] : null,
             'emergency_contact_name' => $data['emergency_contact_name'] !== '' ? $data['emergency_contact_name'] : null,
             'emergency_contact_phone' => $data['emergency_contact_phone'] !== '' ? $data['emergency_contact_phone'] : null,
-            'user_id' => $userId,
         ]);
     }
 }

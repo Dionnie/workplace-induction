@@ -13,8 +13,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     verify_csrf();
 
     $data = [
-        'first_name' => trim($_POST['first_name'] ?? ''),
-        'last_name' => trim($_POST['last_name'] ?? ''),
         'email' => trim($_POST['email'] ?? ''),
         'user_type' => $_POST['user_type'] ?? '',
         'status' => $_POST['status'] ?? '',

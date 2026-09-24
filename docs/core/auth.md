@@ -26,9 +26,12 @@ users
 ├── user_type
 ├── email_verified_at
 ├── status
+├── profile_completed
 ├── created_at
 └── updated_at
 ```
+
+`profile_completed` records whether the user has completed the profile their user type requires (section 12).
 
 The exact schema is defined in:
 
@@ -174,19 +177,23 @@ The registration process should:
 7. Send the verification email
 8. Sign in or redirect according to the application's registration flow
 
-Application-specific profile requirements belong to the corresponding profile.
+Application-specific profile requirements belong to the corresponding profile, and are collected after login through profile completion (section 12), not at registration.
 
-For example:
+In this application, public registration asks only for an email and a password:
 
 ```text
-Inductee Registration
+Inductee Registration (email, password)
         ↓
-Create users record
+Create users record (profile_completed = 0)
         ↓
-Create inductee_profiles record
+Verify email → Log in
         ↓
-Require required Inductee fields
+Complete profile → create inductee_profiles record
+        ↓
+Inductions available
 ```
+
+Accounts created by an administrator follow the same path: the administrator enters only `users` fields, and the inductee completes their own profile at their first login.
 
 An Administrator should not be forced through Inductee requirements simply because both are users.
 
@@ -410,6 +417,15 @@ Inductee
 The Core authentication system should provide the authentication state but should not contain these application-specific requirements.
 
 Administrators are exempt from application-specific profile requirements unless an explicit Core requirement exists.
+
+### How it is implemented
+
+- **State (Core):** `users.profile_completed` (`TINYINT(1)`, default `0`). New accounts start incomplete. Administrator accounts are created complete, since they have no requirements. Accounts imported from the legacy system were all marked complete (`database/migrations/2026-09-25-users-profile-completed.sql`).
+- **Gate (Core):** `Auth::requireCompletedProfile($profileUrl, $message)` sends a user with an incomplete profile to their profile page with a message, the same way `Auth::requireRole()` guards a role. `Auth::profileCompleted()` reads the state.
+- **Requirements (application):** `App\Inductee\InducteeProfileService::REQUIRED_FIELDS`: first and last name, company, employment type, contact number, and emergency contact name and phone. Job position is optional. A profile save needs all of them, so a successful save marks the profile complete.
+- **Where it applies:** starting or completing an induction and taking an exam (`inductee/inductions/show.php`, `complete.php`, `inductee/exams/take.php`). Viewing the dashboard, compliance records and certificates never needs it.
+- **Telling the user:** while the profile is incomplete, the dashboard shows a notification that can't be dismissed, linking to the profile page. Completing the profile for the first time returns the inductee to the dashboard.
+- **Administration:** on Edit User, an administrator can untick "Profile completed" so an inductee reviews their profile at the next visit. They can only tick it when the saved profile already has every required field.
 
 ---
 

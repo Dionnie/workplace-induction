@@ -80,6 +80,27 @@ class ComplianceRepository
         return $record ?: null;
     }
 
+    /**
+     * One record with its inductee and induction, for the admin record page.
+     */
+    public function findForAdmin(int $id): ?array
+    {
+        $stmt = $this->db->prepare(
+            'SELECT cr.*, i.title AS induction_title, i.code AS induction_code, u.email,
+                    COALESCE(ap.first_name, ip.first_name) AS first_name,
+                    COALESCE(ap.last_name, ip.last_name) AS last_name
+             FROM compliance_records cr
+             JOIN inductions i ON i.id = cr.induction_id
+             JOIN users u ON u.id = cr.user_id
+             LEFT JOIN admin_profiles ap ON ap.user_id = u.id
+             LEFT JOIN inductee_profiles ip ON ip.user_id = u.id
+             WHERE cr.id = ?'
+        );
+        $stmt->execute([$id]);
+        $record = $stmt->fetch();
+        return $record ?: null;
+    }
+
     public function findByVerificationToken(string $token): ?array
     {
         $stmt = $this->db->prepare(

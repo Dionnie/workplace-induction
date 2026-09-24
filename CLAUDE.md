@@ -50,3 +50,4 @@ Generic, white-label Flat-file PHP Induction System.
 - Inductions : `/docs/application/inductions.md`
 - Terminologies : `/docs/application/terminology.md`
 - Content Blocks Editor : `docs\application\content_blocks_editor.md`
+- Exam Blocks Editor : `docs\application\exam_blocks_editor.md`

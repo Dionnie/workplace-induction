@@ -19,7 +19,7 @@ require __DIR__ . '/../partials/guest-header.php';
                 <input type="hidden" name="token" value="<?= e($token) ?>">
 
                 <div class="mb-3">
-                    <label for="password" class="form-label">New Password</label>
+                    <label for="password" class="form-label required">New Password</label>
                     <input type="password" class="form-control <?= error_for($errors, 'password') ? 'is-invalid' : '' ?>"
                            id="password" name="password" autocomplete="new-password" required autofocus>
                     <?php if ($error = error_for($errors, 'password')): ?>
@@ -30,7 +30,7 @@ require __DIR__ . '/../partials/guest-header.php';
                 </div>
 
                 <div class="mb-3">
-                    <label for="password_confirmation" class="form-label">Confirm New Password</label>
+                    <label for="password_confirmation" class="form-label required">Confirm New Password</label>
                     <input type="password" class="form-control <?= error_for($errors, 'password_confirmation') ? 'is-invalid' : '' ?>"
                            id="password_confirmation" name="password_confirmation" autocomplete="new-password" required>
                     <?php if ($error = error_for($errors, 'password_confirmation')): ?>

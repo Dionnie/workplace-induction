@@ -21,8 +21,8 @@ $result = (new ComplianceService())->delete($id);
 
 if ($result['success']) {
     flash('success', 'Compliance record deleted.');
-} else {
-    flash('error', $result['errors']['form'] ?? 'Unable to delete compliance record.');
+    redirect('/admin/compliance/index.php');
 }
 
-redirect('/admin/compliance/index.php');
+flash('error', $result['errors']['form'] ?? 'Unable to delete compliance record.');
+redirect('/admin/compliance/show.php?id=' . $id);

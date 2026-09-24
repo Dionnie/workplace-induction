@@ -189,8 +189,8 @@ try {
 
     foreach ($plan as $item) {
         $stmt = $db->prepare(
-            'INSERT INTO users (email, password, user_type, status, email_verified_at)
-             VALUES (:email, :password, \'inductee\', \'active\', NOW())'
+            'INSERT INTO users (email, password, user_type, status, profile_completed, email_verified_at)
+             VALUES (:email, :password, \'inductee\', \'active\', 1, NOW())'
         );
         $stmt->execute([
             'email' => $item['email'],

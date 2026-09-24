@@ -15,7 +15,7 @@ declare(strict_types=1);
     <?= csrf_field() ?>
 
     <div class="mb-3">
-        <label for="title" class="form-label">Title</label>
+        <label for="title" class="form-label required">Title</label>
         <input type="text" class="form-control <?= error_for($errors, 'title') ? 'is-invalid' : '' ?>"
                id="title" name="title" value="<?= e((string) ($values['title'] ?? '')) ?>" required autofocus>
         <?php if ($error = error_for($errors, 'title')): ?>
@@ -25,7 +25,7 @@ declare(strict_types=1);
 
     <div class="row g-3 mb-3">
         <div class="col-sm">
-            <label for="code" class="form-label">Code</label>
+            <label for="code" class="form-label required">Code</label>
             <input type="text" class="form-control <?= error_for($errors, 'code') ? 'is-invalid' : '' ?>"
                    id="code" name="code" value="<?= e((string) ($values['code'] ?? '')) ?>" required
                    placeholder="e.g. SITE-SAFETY-01">
@@ -36,7 +36,7 @@ declare(strict_types=1);
             <?php endif; ?>
         </div>
         <div class="col-sm">
-            <label for="validity_months" class="form-label">Validity (months)</label>
+            <label for="validity_months" class="form-label required">Validity (months)</label>
             <input type="number" min="1" class="form-control <?= error_for($errors, 'validity_months') ? 'is-invalid' : '' ?>"
                    id="validity_months" name="validity_months" value="<?= e((string) ($values['validity_months'] ?? '')) ?>" required>
             <?php if ($error = error_for($errors, 'validity_months')): ?>
@@ -44,7 +44,7 @@ declare(strict_types=1);
             <?php endif; ?>
         </div>
         <div class="col-sm">
-            <label for="status" class="form-label">Status</label>
+            <label for="status" class="form-label required">Status</label>
             <select class="form-select <?= error_for($errors, 'status') ? 'is-invalid' : '' ?>" id="status" name="status" required>
                 <?php foreach (['active' => 'Active', 'inactive' => 'Inactive'] as $value => $label): ?>
                     <option value="<?= $value ?>" <?= ($values['status'] ?? 'active') === $value ? 'selected' : '' ?>><?= $label ?></option>
@@ -57,12 +57,12 @@ declare(strict_types=1);
     </div>
 
     <div class="mb-3">
-        <label for="description" class="form-label">Description <span class="text-muted small">(optional)</span></label>
+        <label for="description" class="form-label">Description</label>
         <textarea class="form-control" id="description" name="description" rows="2"><?= e((string) ($values['description'] ?? '')) ?></textarea>
     </div>
 
     <div class="mb-3">
-        <label for="exam_id" class="form-label">Exam <span class="text-muted small">(optional)</span></label>
+        <label for="exam_id" class="form-label">Exam</label>
         <select class="form-select <?= error_for($errors, 'exam_id') ? 'is-invalid' : '' ?>" id="exam_id" name="exam_id">
             <option value="">No exam &mdash; content only</option>
             <?php foreach ($exams as $exam): ?>

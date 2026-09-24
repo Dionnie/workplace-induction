@@ -23,7 +23,8 @@ $titles = [
     'expired' => 'Expired compliance',
 ];
 
-$name = fn (array $row): string => trim($row['first_name'] . ' ' . $row['last_name']);
+// A new registration has no name until the inductee completes their profile.
+$name = fn (array $row): string => trim(($row['first_name'] ?? '') . ' ' . ($row['last_name'] ?? '')) ?: (string) ($row['email'] ?? '');
 $lineFor = [
     'registrations' => fn (array $row): string => '- ' . $name($row) . " ({$row['email']})"
         . ((string) ($row['company'] ?? '') !== '' ? ", {$row['company']}" : '')

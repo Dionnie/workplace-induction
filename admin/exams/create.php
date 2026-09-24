@@ -16,16 +16,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         'title' => trim($_POST['title'] ?? ''),
         'description' => trim($_POST['description'] ?? ''),
         'pass_percentage' => trim($_POST['pass_percentage'] ?? ''),
-        'status' => $_POST['status'] ?? '',
-        'exam_blocks' => $_POST['exam_blocks'] ?? '[]',
     ];
 
     $result = (new ExamService())->create($data);
 
     if ($result['success']) {
         clear_old();
-        flash('success', 'Exam created.');
-        redirect('/admin/exams/index.php');
+        flash('success', 'Exam created. Now add its questions, then make the exam active.');
+        redirect('/admin/exams/editor.php?id=' . $result['id']);
     }
 
     set_old($data);

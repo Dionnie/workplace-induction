@@ -30,6 +30,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     if ($result['success']) {
         clear_old();
+
+        // Completing the profile unlocks the inductions: send them there.
+        if ($result['completed_now']) {
+            flash('success', 'Profile complete. You can now start your inductions.');
+            redirect('/inductee/index.php');
+        }
+
         flash('success', 'Profile updated.');
         redirect('/inductee/profile/index.php');
     }

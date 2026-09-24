@@ -22,20 +22,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $email = trim($_POST['email'] ?? '');
     $password = (string) ($_POST['password'] ?? '');
     $passwordConfirmation = (string) ($_POST['password_confirmation'] ?? '');
-    $firstName = trim($_POST['first_name'] ?? '');
-    $lastName = trim($_POST['last_name'] ?? '');
-    $company = trim($_POST['company'] ?? '');
-    $employmentType = $_POST['employment_type'] ?? '';
 
-    $result = (new AuthService())->registerInductee($email, $password, $firstName, $lastName, $company, $employmentType);
+    $result = (new AuthService())->registerInductee($email, $password, $passwordConfirmation);
 
     if ($result['success']) {
         clear_old();
-        flash('success', 'Account created. Please check your email to verify your address before logging in.');
+        flash('success', 'Account created. Check your email to verify your address, then log in to complete your profile.');
         redirect('/login.php');
     }
 
-    set_old(['email' => $email, 'first_name' => $firstName, 'last_name' => $lastName, 'company' => $company, 'employment_type' => $employmentType]);
+    set_old(['email' => $email]);
     set_errors($result['errors']);
     redirect('/register.php');
 }

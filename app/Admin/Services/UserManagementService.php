@@ -8,6 +8,7 @@ use App\Compliance\ComplianceService;
 use App\Core\Auth\UserRepository;
 use App\Core\Database;
 use App\Exam\ExamAttemptRepository;
+use App\Inductee\InducteeProfileService;
 
 class UserManagementService
 {
@@ -35,8 +36,11 @@ class UserManagementService
     }
 
     /**
-     * An administrator creates the account directly, so the address is treated as already
-     * verified and no confirmation email is sent.
+     * Creates the account (the users table only). An administrator creates
+     * it directly, so the address is treated as already verified and no
+     * confirmation email is sent. An inductee then completes their own
+     * profile when they first log in; administrators have no profile
+     * requirements, so theirs counts as complete (docs/core/auth.md #3, #12).
      *
      * @return array{success: bool, errors: array<string, string>}
      */
@@ -47,24 +51,24 @@ class UserManagementService
             return ['success' => false, 'errors' => $errors];
         }
 
-        $userId = $this->users->create([
-            'email' => $data['email'],
+        $this->users->create([
+            'email' => trim($data['email']),
             'password' => password_hash($data['password'], PASSWORD_DEFAULT),
             'user_type' => $data['user_type'],
             'status' => $data['status'],
+            'profile_completed' => $data['user_type'] === 'admin',
             'email_verified_at' => date('Y-m-d H:i:s'),
         ]);
-
-        if ($data['user_type'] === 'admin') {
-            $this->users->createAdminProfile($userId, $data['first_name'], $data['last_name']);
-        } else {
-            $this->users->createInducteeProfile($userId, $data['first_name'], $data['last_name']);
-        }
 
         return ['success' => true, 'errors' => []];
     }
 
     /**
+     * Updates the account (the users table only). Profile Completed can be
+     * turned off to have an inductee review their profile again, but only
+     * turned on when their profile has every required field. Email Verified
+     * can only be turned on (e.g. when the verification email never arrived).
+     *
      * @return array{success: bool, errors: array<string, string>}
      */
     public function update(int $id, array $data): array
@@ -75,13 +79,31 @@ class UserManagementService
         }
 
         $errors = $this->validate($data, $id);
+
+        $isInductee = $existing['user_type'] === 'inductee';
+        $profileCompleted = !empty($data['profile_completed']);
+        if ($isInductee && $profileCompleted && empty($existing['profile_completed'])) {
+            $missing = (new InducteeProfileService())->missingFields($id);
+            if ($missing) {
+                $errors['profile_completed'] = 'Their profile is missing: ' . implode(', ', $missing)
+                    . '. They are asked for these when they next log in.';
+            }
+        }
+
         if ($errors) {
             return ['success' => false, 'errors' => $errors];
         }
 
-        $this->users->updateEmail($id, $data['email']);
+        $this->users->updateEmail($id, trim($data['email']));
         $this->users->updateStatus($id, $data['status']);
-        $this->users->updateProfile($id, $existing['user_type'], $data['first_name'], $data['last_name']);
+
+        if ($isInductee) {
+            $this->users->setProfileCompleted($id, $profileCompleted);
+        }
+
+        if ($existing['email_verified_at'] === null && !empty($data['email_verified'])) {
+            $this->users->markEmailVerified($id);
+        }
 
         if (!empty($data['password'])) {
             $this->users->updatePassword($id, password_hash($data['password'], PASSWORD_DEFAULT));
@@ -119,8 +141,10 @@ class UserManagementService
 
     /**
      * Updates only the profile fields (the admin_profiles/inductee_profiles
-     * table: first and last name). Kept separate from updateAccount() for
-     * the same reason -- the fields live in a different table.
+     * table: first and last name), creating the profile row if the account
+     * has none yet. Kept separate from updatePassword() for the same reason
+     * -- the fields live in a different table. Used by an administrator's
+     * own My Profile page; a name is all an administrator's profile needs.
      *
      * @return array{success: bool, errors: array<string, string>}
      */
@@ -137,6 +161,7 @@ class UserManagementService
         }
 
         $this->users->updateProfile($id, $existing['user_type'], trim($data['first_name']), trim($data['last_name']));
+        $this->users->setProfileCompleted($id, true);
 
         return ['success' => true, 'errors' => []];
     }
@@ -194,8 +219,6 @@ class UserManagementService
         if ($emailError = $this->validateEmail($data['email'] ?? '', $ignoreUserId)) {
             $errors['email'] = $emailError;
         }
-
-        $errors += $this->validateNames($data);
 
         if ($ignoreUserId === null && !in_array($data['user_type'] ?? '', self::USER_TYPES, true)) {
             $errors['user_type'] = 'Select a valid user type.';

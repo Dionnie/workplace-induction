@@ -3,10 +3,14 @@
 declare(strict_types=1);
 
 /**
- * @var array<string, mixed> $induction
+ * Exam Blocks Studio: the same layout as the Content Blocks Studio
+ * (views/admin/inductions/editor.php), for building an exam's questions.
+ * See docs/application/exam_blocks_editor.md.
+ *
+ * @var array<string, mixed> $exam
  * @var string $initialBlocksJson
  */
-$documentTitle = 'Edit Content · ' . $induction['title'] . ' · ' . site_settings()['company_name'];
+$documentTitle = 'Edit Exam Blocks · ' . $exam['title'] . ' · ' . site_settings()['company_name'];
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -18,15 +22,18 @@ $documentTitle = 'Edit Content · ' . $induction['title'] . ' · ' . site_settin
 <header class="cb-studio-header border-bottom bg-white sticky-top">
     <div class="cb-studio-header-inner container-fluid px-3 py-2 d-flex justify-content-between align-items-center flex-wrap gap-2">
         <div class="cb-studio-header-info d-flex align-items-center gap-3 overflow-hidden">
-            <a href="/admin/inductions/edit.php?id=<?= (int) $induction['id'] ?>" class="cb-back-link btn btn-outline-secondary flex-shrink-0">
-                <i class="bi bi-arrow-left me-1" aria-hidden="true"></i>Induction Details
+            <a href="/admin/exams/edit.php?id=<?= (int) $exam['id'] ?>" class="cb-back-link btn btn-outline-secondary flex-shrink-0">
+                <i class="bi bi-arrow-left me-1" aria-hidden="true"></i>Exam Details
             </a>
-            <span class="cb-induction-title fw-semibold text-truncate"><?= e($induction['title']) ?></span>
+            <span class="fw-semibold text-truncate"><?= e($exam['title']) ?></span>
+            <?php if ($exam['status'] !== 'active'): ?>
+                <?= status_badge((string) $exam['status']) ?>
+            <?php endif; ?>
             <span id="cb-save-status" class="cb-save-status badge text-bg-success">Saved</span>
         </div>
         <div class="d-flex align-items-center gap-2">
             <button type="button" class="cb-outline-toggle btn btn-outline-secondary" data-bs-toggle="offcanvas" data-bs-target="#cbOutlineOffcanvas" aria-controls="cbOutlineOffcanvas">
-                <i class="bi bi-list-ul me-1" aria-hidden="true"></i>Course Outline
+                <i class="bi bi-list-ol me-1" aria-hidden="true"></i>Exam Outline
             </button>
             <button type="button" id="cb-save-btn" class="cb-save-button btn btn-primary">
                 <i class="bi bi-check2-circle me-1" aria-hidden="true"></i>Save Changes
@@ -38,12 +45,12 @@ $documentTitle = 'Edit Content · ' . $induction['title'] . ' · ' . site_settin
 <!-- Same outline content, for narrower viewports via the toggle button above. -->
 <div class="offcanvas offcanvas-start" tabindex="-1" id="cbOutlineOffcanvas" aria-labelledby="cbOutlineOffcanvasLabel">
     <div class="offcanvas-header">
-        <h2 class="offcanvas-title fs-6 fw-semibold" id="cbOutlineOffcanvasLabel">Course Outline</h2>
+        <h2 class="offcanvas-title fs-6" id="cbOutlineOffcanvasLabel">Exam Outline</h2>
         <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
     </div>
     <div class="offcanvas-body">
-        <ul class="cb-outline-list list-unstyled mb-0" id="cb-outline-list-offcanvas"></ul>
-        <p class="cb-outline-empty mb-0" id="cb-outline-empty-offcanvas">Add a Section to start building your outline.</p>
+        <ol class="cb-outline-list list-unstyled mb-0" id="cb-outline-list-offcanvas"></ol>
+        <p class="cb-outline-empty mb-0" id="cb-outline-empty-offcanvas">Add a question to start building the exam.</p>
     </div>
 </div>
 
@@ -54,12 +61,12 @@ $documentTitle = 'Edit Content · ' . $induction['title'] . ' · ' . site_settin
         </div>
 
         <div class="cb-content-area">
-            <!-- Floating sidebar rail: starts level with the canvas below (not the viewport top), so it never overlaps whatever precedes it, and shown only when there's enough gutter beside the centered canvas not to overlap it (see .cb-outline-sidebar-rail in app.css). -->
+            <!-- Floating outline rail beside the canvas on wide screens; see .cb-outline-sidebar-rail in app.css. -->
             <aside class="cb-outline-sidebar-rail">
-                <nav class="cb-outline-sidebar card border-0 shadow-sm p-3" aria-label="Course outline">
-                    <div class="cb-outline-heading small text-uppercase text-muted fw-semibold mb-2">Course Outline</div>
-                    <ul class="cb-outline-list list-unstyled mb-0" id="cb-outline-list"></ul>
-                    <p class="cb-outline-empty mb-0" id="cb-outline-empty">Add a Section to start building your outline.</p>
+                <nav class="cb-outline-sidebar card border-0 shadow-sm p-3" aria-label="Exam outline">
+                    <div class="cb-outline-heading small text-uppercase text-muted fw-semibold mb-2">Exam Outline</div>
+                    <ol class="cb-outline-list list-unstyled mb-0" id="cb-outline-list"></ol>
+                    <p class="cb-outline-empty mb-0" id="cb-outline-empty">Add a question to start building the exam.</p>
                 </nav>
             </aside>
 
@@ -67,7 +74,7 @@ $documentTitle = 'Edit Content · ' . $induction['title'] . ' · ' . site_settin
                 <div class="card border-0 shadow-sm">
                     <div class="card-body">
                         <div id="cb-blocks" class="cb-blocks-container" data-initial="<?= e($initialBlocksJson) ?>"></div>
-                        <p class="cb-empty-hint text-muted small mb-0" id="cb-empty-hint">No content blocks yet. Use the buttons above to add some.</p>
+                        <p class="cb-empty-hint text-muted small mb-0" id="cb-empty-hint">No questions yet. Add one with the buttons above.</p>
                     </div>
                 </div>
             </div>
@@ -77,9 +84,9 @@ $documentTitle = 'Edit Content · ' . $induction['title'] . ' · ' . site_settin
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 <script src="/assets/js/media-picker.js"></script>
-<script src="/assets/js/course-editor.js"></script>
+<script src="/assets/js/exam-editor.js"></script>
 <script>
-    CourseEditor.init({
+    ExamEditor.init({
         blocksContainer: '#cb-blocks',
         emptyHint: '#cb-empty-hint',
         outlineList: '#cb-outline-list',
@@ -89,7 +96,7 @@ $documentTitle = 'Edit Content · ' . $induction['title'] . ' · ' . site_settin
         offcanvas: '#cbOutlineOffcanvas',
         saveButton: '#cb-save-btn',
         saveStatus: '#cb-save-status',
-        saveUrl: <?= json_encode('/admin/inductions/editor.php?id=' . (int) $induction['id']) ?>,
+        saveUrl: <?= json_encode('/admin/exams/editor.php?id=' . (int) $exam['id']) ?>,
         csrfToken: <?= json_encode(csrf_token()) ?>
     });
 </script>

@@ -23,8 +23,8 @@ $result = (new InductionService())->delete($id, $cascade);
 
 if ($result['success']) {
     flash('success', 'Induction deleted.');
-} else {
-    flash('error', $result['errors']['form'] ?? 'Unable to delete induction.');
+    redirect('/admin/inductions/index.php');
 }
 
-redirect('/admin/inductions/index.php');
+flash('error', $result['errors']['form'] ?? 'Unable to delete induction.');
+redirect('/admin/inductions/edit.php?id=' . $id);

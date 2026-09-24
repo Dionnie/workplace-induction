@@ -139,8 +139,8 @@ function error_for(array $errors, string $field): ?string
 function status_badge(string $status, ?string $label = null): string
 {
     $variant = match ($status) {
-        'active', 'compliant', 'passed', 'correct', 'saved' => 'success',
-        'expiring', 'pending', 'unsaved' => 'warning',
+        'active', 'compliant', 'passed', 'correct', 'saved', 'complete' => 'success',
+        'expiring', 'pending', 'unsaved', 'incomplete' => 'warning',
         'expired', 'failed', 'revoked', 'suspended', 'incorrect' => 'danger',
         default => 'secondary', // inactive, superseded, not_started
     };

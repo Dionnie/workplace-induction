@@ -25,4 +25,4 @@ if ($result['success']) {
     flash('error', $result['error']);
 }
 
-redirect('/admin/compliance/index.php');
+redirect('/admin/compliance/show.php?id=' . $id);

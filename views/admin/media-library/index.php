@@ -128,13 +128,12 @@ $filterInputs = '<input type="hidden" name="category_id" value="' . ($categoryId
                                 <th>Filename</th>
                                 <th>Category</th>
                                 <th>Size</th>
-                                <th><span class="visually-hidden">Actions</span></th>
                             </tr>
                         </thead>
                         <tbody>
                             <?php if (empty($items)): ?>
                                 <tr>
-                                    <td colspan="6" class="text-center text-muted py-4">No files found.</td>
+                                    <td colspan="5" class="text-center text-muted py-4">No files found.</td>
                                 </tr>
                             <?php endif; ?>
                             <?php foreach ($items as $item): ?>
@@ -165,16 +164,6 @@ $filterInputs = '<input type="hidden" name="category_id" value="' . ($categoryId
                                         <?php endif; ?>
                                     </td>
                                     <td class="text-muted small text-nowrap"><?= e($sizeLabel) ?></td>
-                                    <td class="text-end">
-                                        <form method="post" action="/admin/media-library/delete.php" onsubmit="return confirm('Delete this file? This cannot be undone.');">
-                                            <?= csrf_field() ?>
-                                            <input type="hidden" name="id" value="<?= (int) $item['id'] ?>">
-                                            <?= $filterInputs ?>
-                                            <button type="submit" class="btn btn-sm btn-outline-danger" title="Delete" aria-label="Delete <?= e($item['original_filename']) ?>">
-                                                <i class="bi bi-trash" aria-hidden="true"></i>
-                                            </button>
-                                        </form>
-                                    </td>
                                 </tr>
                             <?php endforeach; ?>
                         </tbody>
@@ -214,17 +203,7 @@ $filterInputs = '<input type="hidden" name="category_id" value="' . ($categoryId
                                 <?php if ($itemCategoryName !== null): ?>
                                     <span class="badge text-bg-light border mb-1"><?= e($itemCategoryName) ?></span>
                                 <?php endif; ?>
-                                <div class="d-flex justify-content-between align-items-center mt-1">
-                                    <span class="text-muted"><?= e($sizeLabel) ?></span>
-                                    <form method="post" action="/admin/media-library/delete.php" onsubmit="return confirm('Delete this file? This cannot be undone.');">
-                                        <?= csrf_field() ?>
-                                        <input type="hidden" name="id" value="<?= (int) $item['id'] ?>">
-                                        <?= $filterInputs ?>
-                                        <button type="submit" class="btn btn-sm btn-outline-danger py-0 px-1" title="Delete" aria-label="Delete <?= e($item['original_filename']) ?>">
-                                            <i class="bi bi-trash" aria-hidden="true"></i>
-                                        </button>
-                                    </form>
-                                </div>
+                                <div class="text-muted mt-1"><?= e($sizeLabel) ?></div>
                             </div>
                         </div>
                     </div>
@@ -258,46 +237,37 @@ $filterInputs = '<input type="hidden" name="category_id" value="' . ($categoryId
                             <li class="list-group-item px-0">
                                 <div class="category-view d-flex justify-content-between align-items-center">
                                     <span class="text-truncate me-2"><?= e($category['name']) ?></span>
+                                    <button type="button" class="btn btn-sm btn-outline-secondary py-0 px-1 category-rename-btn"
+                                            title="Edit" aria-label="Edit <?= e($category['name']) ?>">
+                                        <i class="bi bi-pencil" aria-hidden="true"></i>
+                                    </button>
+                                </div>
 
-                                    <span class="text-nowrap category-actions">
-                                        <button type="button" class="btn btn-sm btn-outline-secondary py-0 px-1 category-rename-btn"
-                                                title="Rename" aria-label="Rename <?= e($category['name']) ?>">
-                                            <i class="bi bi-pencil" aria-hidden="true"></i>
-                                        </button>
-                                        <button type="button" class="btn btn-sm btn-outline-danger py-0 px-1 category-delete-btn"
-                                                title="Delete" aria-label="Delete <?= e($category['name']) ?>">
-                                            <i class="bi bi-trash" aria-hidden="true"></i>
-                                        </button>
-                                    </span>
-
-                                    <form method="post" action="/admin/media-library/categories/delete.php"
-                                          class="category-delete-confirm d-none text-nowrap gap-1 m-0">
+                                <!-- Edit state: rename, and the only place a category can be deleted. -->
+                                <div class="category-edit d-none">
+                                    <form method="post" action="/admin/media-library/categories/update.php" class="d-flex align-items-center gap-1">
                                         <?= csrf_field() ?>
                                         <input type="hidden" name="id" value="<?= (int) $category['id'] ?>">
-                                        <button type="submit" class="btn btn-sm btn-danger py-0 px-1"
-                                                title="Confirm delete" aria-label="Confirm delete <?= e($category['name']) ?>">
+                                        <input type="text" name="name" class="form-control form-control-sm" value="<?= e($category['name']) ?>"
+                                               maxlength="100" aria-label="Category name" required>
+                                        <button type="submit" class="btn btn-sm btn-primary py-0 px-1" title="Save" aria-label="Save">
                                             <i class="bi bi-check-lg" aria-hidden="true"></i>
                                         </button>
-                                        <button type="button" class="btn btn-sm btn-outline-secondary py-0 px-1 category-delete-cancel-btn"
+                                        <button type="button" class="btn btn-sm btn-outline-secondary py-0 px-1 category-cancel-btn"
                                                 title="Cancel" aria-label="Cancel">
                                             <i class="bi bi-x-lg" aria-hidden="true"></i>
                                         </button>
                                     </form>
+                                    <button type="button" class="btn btn-link btn-sm link-danger px-0 category-delete-btn">Delete category</button>
+                                    <form method="post" action="/admin/media-library/categories/delete.php"
+                                          class="category-delete-confirm d-none flex-wrap align-items-center gap-2 mt-2">
+                                        <?= csrf_field() ?>
+                                        <input type="hidden" name="id" value="<?= (int) $category['id'] ?>">
+                                        <span class="small">Delete &ldquo;<?= e($category['name']) ?>&rdquo;? Its files move to None.</span>
+                                        <button type="submit" class="btn btn-sm btn-danger">Delete Category</button>
+                                        <button type="button" class="btn btn-sm btn-outline-secondary category-delete-cancel-btn">Cancel</button>
+                                    </form>
                                 </div>
-                                <form method="post" action="/admin/media-library/categories/update.php"
-                                      class="category-edit-form d-none align-items-center gap-1">
-                                    <?= csrf_field() ?>
-                                    <input type="hidden" name="id" value="<?= (int) $category['id'] ?>">
-                                    <input type="text" name="name" class="form-control form-control-sm" value="<?= e($category['name']) ?>"
-                                           maxlength="100" aria-label="Category name" required>
-                                    <button type="submit" class="btn btn-sm btn-primary py-0 px-1" title="Save" aria-label="Save">
-                                        <i class="bi bi-check-lg" aria-hidden="true"></i>
-                                    </button>
-                                    <button type="button" class="btn btn-sm btn-outline-secondary py-0 px-1 category-cancel-btn"
-                                            title="Cancel" aria-label="Cancel">
-                                        <i class="bi bi-x-lg" aria-hidden="true"></i>
-                                    </button>
-                                </form>
                             </li>
                         <?php endforeach; ?>
                     </ul>
@@ -312,10 +282,10 @@ $filterInputs = '<input type="hidden" name="category_id" value="' . ($categoryId
                     <?= csrf_field() ?>
 
                     <div class="mb-3">
-                        <label for="max_file_size_mb" class="form-label">Max File Size</label>
+                        <label for="max_file_size_mb" class="form-label required">Max File Size</label>
                         <div class="input-group input-group-sm">
                             <input type="number" min="1" max="50" class="form-control <?= error_for($errors, 'max_file_size_mb') ? 'is-invalid' : '' ?>"
-                                   id="max_file_size_mb" name="max_file_size_mb" value="<?= (int) $settings['max_file_size_mb'] ?>">
+                                   id="max_file_size_mb" name="max_file_size_mb" value="<?= (int) $settings['max_file_size_mb'] ?>" required>
                             <span class="input-group-text">MB</span>
                         </div>
                         <?php if ($error = error_for($errors, 'max_file_size_mb')): ?>
@@ -324,7 +294,7 @@ $filterInputs = '<input type="hidden" name="category_id" value="' . ($categoryId
                     </div>
 
                     <fieldset class="mb-3">
-                        <legend class="form-label fs-6 mb-2">Allowed File Types</legend>
+                        <legend class="form-label fs-6 mb-2 required">Allowed File Types</legend>
                         <?php foreach ($availableTypes as $type): ?>
                             <div class="form-check form-check-inline">
                                 <input class="form-check-input" type="checkbox" name="allowed_types[]" value="<?= e($type) ?>"

@@ -85,22 +85,7 @@ require __DIR__ . '/../../partials/admin-header.php';
                         <td><?= e($record['expiry_date']) ?></td>
                         <td><?= status_badge((string) $record['status']) ?></td>
                         <td class="text-end text-nowrap">
-                            <a href="/certificate.php?token=<?= e($record['verification_token']) ?>" class="btn btn-sm btn-outline-secondary"
-                               target="_blank" rel="noopener">View<span class="visually-hidden"> (opens in a new tab)</span></a>
-                            <?php if ($record['status'] === 'active'): ?>
-                                <form method="post" action="/admin/compliance/revoke.php" class="d-inline"
-                                      onsubmit="return confirm('Revoke this compliance record? This cannot be undone.');">
-                                    <?= csrf_field() ?>
-                                    <input type="hidden" name="id" value="<?= (int) $record['id'] ?>">
-                                    <button type="submit" class="btn btn-sm btn-outline-danger">Revoke</button>
-                                </form>
-                            <?php endif; ?>
-                            <form method="post" action="/admin/compliance/delete.php" class="d-inline"
-                                  onsubmit="return confirm('Delete this compliance record? This bypasses the normal compliance history and cannot be undone.');">
-                                <?= csrf_field() ?>
-                                <input type="hidden" name="id" value="<?= (int) $record['id'] ?>">
-                                <button type="submit" class="btn btn-sm btn-outline-danger">Delete</button>
-                            </form>
+                            <a href="/admin/compliance/show.php?id=<?= (int) $record['id'] ?>" class="btn btn-sm btn-outline-secondary">View</a>
                         </td>
                     </tr>
                 <?php endforeach; ?>
