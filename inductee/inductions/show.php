@@ -5,7 +5,6 @@ declare(strict_types=1);
 require __DIR__ . '/../../bootstrap.php';
 
 use App\Core\Auth;
-use App\ContentBlocks\CourseOutlineBuilder;
 use App\Induction\InductionService;
 
 Auth::requireRole('inductee');
@@ -22,7 +21,8 @@ if (!$induction) {
     exit('Induction not found.');
 }
 
-$blocks = json_decode((string) $induction['content_blocks'], true) ?: [];
-$outline = (new CourseOutlineBuilder())->build($blocks);
+// Section slides, each with its lecture slides (docs/application/content_blocks_editor.md #3).
+$sections = json_decode((string) $induction['content_blocks'], true);
+$sections = is_array($sections) ? $sections : [];
 
 require __DIR__ . '/../../views/inductee/inductions/show.php';

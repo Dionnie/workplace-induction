@@ -7,16 +7,18 @@ namespace App\ContentBlocks;
 /**
  * Renders a single validated content block to its read-only HTML fragment.
  * Used by the inductee-facing induction page, so admin-authored blocks of
- * every type render identically wherever this class is called from.
+ * every type render identically wherever this class is called from. The
+ * slide around the blocks (title, outline, navigation) is page markup in
+ * views/inductee/inductions/show.php, not a block.
  *
- * Block "description"/"content" fields are already sanitized rich HTML
+ * Block "content" fields are already sanitized rich HTML
  * (ContentBlockService) and are printed unescaped by design; every other
  * field is user-authored plain text and is always escaped.
  *
- * Every block is wrapped in a typed .content-block element so the CSS
- * proximity rule (docs/application/content_blocks_editor.md #6 — sections
- * spaced far apart, everything else spaced close together) applies
- * identically to this page and to the Studio editor's own .cb-block markup.
+ * Every block is wrapped in a .content-block element so block spacing
+ * applies identically to this page and to the Studio editor's own .cb-block
+ * markup. Images load lazily: every slide is in the page, but only the one
+ * on screen should download its images (slide-viewer.js prefetches the next).
  */
 class ContentBlockRenderer
 {
@@ -35,9 +37,6 @@ class ContentBlockRenderer
         $type = (string) ($block['type'] ?? '');
 
         $body = match ($type) {
-            BlockTypes::LEGACY_HEADING => $this->renderHeading($block),
-            BlockTypes::SECTION => $this->renderSection($block),
-            BlockTypes::LECTURE => $this->renderLecture($block),
             BlockTypes::TEXT => $this->renderText($block),
             BlockTypes::ALERT => $this->renderAlert($block),
             BlockTypes::IMAGE => $this->renderImage($block),
@@ -51,16 +50,7 @@ class ContentBlockRenderer
             return '';
         }
 
-        // Legacy headings are visually the same "new chapter" concept as
-        // section, so they get the same wide spacing rather than reading
-        // as tightly grouped under whatever came before them.
-        $spacingClass = $type === BlockTypes::LEGACY_HEADING ? BlockTypes::SECTION : $type;
-        $id = e((string) ($block['id'] ?? ''));
-
-        // The id lives on the block wrapper (not an inner heading) so every
-        // block type — not just section/lecture — is a valid teleport-scroll
-        // target for the outline sidebar (docs/application/content_blocks_editor.md #9).
-        return '<div id="block-' . $id . '" class="content-block content-block-' . $spacingClass . '">' . $body . '</div>';
+        return '<div class="content-block">' . $body . '</div>';
     }
 
     /**
@@ -77,54 +67,9 @@ class ContentBlockRenderer
     }
 
     /** @param array<string, mixed> $block */
-    private function renderHeading(array $block): string
-    {
-        $text = e((string) ($block['text'] ?? ''));
-
-        return '<div class="content-block-inner"><h2 class="cb-heading-2">' . $text . '</h2></div>';
-    }
-
-    /** @param array<string, mixed> $block */
-    private function renderSection(array $block): string
-    {
-        $title = e((string) ($block['title'] ?? ''));
-        $description = (string) ($block['description'] ?? '');
-
-        $html = '<div class="content-block-inner"><h2 class="cb-heading-2">' . $title . '</h2>';
-        if ($description !== '') {
-            $html .= '<div class="mt-2">' . $description . '</div>';
-        }
-        $html .= '</div>';
-
-        return $html;
-    }
-
-    /** @param array<string, mixed> $block */
-    private function renderLecture(array $block): string
-    {
-        $title = e((string) ($block['title'] ?? ''));
-        $content = (string) ($block['content'] ?? '');
-
-        $html = '<div class="content-block-inner"><h3 class="cb-heading-3">' . $title . '</h3>';
-        if ($content !== '') {
-            $html .= '<div class="mt-2">' . $content . '</div>';
-        }
-        $html .= '</div>';
-
-        return $html;
-    }
-
-    /** @param array<string, mixed> $block */
     private function renderText(array $block): string
     {
-        if (array_key_exists('content', $block)) {
-            $content = (string) $block['content'];
-            return '<div class="content-block-inner">' . $content . '</div>';
-        }
-
-        $text = nl2br(e((string) ($block['text'] ?? '')));
-
-        return '<div class="content-block-inner"><p>' . $text . '</p></div>';
+        return '<div class="content-block-inner">' . (string) ($block['content'] ?? '') . '</div>';
     }
 
     /** @param array<string, mixed> $block */
@@ -156,7 +101,7 @@ class ContentBlockRenderer
         $aspect = in_array($block['aspect'] ?? '', BlockTypes::IMAGE_ASPECTS, true) ? $block['aspect'] : '4-3';
 
         $html = '<figure class="cb-image cb-align-' . $align . ' cb-w-' . $width . ' mb-0">'
-            . '<img src="' . $url . '" alt="' . $caption . '" class="img-fluid cb-shape-' . $shape . ' cb-aspect-' . $aspect . '">';
+            . '<img src="' . $url . '" alt="' . $caption . '" loading="lazy" class="img-fluid cb-shape-' . $shape . ' cb-aspect-' . $aspect . '">';
         if ($caption !== '') {
             $html .= '<figcaption class="text-muted small mt-1">' . $caption . '</figcaption>';
         }
@@ -209,7 +154,7 @@ class ContentBlockRenderer
             $url = e((string) ($image['url'] ?? ''));
             $caption = e((string) ($image['caption'] ?? ''));
 
-            $html .= '<div class="col"><figure class="mb-0"><img src="' . $url . '" alt="' . $caption . '" class="img-fluid rounded">';
+            $html .= '<div class="col"><figure class="mb-0"><img src="' . $url . '" alt="' . $caption . '" loading="lazy" class="img-fluid rounded">';
             if ($caption !== '') {
                 $html .= '<figcaption class="text-muted small mt-1">' . $caption . '</figcaption>';
             }

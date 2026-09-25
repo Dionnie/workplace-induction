@@ -95,8 +95,9 @@
         <a href="#badges">Status badges</a>
         <a href="#alerts">Alerts &amp; flash</a>
         <a href="#danger-zone">Danger Zone</a>
-        <a href="#details">Detail list</a>
+        <a href="#read-only-fields">Read-only fields</a>
         <a href="#certificate">Certificate card</a>
+        <a href="#exam-question">Exam question</a>
         <a href="#subnav">Section navigation</a>
         <a href="#empty">Empty states</a>
         <a href="#loading">Loading state</a>
@@ -222,14 +223,30 @@
     <ul class="ds-do">
         <li>Use <code>var(--color-primary-700)</code> etc. in CSS, and <code>text-primary</code>, <code>btn-primary</code> etc. in markup.</li>
         <li>Use the primary colour for what should be acted on: main actions, links, active navigation.</li>
-        <li>Use the accent sparingly, for small secondary emphasis (e.g. the Lecture badge in the Studio editor).</li>
-        <li>Emails can't read CSS variables; they get the theme through <code>App\Core\Theme::colors()</code> in <code>views/emails/layout.php</code>.</li>
+        <li>Use the accent sparingly, for small secondary emphasis (e.g. the Lecture badge in the Studio editor, the slanted block in the slide brand band below).</li>
+        <li>Emails and printed documents never use the theme: they are white with dark text, so any logo and any theme colour stay legible. Emails (<code>views/emails/layout.php</code>) are a white card with a subtle border and shadow: the logo, when one is set, and the company name on white, then the message (ui-guidelines.md §3).</li>
     </ul>
     <ul class="ds-dont">
         <li>Hard-code a brand hex value, or <code>rgba(15, 93, 95, …)</code>. It breaks every other theme.</li>
         <li>Use the accent or warm pink to mean error, warning or success. Those are <a href="#semantic">semantic colours</a>.</li>
         <li>Pick a colour per card or per status "to make it pop".</li>
     </ul>
+
+    <h3>Slide brand band</h3>
+    <p>
+        The one decorative use of the brand colours: each slide card (inductee induction page and Content Blocks Studio) has a
+        band along its top and bottom edge, in primary 700 with a slanted accent block. The bottom band is the top one turned
+        half round. It follows the theme, is <code>aria-hidden</code>, and goes on slides only.
+    </p>
+    <div class="ds-example">
+        <div class="ds-preview">
+            <div class="card border-0 shadow-sm" style="max-width: 28rem">
+                <div class="cb-slide-band" aria-hidden="true"></div>
+                <div class="card-body"><p class="mb-0">Slide content</p></div>
+                <div class="cb-slide-band cb-slide-band-bottom" aria-hidden="true"></div>
+            </div>
+        </div>
+    </div>
 </section>
 
 <!-- ===================================================================== -->
@@ -291,7 +308,7 @@
     </div>
     <p class="mt-3 small text-muted">
         Heading levels follow the document outline (h1 → h2 → h3). Choose the level for structure and the class for size.
-        Content Blocks use their own reading sizes (<code>.cb-heading-2</code>, <code>.cb-heading-3</code>).
+        Content Blocks slide titles use their own reading size (<code>.cb-heading-2</code>).
     </p>
 </section>
 
@@ -531,6 +548,11 @@ require __DIR__ . '/../../partials/admin-header.php';
         Every page starts with <code>.page-header</code>: the page title, then optionally a breadcrumb above it, a one-line
         subtitle below it, and the page's actions on the right. It wraps on narrow screens and provides the gap to the content.
     </p>
+    <p>
+        The one exception is the inductee's slide view of an induction: the slide gets the whole screen, the induction's
+        title sits at the top of the outline sidebar (<code>.cb-slides-induction</code>), and an About button opens a modal
+        with the description.
+    </p>
 
     <h3>Title and main action (list pages)</h3>
     <div class="ds-example">
@@ -592,9 +614,9 @@ require __DIR__ . '/../../partials/admin-header.php';
                 <tbody>
                     <tr><td><code>container-xxl mx-0</code> (admin layout)</td><td>1320px, left-aligned beside the sidebar</td><td>Every admin page: lists, dashboard, Settings, Media Library</td></tr>
                     <tr><td><code>container</code> (inductee layout)</td><td>Bootstrap</td><td>Inductee pages</td></tr>
-                    <tr><td><code>.page-narrow</code></td><td>720px</td><td>Form pages, profiles, detail pages (certificate). Wrap the page header and the card in it, so they line up.</td></tr>
+                    <tr><td><code>.page-narrow</code></td><td>720px</td><td>Form pages, profiles, detail pages (certificate). Wrap the page header and the card in it, so they line up. Centred (<code>.page-narrow.mx-auto</code>) for reading columns: the exam and result pages and the Exam Blocks Studio (<a href="#exam-question">Exam question</a>).</td></tr>
                     <tr><td><code>.container-guest</code> (layout)</td><td>420px</td><td>The guest layout's single card</td></tr>
-                    <tr><td><code>.content-canvas</code></td><td>1024px</td><td>Content Blocks reading canvas (see content_blocks_editor.md)</td></tr>
+                    <tr><td><code>.content-canvas</code>, <code>.cb-slides-stage</code></td><td>1024px</td><td>Content Blocks reading canvas and the slide area beside the outline (see content_blocks_editor.md)</td></tr>
                 </tbody>
             </table>
         </div>
@@ -737,6 +759,33 @@ require __DIR__ . '/../../partials/admin-header.php';
         </script>
     </div>
 
+    <h3>Help in a tooltip</h3>
+    <p>
+        For a form with many fields where a <code>form-text</code> line under each would be a wall of text (the Settings tabs):
+        an info button after the label, its tooltip the help. Its <code>aria-label</code> is the same text, and the control points at it with
+        <code>aria-describedby</code>, so screen readers still hear it. Tooltips start automatically (<code>assets/js/app.js</code>).
+        Errors still show as <code>invalid-feedback</code> under the field.
+    </p>
+    <p>
+        After a checkbox, it follows the <code>form-check-label</code>. For a radio group, it goes inside the <code>legend</code>
+        (with <code>.required</code> on a span around the legend's text), so the group's name carries the help. Help with a link or code
+        to click or copy stays visible text.
+    </p>
+    <div class="ds-example">
+        <div class="ds-preview">
+            <div class="row" style="max-width: 32rem">
+                <div class="col">
+                    <label for="ds-sender-name" class="form-label">Sender Name</label>
+                    <button type="button" class="field-help" id="ds-sender-name-help" data-bs-toggle="tooltip" data-bs-title="Blank uses the Company Name." aria-label="Blank uses the Company Name."><i class="bi bi-info-circle" aria-hidden="true"></i></button>
+                    <input type="text" class="form-control" id="ds-sender-name" name="sender_name" placeholder="Stark Food Systems" aria-describedby="ds-sender-name-help">
+                </div>
+            </div>
+        </div>
+    </div>
+    <ul class="ds-do">
+        <li>A placeholder shows what a blank field will use (here, the Company Name). With no such value, leave it out; never use a placeholder as the label or as an example.</li>
+    </ul>
+
     <h3>Groups, choices and input groups</h3>
     <div class="ds-example">
         <div class="ds-preview">
@@ -771,7 +820,7 @@ require __DIR__ . '/../../partials/admin-header.php';
         <li>Group radios and checkboxes in a <code>fieldset</code>; its <code>legend</code> (<code>form-label fs-6</code>) must be the fieldset's first child.</li>
         <li>When the error can't sit directly after the control (input groups, radio groups, custom pickers), use <code>invalid-feedback d-block</code>.</li>
         <li>A form-level error ("Invalid email or password") is an <code>alert alert-danger</code> above the fields.</li>
-        <li>Use the right input type and <code>autocomplete</code> (<code>email</code>, <code>tel</code>, <code>number</code>, <code>new-password</code>…). Values the user can't change here: a <code>disabled</code> control.</li>
+        <li>Use the right input type and <code>autocomplete</code> (<code>email</code>, <code>tel</code>, <code>number</code>, <code>new-password</code>…). Values the user can't change here: a <code>disabled</code> control. A record page with no edit form uses <a href="#read-only-fields">read-only fields</a>.</li>
         <li>Labels use the database/business term (<a href="../application/terminology.md">terminology.md</a>).</li>
     </ul>
     <ul class="ds-dont">
@@ -1142,23 +1191,56 @@ require __DIR__ . '/../../partials/admin-header.php';
 </section>
 
 <!-- ===================================================================== -->
-<section class="ds-section" id="details">
-    <h2>Detail list</h2>
-    <p>Read-only label/value pairs (certificates):</p>
+<section class="ds-section" id="read-only-fields">
+    <h2>Read-only fields</h2>
+    <p>
+        A record with no edit form (Compliance Record, Exam Attempt) shows its values as <code>readonly</code> form fields,
+        laid out like a <a href="#forms">form</a>: label above, <code>row g-3</code> for fields that belong together. A related
+        record is a <strong>View</strong> button in an input group after its field. There is no <code>&lt;form&gt;</code> and no
+        <code>.form-actions</code>.
+    </p>
     <div class="ds-example">
-        <div class="ds-preview">
-            <dl class="row mb-0">
-                <dt class="col-sm-5 text-muted fw-normal">Certificate Number</dt>
-                <dd class="col-sm-7"><code>CERT-2026-000123</code></dd>
-
-                <dt class="col-sm-5 text-muted fw-normal">Holder</dt>
-                <dd class="col-sm-7">Jane Citizen</dd>
-
-                <dt class="col-sm-5 text-muted fw-normal">Expiry Date</dt>
-                <dd class="col-sm-7 mb-0">2027-03-01</dd>
-            </dl>
+        <div class="ds-preview ds-preview-page">
+            <div class="card shadow-sm">
+                <div class="card-body p-4">
+                    <div class="row g-3 mb-3">
+                        <div class="col-sm">
+                            <label for="ds-ro-inductee" class="form-label">Inductee</label>
+                            <div class="input-group">
+                                <input type="text" class="form-control" id="ds-ro-inductee" value="Jane Citizen" readonly>
+                                <a href="#" class="btn btn-outline-secondary">View<span class="visually-hidden"> user</span></a>
+                            </div>
+                        </div>
+                        <div class="col-sm">
+                            <label for="ds-ro-certificate" class="form-label">Certificate Number</label>
+                            <input type="text" class="form-control" id="ds-ro-certificate" value="CERT-2026-000123" readonly>
+                        </div>
+                    </div>
+                    <div class="row g-3">
+                        <div class="col-sm">
+                            <label for="ds-ro-expiry" class="form-label">Expiry Date</label>
+                            <input type="text" class="form-control" id="ds-ro-expiry" value="2027-03-01" readonly>
+                        </div>
+                        <div class="col-sm">
+                            <label for="ds-ro-renewal" class="form-label">Renewal Of</label>
+                            <input type="text" class="form-control" id="ds-ro-renewal" placeholder="None" readonly>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
+    <ul class="ds-do">
+        <li><code>readonly</code>, not <code>disabled</code>: the value can still be focused, selected and copied. <code>app.css</code> gives it the disabled fill so it doesn't look editable. Inside an edit form, a value that can't change there stays a <code>disabled</code> control.</li>
+        <li>No <code>name</code> attribute; <code>id</code> and <code>label for</code> as on any field. Use <code>type="text"</code> for dates, so the browser adds no picker.</li>
+        <li>The field shows the related record's name (user, induction, certificate number…); the <strong>View</strong> button (<code>btn-outline-secondary</code>) goes to its page, with the object in a <code>visually-hidden</code> span, so it reads "View user".</li>
+        <li>No value: leave the field empty with <code>placeholder="None"</code>, and no View button.</li>
+        <li>Statuses are the plain label ("Active", "Passed"), as in an edit form's Status field; badges are for lists.</li>
+        <li>The last field or row has no <code>mb-3</code>, since no <code>.form-actions</code> follow.</li>
+    </ul>
+    <ul class="ds-dont">
+        <li>Label/value text (<code>&lt;dl&gt;</code>) or a heading and badge in place of fields, or inline text links to related records.</li>
+    </ul>
 </section>
 
 <!-- ===================================================================== -->
@@ -1214,6 +1296,82 @@ require __DIR__ . '/../partials/certificate-card.php';
         <li>Printing the page prints only the card, at 85.6 mm, with a thin cut line (<code>@media print</code> in <code>app.css</code> §11). The page offers a Print button (full width on the guest page).</li>
         <li>Show the live status on the page, never on the card: a printed card can't change, and the QR code always checks the current status. The public page leads with a verdict alert (Valid / Expired / Revoked / Replaced).</li>
         <li>The card is white throughout, header included, with dark text and a thin dark rule under the header, <strong>not</strong> the Appearance theme: a document that gets printed and handed around must stay legible with any logo and any theme.</li>
+    </ul>
+</section>
+
+<!-- ===================================================================== -->
+<section class="ds-section" id="exam-question">
+    <h2>Exam question</h2>
+    <p>
+        One card per question, the same on the inductee's exam page, the result page and in the Exam Blocks Studio, so the
+        Studio is a true preview (exam_blocks_editor.md). All three stack the cards in a centred <code>.page-narrow.mx-auto</code>
+        column (<code>.exam-questions</code>). Each answer option is a full-width row.
+    </p>
+
+    <h3>Exam page: choosing an answer</h3>
+    <p>Each row is the <code>&lt;label&gt;</code> of its radio, so the whole row is the click target (pointer cursor, hover tint). The chosen row gets a 2px primary edge; keyboard focus rings the row.</p>
+    <div class="ds-example">
+        <div class="ds-preview">
+            <div class="exam-question card border-0 shadow-sm" style="max-width: 32rem">
+                <fieldset class="card-body">
+                    <legend class="exam-question-legend">
+                        <span class="exam-question-eyebrow required">Question 2 of 20</span>
+                        <span class="exam-question-text">Where is smoking allowed in the plant?</span>
+                    </legend>
+                    <div class="exam-choices">
+                        <label class="exam-choice">
+                            <input class="form-check-input exam-choice-radio" type="radio" name="ds-exam-q" value="a">
+                            <span class="exam-choice-text">Anywhere inside the plant</span>
+                        </label>
+                        <label class="exam-choice">
+                            <input class="form-check-input exam-choice-radio" type="radio" name="ds-exam-q" value="b" checked>
+                            <span class="exam-choice-text">Designated smoking areas</span>
+                        </label>
+                    </div>
+                </fieldset>
+            </div>
+        </div>
+    </div>
+
+    <h3>Result page and Studio preview: marked answers</h3>
+    <p>
+        Static rows (<code>div.exam-choice</code>) with an icon marker. <code>.is-correct</code> (success) and <code>.is-incorrect</code> (danger)
+        always come with an icon and a note in words ("Your answer", "Correct answer"; "Correct" in the Studio), never colour alone.
+    </p>
+    <div class="ds-example">
+        <div class="ds-preview">
+            <div class="exam-question card border-0 shadow-sm" style="max-width: 32rem">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-start gap-2">
+                        <span class="exam-question-eyebrow">Question 2 of 20</span>
+                        <span class="badge text-bg-danger">Incorrect</span>
+                    </div>
+                    <h2 class="exam-question-text">Where is smoking allowed in the plant?</h2>
+                    <div class="exam-choices">
+                        <div class="exam-choice is-incorrect">
+                            <i class="exam-choice-icon bi bi-x-circle-fill" aria-hidden="true"></i>
+                            <span class="exam-choice-text">Anywhere inside the plant</span>
+                            <span class="exam-choice-note">Your answer</span>
+                        </div>
+                        <div class="exam-choice is-correct">
+                            <i class="exam-choice-icon bi bi-check-circle-fill" aria-hidden="true"></i>
+                            <span class="exam-choice-text">Designated smoking areas</span>
+                            <span class="exam-choice-note">Correct answer</span>
+                        </div>
+                        <div class="exam-choice">
+                            <i class="exam-choice-icon bi bi-circle" aria-hidden="true"></i>
+                            <span class="exam-choice-text">In restrooms</span>
+                        </div>
+                    </div>
+                    <p class="exam-explanation"><i class="bi bi-lightbulb me-1" aria-hidden="true"></i>Smoking is only allowed in the designated areas.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    <ul class="ds-do">
+        <li>The exam page's eyebrow and question are the fieldset's <code>&lt;legend&gt;</code> (<code>.exam-question-legend</code>), marked <code>.required</code>; on the result page the question is an <code>h2.exam-question-text</code>.</li>
+        <li>The exam page ends with <code>.exam-bar</code>, in the slide bar's look but sticky: Cancel, the answered count ("3 of 20 answered", <code>.is-complete</code> when all are), Submit Exam.</li>
+        <li>In the Studio, the selected question's card is ringed in primary; its options are <code>.exam-choice-edit</code> rows (radio to mark the correct answer, text input, remove).</li>
     </ul>
 </section>
 
@@ -1344,7 +1502,7 @@ require __DIR__ . '/../partials/certificate-card.php';
     </div>
 
     <h3>Detail page</h3>
-    <p>Narrow page, breadcrumb, print or secondary action in the header, one card with a feature heading, status badge and detail list; for an admin record, then its <a href="#danger-zone">Danger Zone</a>. Reference: <code>views/inductee/certificates/show.php</code>, <code>views/admin/compliance/show.php</code>.</p>
+    <p>For an admin record with no edit form: like a form page (narrow page, breadcrumb, one card), with a secondary action in the header, the card holding <a href="#read-only-fields">read-only fields</a> instead of a form, then the record's <a href="#danger-zone">Danger Zone</a>. Reference: <code>views/admin/compliance/show.php</code>, <code>views/admin/exam-attempts/show.php</code>.</p>
 
     <h3>Settings-style page</h3>
     <p>Page header, then <code>row g-4</code>: <a href="#subnav">section navigation</a> in <code>col-md-3</code>, one card per section in <code>col-md-9 page-narrow</code>. Reference: <code>views/admin/settings/index.php</code>.</p>
@@ -1370,16 +1528,21 @@ require __DIR__ . '/../partials/certificate-card.php';
                     <tr><td><code>.page-header</code></td><td>5</td><td>Title row at the top of every page. <a href="#page-header">↗</a></td></tr>
                     <tr><td><code>.page-title</code></td><td>5</td><td>The page's <code>h1</code>.</td></tr>
                     <tr><td><code>.page-subtitle</code></td><td>5</td><td>Optional one line under the title.</td></tr>
-                    <tr><td><code>.page-narrow</code></td><td>5</td><td>720px cap for form, profile and detail pages. <a href="#widths">↗</a></td></tr>
+                    <tr><td><code>.page-narrow</code></td><td>5</td><td>720px cap for form, profile and detail pages; centred with <code>mx-auto</code> for the exam pages and Exam Blocks Studio. <a href="#widths">↗</a></td></tr>
                     <tr><td><code>.container-guest</code></td><td>5</td><td>The guest layout's column. Layout only.</td></tr>
                     <tr><td><code>.required</code></td><td>6</td><td>On a <code>form-label</code> or <code>legend</code>: adds the red required asterisk. <a href="#forms">↗</a></td></tr>
+                    <tr><td><code>.form-control[readonly]</code></td><td>6</td><td>Read-only field: the disabled fill, still focusable and copyable. <a href="#read-only-fields">↗</a></td></tr>
                     <tr><td><code>.form-actions</code></td><td>6</td><td>Buttons at the end of a form. <a href="#forms">↗</a></td></tr>
+                    <tr><td><code>.field-help</code></td><td>6</td><td>Info button after a label whose tooltip is the field's help, for forms where help lines would be too much text. <a href="#forms">↗</a></td></tr>
                     <tr><td><code>.card-table</code></td><td>6</td><td>A list table filling a card. <a href="#tables">↗</a></td></tr>
                     <tr><td><code>.link-card</code></td><td>6</td><td>A card that is one link. <a href="#cards">↗</a></td></tr>
                     <tr><td><code>.bg-surface-subtle</code></td><td>7</td><td>A subtle panel inside a card (drop zones, the custom-colour panel).</td></tr>
                     <tr><td><code>.border-dashed</code></td><td>7</td><td>Dashed border (drop zones).</td></tr>
                     <tr><td><code>.logo-preview-box</code>, <code>.reminder-days</code>, <code>.email-preview-frame</code>, <code>.theme-swatch*</code>, <code>.theme-preview-header</code></td><td>8</td><td>Settings page only.</td></tr>
-                    <tr><td><code>.content-canvas</code>, <code>.content-block*</code>, <code>.cb-*</code>, <code>.teleport-highlight-pulse</code></td><td>9</td><td>Content Blocks canvas and both Studio editors (content_blocks_editor.md, exam_blocks_editor.md).</td></tr>
+                    <tr><td><code>.content-canvas</code>, <code>.content-block*</code></td><td>9</td><td>Content Blocks reading canvas: 1024px media width, 700px text column (content_blocks_editor.md §4).</td></tr>
+                    <tr><td><code>.cb-slides-layout</code>, <code>.cb-slides-sidebar</code>, <code>.cb-slides-stage</code>, <code>.cb-slides-induction*</code>, <code>.cb-slide-outline</code>, <code>.cb-slide</code>, <code>.cb-slide-band*</code>, <code>.cb-slide-header</code>, <code>.cb-slide-eyebrow</code>, <code>.cb-slide-title</code>, <code>.cb-slide-nav*</code>, <code>.cb-slide-counter</code></td><td>9</td><td>Slides, one at a time, on the inductee induction page and in the Content Blocks Studio: outline sidebar (an <code>.offcanvas-lg</code> drawer below lg; on the inductee page topped by the induction's title and About button), slide card with its <a href="#colour">brand band</a> top and bottom, Previous / Next bar fixed to the bottom of the screen (content_blocks_editor.md §5–6).</td></tr>
+                    <tr><td><code>.cb-*</code> (other), <code>.teleport-highlight-pulse</code></td><td>9</td><td>Both Studio editors: blocks, controls, rich text, type badges; the Exam Blocks Studio's outline rail and teleport scroll (exam_blocks_editor.md).</td></tr>
+                    <tr><td><code>.exam-questions</code>, <code>.exam-question*</code>, <code>.exam-choices</code>, <code>.exam-choice*</code>, <code>.exam-explanation</code>, <code>.exam-bar*</code></td><td>12</td><td>The exam question card on the exam page, the result page and in the Exam Blocks Studio; the exam page's bar. <a href="#exam-question">↗</a></td></tr>
                     <tr><td><code>.media-thumb</code>, <code>.media-tile*</code>, <code>.media-picker-*</code></td><td>10</td><td>Media Library and the image picker modal.</td></tr>
                     <tr><td><code>.cert-card</code>, <code>.cert-card-*</code>, <code>.container-certificate</code></td><td>11</td><td>The Certificate as an ID-card-sized pass, via <code>certificate-card.php</code>. <a href="#certificate">↗</a></td></tr>
                 </tbody>

@@ -12,6 +12,9 @@ Auth::requireRole('inductee');
 $userId = (int) Auth::id();
 $service = new InducteeProfileService();
 
+// The page that needed a completed profile, to return to once it is complete (docs/core/auth.md #12).
+$redirectTo = safe_redirect_path($_POST['redirect_to'] ?? $_GET['redirect_to'] ?? null);
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     verify_csrf();
 
@@ -31,10 +34,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if ($result['success']) {
         clear_old();
 
-        // Completing the profile unlocks the inductions: send them there.
+        // Completing the profile unlocks the inductions: send them back to the
+        // one they were stopped at, or to the dashboard.
         if ($result['completed_now']) {
             flash('success', 'Profile complete. You can now start your inductions.');
-            redirect('/inductee/index.php');
+            redirect(Auth::intendedUrl($redirectTo));
         }
 
         flash('success', 'Profile updated.');
@@ -43,7 +47,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     set_old($data);
     set_errors($result['errors']);
-    redirect('/inductee/profile/index.php');
+    redirect('/inductee/profile/index.php' . redirect_to_query($redirectTo));
 }
 
 $profile = $service->get($userId);

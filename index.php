@@ -33,7 +33,7 @@ $documentTitle = $appName;
         </span>
         <nav class="d-flex gap-2">
             <?php if ($authUser): ?>
-                <a href="<?= $authUser['user_type'] === 'admin' ? '/admin/index.php' : '/inductee/index.php' ?>" class="btn btn-primary btn-sm">Dashboard</a>
+                <a href="<?= e(Auth::homeUrl()) ?>" class="btn btn-primary btn-sm">Dashboard</a>
                 <a href="/logout.php" class="btn btn-outline-secondary btn-sm">Log Out</a>
             <?php else: ?>
                 <a href="/login.php" class="btn btn-outline-secondary btn-sm">Log In</a>

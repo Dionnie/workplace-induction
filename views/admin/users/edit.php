@@ -2,6 +2,8 @@
 
 declare(strict_types=1);
 
+use App\Core\Auth\AuthService;
+
 /**
  * @var array<string, mixed> $user
  * @var array<string, string> $errors
@@ -121,6 +123,22 @@ $emailVerified = $user['email_verified_at'] !== null;
                     <button type="submit" class="btn btn-primary">Save Changes</button>
                     <a href="/admin/users/index.php" class="btn btn-outline-secondary">Cancel</a>
                 </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="card shadow-sm mt-4">
+        <div class="card-body p-4">
+            <h2 class="fs-6 mb-1">Password Setup Email</h2>
+            <p class="text-muted small mb-3">
+                Emails <?= e((string) $user['email']) ?> a link to choose their own password, valid for
+                <?= AuthService::SETUP_LINK_DAYS ?> days. Their current password keeps working until they use it.
+                <?= $user['status'] !== 'active' ? 'Only active accounts can be sent one.' : '' ?>
+            </p>
+            <form method="post" action="/admin/users/send-setup-email.php" class="d-inline">
+                <?= csrf_field() ?>
+                <input type="hidden" name="id" value="<?= (int) $user['id'] ?>">
+                <button type="submit" class="btn btn-outline-secondary btn-sm" <?= $user['status'] !== 'active' ? 'disabled' : '' ?>>Send Setup Email</button>
             </form>
         </div>
     </div>

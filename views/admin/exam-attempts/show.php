@@ -26,27 +26,50 @@ $percentage = (int) $attempt['total_score'] > 0 ? round((int) $attempt['score'] 
 
     <div class="card shadow-sm">
         <div class="card-body p-4">
-            <div class="d-flex justify-content-between align-items-start gap-3 mb-3">
-                <h2 class="fs-5 mb-0"><?= e($attempt['exam_title']) ?></h2>
-                <?= status_badge((string) $attempt['result']) ?>
+            <div class="row g-3 mb-3">
+                <div class="col-sm">
+                    <label for="inductee" class="form-label">Inductee</label>
+                    <div class="input-group">
+                        <input type="text" class="form-control" id="inductee" value="<?= e($inductee) ?>" readonly>
+                        <a href="/admin/users/edit.php?id=<?= (int) $attempt['user_id'] ?>" class="btn btn-outline-secondary">View<span class="visually-hidden"> user</span></a>
+                    </div>
+                </div>
+                <div class="col-sm">
+                    <label for="email" class="form-label">Email</label>
+                    <input type="email" class="form-control" id="email" value="<?= e($attempt['email']) ?>" readonly>
+                </div>
             </div>
 
-            <dl class="row mb-0">
-                <dt class="col-sm-5 text-muted fw-normal">Inductee</dt>
-                <dd class="col-sm-7">
-                    <a href="/admin/users/edit.php?id=<?= (int) $attempt['user_id'] ?>"><?= e($inductee) ?></a>
-                    <div class="text-muted small"><?= e($attempt['email']) ?></div>
-                </dd>
+            <div class="mb-3">
+                <label for="induction" class="form-label">Induction</label>
+                <div class="input-group">
+                    <input type="text" class="form-control" id="induction" value="<?= e($attempt['induction_title']) ?>" readonly>
+                    <a href="/admin/inductions/edit.php?id=<?= (int) $attempt['induction_id'] ?>" class="btn btn-outline-secondary">View<span class="visually-hidden"> induction</span></a>
+                </div>
+            </div>
 
-                <dt class="col-sm-5 text-muted fw-normal">Induction</dt>
-                <dd class="col-sm-7"><?= e($attempt['induction_title']) ?></dd>
+            <div class="mb-3">
+                <label for="exam" class="form-label">Exam</label>
+                <div class="input-group">
+                    <input type="text" class="form-control" id="exam" value="<?= e($attempt['exam_title']) ?>" readonly>
+                    <a href="/admin/exams/edit.php?id=<?= (int) $attempt['exam_id'] ?>" class="btn btn-outline-secondary">View<span class="visually-hidden"> exam</span></a>
+                </div>
+            </div>
 
-                <dt class="col-sm-5 text-muted fw-normal">Score</dt>
-                <dd class="col-sm-7"><?= (int) $attempt['score'] ?> / <?= (int) $attempt['total_score'] ?> (<?= (int) $percentage ?>%)</dd>
-
-                <dt class="col-sm-5 text-muted fw-normal">Attempted</dt>
-                <dd class="col-sm-7 mb-0"><?= e(date('Y-m-d H:i', strtotime((string) $attempt['created_at']))) ?></dd>
-            </dl>
+            <div class="row g-3">
+                <div class="col-sm">
+                    <label for="result" class="form-label">Result</label>
+                    <input type="text" class="form-control" id="result" value="<?= e(ucfirst((string) $attempt['result'])) ?>" readonly>
+                </div>
+                <div class="col-sm">
+                    <label for="score" class="form-label">Score</label>
+                    <input type="text" class="form-control" id="score" value="<?= (int) $attempt['score'] ?> / <?= (int) $attempt['total_score'] ?> (<?= (int) $percentage ?>%)" readonly>
+                </div>
+                <div class="col-sm">
+                    <label for="attempted" class="form-label">Attempted</label>
+                    <input type="text" class="form-control" id="attempted" value="<?= e(date('Y-m-d H:i', strtotime((string) $attempt['created_at']))) ?>" readonly>
+                </div>
+            </div>
         </div>
     </div>
 

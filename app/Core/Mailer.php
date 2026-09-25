@@ -21,7 +21,7 @@ class Mailer
         $fromName = ($options['from_name'] ?? null) ?: $site['company_name'];
 
         $headers = [
-            'From' => sprintf('%s <%s>', $fromName, $fromEmail),
+            'From' => self::address((string) $fromName, (string) $fromEmail),
             'MIME-Version' => '1.0',
         ];
 
@@ -58,10 +58,33 @@ class Mailer
     }
 
     /**
+     * A From address: "Name" <email>. The name is quoted, so a comma
+     * ("Stark Food Systems, HSE") doesn't split it into two addresses;
+     * MIME-encoded when it isn't plain ASCII; and stripped of line breaks,
+     * so it can never add a header.
+     */
+    private static function address(string $name, string $email): string
+    {
+        $name = trim(str_replace(["\r", "\n"], ' ', $name));
+        if ($name === '') {
+            return $email;
+        }
+
+        $name = preg_match('/[^\x20-\x7E]/', $name)
+            ? mb_encode_mimeheader($name, 'UTF-8', 'Q')
+            : '"' . addcslashes($name, '"\\') . '"';
+
+        return "{$name} <{$email}>";
+    }
+
+    /**
      * Renders a plain-text email template from views/emails/. The template
      * sets $subject and echoes the body, the same way a page view sets
      * $pageTitle and renders its content. The text is also wrapped in the
-     * branded HTML layout (views/emails/layout.php).
+     * HTML layout (views/emails/layout.php): logo and company name, neutral
+     * white, never the Appearance theme. A template that needs more than
+     * text (tables) also sets $bodyHtml, escaped, for the layout to use
+     * instead; the text stays the plain-text part.
      *
      * @param array<string, mixed> $data
      * @return array{subject: string, body: string, html: string}
@@ -71,28 +94,27 @@ class Mailer
         $path = dirname(__DIR__, 2) . '/views/emails/' . $template . '.php';
 
         extract($data);
+        $bodyHtml = null;
         ob_start();
         require $path;
         $body = trim((string) ob_get_clean());
         $subject = $subject ?? '';
 
-        return ['subject' => $subject, 'body' => $body, 'html' => self::renderLayout($subject, $body)];
+        return ['subject' => $subject, 'body' => $body, 'html' => self::renderLayout($subject, $body, $bodyHtml)];
     }
 
-    private static function renderLayout(string $subject, string $body): string
+    private static function renderLayout(string $subject, string $body, ?string $bodyHtml = null): string
     {
         $site = site_settings();
-        $colors = Theme::colors($site);
-        $brandDark = $colors['primary_900'];
-        $brandColor = $colors['primary_700'];
         $companyName = $site['company_name'];
         $logoUrl = $site['logo_url'] ? public_url($site['logo_url']) : null;
         $primaryEmail = $site['primary_email'];
 
         // Escape first, then turn bare URLs into links and keep line breaks.
-        $bodyHtml = nl2br(preg_replace(
+        // Long links (verification tokens) wrap instead of widening a phone screen.
+        $bodyHtml ??= nl2br(preg_replace(
             '~(https?://[^\s<]+)~',
-            '<a href="$1" style="color:' . $brandColor . ';">$1</a>',
+            '<a href="$1" style="color:#212529; text-decoration:underline; word-break:break-all;">$1</a>',
             e($body)
         ));
 

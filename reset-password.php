@@ -16,7 +16,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $result = (new AuthService())->resetPassword($token, $password, $passwordConfirmation);
 
     if ($result['success']) {
-        flash('success', 'Your password has been reset. You can now log in.');
+        flash('success', 'Your password has been set. You can now log in.');
         redirect('/login.php');
     }
 
@@ -24,11 +24,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     redirect('/reset-password.php?token=' . urlencode($token));
 }
 
-$token = $_GET['token'] ?? '';
+$token = (string) ($_GET['token'] ?? '');
 $errors = get_errors();
 
-if ($token === '') {
-    $errors = ['form' => 'This password reset link is invalid or has expired.'];
+// Say so up front, rather than after they have typed a new password.
+if (!(new AuthService())->isValidResetToken($token)) {
+    $errors = ['form' => 'This link is invalid or has expired.'];
 }
 
 require __DIR__ . '/views/auth/reset-password.php';

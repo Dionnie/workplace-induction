@@ -5,7 +5,6 @@ declare(strict_types=1);
 require __DIR__ . '/../../bootstrap.php';
 
 use App\Core\Auth;
-use App\ContentBlocks\ContentBlockService;
 use App\Induction\InductionService;
 
 Auth::requireRole('admin');
@@ -38,8 +37,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     exit;
 }
 
-$blocks = json_decode((string) $induction['content_blocks'], true) ?: [];
-$blocks = (new ContentBlockService())->normalize($blocks);
-$initialBlocksJson = json_encode($blocks);
+// Section slides, each with its lecture slides (docs/application/content_blocks_editor.md #3).
+$sections = json_decode((string) $induction['content_blocks'], true);
+$initialSlidesJson = json_encode(is_array($sections) ? $sections : []);
 
 require __DIR__ . '/../../views/admin/inductions/editor.php';

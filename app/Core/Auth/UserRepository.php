@@ -112,18 +112,22 @@ class UserRepository
         $stmt->execute([$id]);
     }
 
+    /**
+     * Stores only a SHA-256 hash of the token, so a copy of the database
+     * can't be used to set anyone's password (docs/core/auth.md #10).
+     */
     public function setPasswordResetToken(int $id, string $token, string $expiresAt): void
     {
         $stmt = $this->db->prepare(
             'UPDATE users SET password_reset_token = :token, password_reset_expires_at = :expires_at WHERE id = :id'
         );
-        $stmt->execute(['token' => $token, 'expires_at' => $expiresAt, 'id' => $id]);
+        $stmt->execute(['token' => hash('sha256', $token), 'expires_at' => $expiresAt, 'id' => $id]);
     }
 
     public function findByResetToken(string $token): ?array
     {
         $stmt = $this->db->prepare('SELECT * FROM users WHERE password_reset_token = ?');
-        $stmt->execute([$token]);
+        $stmt->execute([hash('sha256', $token)]);
         $user = $stmt->fetch();
         return $user ?: null;
     }

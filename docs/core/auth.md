@@ -195,6 +195,31 @@ Inductions available
 
 Accounts created by an administrator follow the same path: the administrator enters only `users` fields, and the inductee completes their own profile at their first login.
 
+### Accounts created by an administrator
+
+An administrator-created account is treated as verified. On Add User, the administrator either:
+
+- **Emails a setup link** (the default): the user gets an "account setup" email with a link to choose their own password. The administrator never sets or sees it, and no password is ever emailed.
+- **Sets a password themselves** and hands it over in person. Nothing is emailed.
+
+```text
+Add User (email a setup link)
+        ↓
+Create users record with a random password nobody knows
+        ↓
+Password reset token that lasts 7 days (AuthService::SETUP_LINK_DAYS)
+        ↓
+Account setup email → /reset-password.php?token=…
+        ↓
+User chooses a password → Log in
+```
+
+- **No extra account state.** Until the link is used, no one knows the password, so the account can't be used. A "pending" status isn't needed (section 11).
+- **It is a password reset link** (section 9) with a longer expiry, since the user isn't expecting it. If it expires, "Forgot your password?" sends a new link.
+- **Only active accounts** can be sent one. Any other user couldn't log in with it.
+- **Resending:** Edit User has **Send Setup Email** for a lost or expired link, or for an existing account that never had its own password. The current password keeps working until the link is used.
+- **Failed email:** the account is still created. The administrator is taken to Edit User to send it again.
+
 An Administrator should not be forced through Inductee requirements simply because both are users.
 
 ---
@@ -231,6 +256,8 @@ Verification tokens must be:
 - Invalidated after successful verification
 
 The application must not treat a user as verified merely because a verification URL was opened without a valid token.
+
+Setting a password from a valid reset or account setup link also marks the email verified. The link was sent to that address, so using it proves the user owns it.
 
 ---
 
@@ -287,6 +314,29 @@ Inductee
 These URLs are organizational entry points.
 
 They are **not** security boundaries.
+
+### Returning to the requested page (`redirect_to`)
+
+A guest who opens a protected page (for example a link in a notification email) is sent to the login page and, after logging in, back to that page:
+
+```text
+/admin/users/index.php (not logged in)
+        ↓
+/login.php?redirect_to=%2Fadmin%2Fusers%2Findex.php
+        ↓
+Log in
+        ↓
+/admin/users/index.php
+```
+
+- **Where it is set:** `Auth::requireLogin()`, so every protected page gets it and links need no changes.
+- **Only paths on this site:** `safe_redirect_path()` accepts a root-relative path only. Absolute and protocol-relative URLs, backslashes and control characters are rejected, so a crafted link can't redirect to another site.
+- **Only the user's own area:** `Auth::intendedUrl()` follows `redirect_to` only when it is under the user's area (`/admin/` or `/inductee/`). Anything else goes to `Auth::homeUrl()`, the entry point above.
+- **GET only:** a form submission (POST) is never recorded, since a redirect can't repeat it.
+- **Kept through failed attempts:** the login form carries it in a hidden field, and a failed login returns to `/login.php?redirect_to=…`.
+- **Already logged in:** `/login.php?redirect_to=…` sends a logged-in user straight there.
+
+Profile completion (section 12) uses the same `redirect_to` to return the user to the page that needed a completed profile.
 
 Every protected request must still perform server-side authentication and authorization checks.
 
@@ -351,6 +401,10 @@ When a password is successfully changed:
 - Consider invalidating existing authenticated sessions where appropriate
 
 Never store passwords or reset tokens in plain text when a secure hashed representation is appropriate.
+
+Reset tokens (including account setup links, section 5) are stored as a SHA-256 hash in `users.password_reset_token`. Only the email holds the token itself, so a copy of the database can't be used to set anyone's password. `UserRepository` hashes the token when storing it and when looking it up.
+
+The same page, `/reset-password.php` ("Set Your Password"), serves both reset and setup links.
 
 ---
 
@@ -421,10 +475,10 @@ Administrators are exempt from application-specific profile requirements unless 
 ### How it is implemented
 
 - **State (Core):** `users.profile_completed` (`TINYINT(1)`, default `0`). New accounts start incomplete. Administrator accounts are created complete, since they have no requirements. Accounts imported from the legacy system were all marked complete (`database/migrations/2026-09-25-users-profile-completed.sql`).
-- **Gate (Core):** `Auth::requireCompletedProfile($profileUrl, $message)` sends a user with an incomplete profile to their profile page with a message, the same way `Auth::requireRole()` guards a role. `Auth::profileCompleted()` reads the state.
+- **Gate (Core):** `Auth::requireCompletedProfile($profileUrl, $message)` sends a user with an incomplete profile to their profile page with a message, the same way `Auth::requireRole()` guards a role. For a GET request it adds `redirect_to` with the requested page (section 8). `Auth::profileCompleted()` reads the state.
 - **Requirements (application):** `App\Inductee\InducteeProfileService::REQUIRED_FIELDS`: first and last name, company, employment type, contact number, and emergency contact name and phone. Job position is optional. A profile save needs all of them, so a successful save marks the profile complete.
 - **Where it applies:** starting or completing an induction and taking an exam (`inductee/inductions/show.php`, `complete.php`, `inductee/exams/take.php`). Viewing the dashboard, compliance records and certificates never needs it.
-- **Telling the user:** while the profile is incomplete, the dashboard shows a notification that can't be dismissed, linking to the profile page. Completing the profile for the first time returns the inductee to the dashboard.
+- **Telling the user:** while the profile is incomplete, the dashboard shows a notification that can't be dismissed, linking to the profile page. Completing the profile for the first time returns the inductee to the page they were stopped at (`redirect_to`, e.g. an email link to an induction), or to the dashboard when there is none.
 - **Administration:** on Edit User, an administrator can untick "Profile completed" so an inductee reviews their profile at the next visit. They can only tick it when the saved profile already has every required field.
 
 ---
@@ -581,3 +635,26 @@ User-Type/Application Workflow
 ```
 
 Authentication should remain small, predictable, and independent from application-specific business logic.
+
+---
+
+# 19. Test Accounts
+
+End-to-end testing, by a developer or an AI assistant, uses temporary test accounts, never real ones. Create and delete them with the CLI script:
+
+```text
+php database/test-users.php create admin|inductee [--incomplete]
+php database/test-users.php list
+php database/test-users.php delete <email>|--all
+```
+
+`create` makes an active, email-verified account and prints its email and a random password. An inductee gets a completed profile unless `--incomplete` is passed, for testing profile completion (section 12). No emails are sent.
+
+Rules:
+
+- **Use the script, not real accounts.** Don't log in as a real user or change a real account to set up a test (reset its password, untick "Profile completed"). Don't register through `/register.php` just to get an account, because registration emails the administrators.
+- **Test accounts are marked.** Their email is `e2e-<type>-<8 hex>@test.invalid`. The `.invalid` domain can never receive email, and `delete` refuses any account without the marker, so the script can't remove a real account.
+- **Delete them when the test is done**, in the same session. Deleting also removes the exam attempts and compliance records the test created. `list` shows leftovers, and `delete --all` removes them.
+- **Keep passwords out of the project.** Use the printed password for that test only. Don't write it into code, docs or notes.
+- **Watch for emails to real people.** Completing an induction as a test inductee sends the Induction Completed notification to the real administrators when instant notifications are on. Ask first unless that is what is being tested.
+- **Local and development databases only.** On a live site, create test accounts only with the site owner's explicit approval.

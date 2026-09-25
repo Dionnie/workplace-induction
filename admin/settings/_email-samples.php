@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use App\Core\Auth\AuthService;
 use App\Notification\NotificationService;
 
 /**
@@ -45,5 +46,10 @@ return (function (): array {
         'admin-report' => fn (): array => ['report' => (new NotificationService())->previewAdminReport()],
         'verify-email' => fn (): array => ['verificationUrl' => public_url('/verify-email.php?token=sample')],
         'password-reset' => fn (): array => ['resetUrl' => public_url('/reset-password.php?token=sample')],
+        'account-setup' => fn (): array => [
+            'email' => $inductee['email'],
+            'setupUrl' => public_url('/reset-password.php?token=sample'),
+            'expiryDays' => AuthService::SETUP_LINK_DAYS,
+        ],
     ];
 })();

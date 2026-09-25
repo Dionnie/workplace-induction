@@ -320,6 +320,37 @@ h1, h2, h3, h4, h5, h6,
   color: var(--bs-danger);
 }
 
+/*
+ * Field help in a tooltip: a small info button right after the label, for
+ * forms where a line of help under every field is too much text. Its
+ * aria-label is the help text, and the control points at it with
+ * aria-describedby, so screen readers still read the help.
+ */
+.field-help {
+  padding: 0 0.125rem;
+  font-size: 0.875rem;
+  line-height: 1;
+  color: var(--color-text-muted);
+  vertical-align: baseline;
+  background: none;
+  border: 0;
+  border-radius: 0.25rem;
+}
+
+.field-help:hover,
+.field-help:focus-visible {
+  color: var(--color-primary-700);
+}
+
+/*
+ * Read-only fields on a record page without an edit form (Compliance Record,
+ * Exam Attempt). Same fill as a disabled control, so the page doesn't read as
+ * an editable form, but the value stays focusable and can be copied.
+ */
+.form-control[readonly] {
+  background-color: var(--bs-secondary-bg);
+}
+
 /* Buttons at the end of a form: submit first, then Cancel. */
 .form-actions {
   display: flex;
@@ -383,11 +414,12 @@ h1, h2, h3, h4, h5, h6,
 
 /* 8. Settings --------------------------------------------------------------- */
 
-/* Company logo preview in Settings > General, shown on the navbar colour. */
+/* Company logo preview in Settings > General: a neutral drop area, whatever the theme. */
 .logo-preview-box {
   width: 160px;
   height: 64px;
-  background-color: var(--color-primary-900);
+  background-color: var(--color-surface-subtle);
+  border: 1px dashed var(--color-border);
 }
 
 .logo-preview-box img {
@@ -479,11 +511,11 @@ h1, h2, h3, h4, h5, h6,
 /* 9. Content Blocks ------------------------------------------------------- */
 
 /*
- * Content Blocks reading canvas (docs/application/content_blocks_editor.md #6).
- * .content-canvas caps media-width blocks (image/iframe); .content-block-inner
- * nests inside it to cap text-width blocks (section/lecture/text/alert).
- * Both are plain centered max-widths — blocks are never visually nested,
- * only spaced, so grouping stays a spacing concern, not a layout one.
+ * Content Blocks reading canvas (docs/application/content_blocks_editor.md #4).
+ * .content-canvas caps media-width blocks (image/gallery/iframe) at 1024px;
+ * .content-block-inner nests inside it to cap text-width blocks (text/alert)
+ * at 700px. Both are plain centered max-widths. A slide's own width is the
+ * canvas (.cb-slides-stage), so the same two widths apply inside a slide.
  */
 .content-canvas {
   max-width: 1024px;
@@ -541,10 +573,10 @@ h1, h2, h3, h4, h5, h6,
 .cb-image img.cb-aspect-1-1 { aspect-ratio: 1 / 1; object-fit: cover; width: 100%; }
 
 /*
- * Section/Lecture heading typography, shared by the Studio editor (as an
- * <input>) and ContentBlockRenderer (as the real <h2>/<h3>) so both surfaces
- * read identically. Sized for comfortable reading by adult/senior staff,
- * larger than the app's general fs-5/fs-6 body headings.
+ * Slide title typography, shared by the Studio editor (as an <input>) and
+ * the inductee page (as the real <h2>) so both read identically. Sized for
+ * comfortable reading by adult/senior staff, larger than the app's general
+ * fs-5/fs-6 body headings.
  */
 .cb-heading-2 {
   font-size: 2rem;
@@ -552,44 +584,13 @@ h1, h2, h3, h4, h5, h6,
   line-height: 1.25;
 }
 
-.cb-heading-3 {
-  font-size: 1.5rem;
-  font-weight: 600;
-  line-height: 1.3;
-}
-
 /*
- * Proximity spacing (docs/application/content_blocks_editor.md #6, per
- * Gestalt/Fitts-law product feedback): Sections read as new chapters and
- * get a large gap before them; every other block type stays close to its
- * preceding block so it reads as belonging to the same section. Applied to
- * both the Studio editor (.cb-block) and the inductee page (.content-block)
- * so grouping looks identical in both places.
+ * Blocks on a slide sit close together, the same in the Studio editor
+ * (.cb-block) and on the inductee page (.content-block).
  */
 .cb-block,
 .content-block {
   margin-top: 0.75rem;
-}
-
-.cb-block[data-type="section"],
-.content-block-section {
-  margin-top: 4.5rem;
-}
-
-/*
- * Lecture headings are still a heading level (h3), not body content, so
- * they get a middle tier of breathing room — enough to read as a clear
- * sub-break even when a section has no description sitting between the
- * two headings, without approaching a section's "new chapter" gap.
- */
-.cb-block[data-type="lecture"],
-.content-block-lecture {
-  margin-top: 2rem;
-}
-
-/* Exam Blocks Studio: each question is its own unit, like the exam page's cards. */
-.cb-block[data-type="question"] {
-  margin-top: 1.5rem;
 }
 
 .cb-block:first-child,
@@ -598,7 +599,7 @@ h1, h2, h3, h4, h5, h6,
 }
 
 /*
- * Rich text fields (lecture/section/alert content) may or may not contain
+ * Rich text fields (text/alert content) may or may not contain
  * explicit <p> tags depending on how they were typed — give paragraphs
  * consistent spacing either way, and let a single bare line of text (no
  * wrapping tag at all) read like normal body copy via inherited styles.
@@ -758,46 +759,262 @@ h1, h2, h3, h4, h5, h6,
 }
 
 /*
- * Course structure sidebar & teleport scroll
- * (docs/application/content_blocks_editor.md #8, #9). Every teleport target
- * gets breathing room above it so a smooth-scroll landing never touches the
+ * Slides (docs/application/content_blocks_editor.md #5): the inductee
+ * induction page and the Content Blocks Studio show one slide at a time.
+ * From lg up the outline is a sticky sidebar column beside the stage, and
+ * scrolls on its own; below lg the same markup is an offcanvas drawer
+ * (.offcanvas-lg), opened from the slide bar, like the admin sidebar. The
+ * stage keeps the 1024px canvas width.
+ */
+.cb-slides-layout {
+  max-width: calc(1024px + 18.5rem);
+  margin-left: auto;
+  margin-right: auto;
+  /* Room below the last slide for the fixed slide bar (.cb-slide-nav). */
+  padding-bottom: 4.5rem;
+}
+
+.cb-slides-stage {
+  min-width: 0;
+  max-width: 1024px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+@media (min-width: 992px) {
+  .cb-slides-layout {
+    display: grid;
+    grid-template-columns: 17rem minmax(0, 1fr);
+    gap: 1.5rem;
+    align-items: start;
+  }
+
+  .cb-slides-stage {
+    max-width: none;
+    margin: 0;
+  }
+
+  .cb-slides-sidebar {
+    position: sticky;
+    top: var(--cb-sidebar-sticky-top, 1.5rem);
+    max-height: calc(100vh - var(--cb-sidebar-sticky-top, 1.5rem) - 1.5rem);
+    overflow-y: auto;
+    padding: 1rem;
+    background-color: var(--color-surface);
+    border-radius: var(--bs-border-radius);
+    box-shadow: var(--bs-box-shadow-sm);
+  }
+
+  /* Bootstrap makes an .offcanvas-lg body a flex row; stack its contents. */
+  .cb-slides-sidebar .offcanvas-body {
+    display: block;
+  }
+}
+
+/*
+ * Inductee page: the induction's title at the top of the sidebar, with the
+ * About button (modal with the description). It replaces the page header,
+ * so the slide starts at the top of the screen.
+ */
+.cb-slides-induction {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.5rem;
+  padding-bottom: 1rem;
+  margin-bottom: 0.75rem;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.cb-slides-induction-title {
+  margin-bottom: 0;
+  font-size: 1rem;
+  font-weight: 600;
+  line-height: 1.35;
+}
+
+/* The outline: section links, their lecture links, and the current slide. */
+.cb-slide-outline .cb-outline-section {
+  margin-top: 0.75rem;
+}
+
+.cb-slide-outline .cb-outline-link,
+.cb-slide-outline .cb-outline-items .cb-outline-link {
+  padding: 0.3rem 0.5rem;
+  border-radius: 0.375rem;
+}
+
+.cb-slide-outline .cb-outline-items {
+  margin-left: 0.5rem;
+  padding-left: 0.25rem;
+}
+
+.cb-slide-outline .cb-outline-link:hover {
+  background-color: var(--color-surface-subtle);
+}
+
+.cb-slide-outline .cb-outline-link.active {
+  background-color: rgba(var(--color-primary-rgb), 0.1);
+  color: var(--color-primary-700);
+  font-weight: 600;
+}
+
+/*
+ * A slide: a card with its title (not a block) on the 700px text column,
+ * lined up with the text blocks below it, then its blocks. A minimum height
+ * keeps short slides from looking like fragments.
+ */
+.cb-slide {
+  min-height: 60vh;
+  scroll-margin-top: var(--cb-sidebar-sticky-top, 1.5rem);
+}
+
+.cb-slide > .card-body {
+  padding: 1.5rem;
+}
+
+/*
+ * Brand band along the top and bottom edge of a slide: the primary colour
+ * with a slanted accent block, both from Settings > Appearance. The bottom
+ * band is the top one turned half round, so its accent sits bottom right.
+ */
+.cb-slide-band {
+  position: relative;
+  flex-shrink: 0;
+  height: 30px;
+  overflow: hidden;
+  background-color: var(--color-primary-700);
+  border-radius: var(--bs-card-inner-border-radius) var(--bs-card-inner-border-radius) 0 0;
+}
+
+.cb-slide-band::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  width: 30%;
+  background-color: var(--color-accent-500);
+  transform: skewX(-18deg);
+  transform-origin: left top;
+}
+
+.cb-slide-band-bottom {
+  transform: rotate(180deg);
+}
+
+.cb-slide-header {
+  max-width: 700px;
+  margin: 0 auto 1.5rem;
+}
+
+/*
+ * Where the slide sits ("Section 2" on a section, its section's title on a
+ * lecture), and an exam question's "Question 3 of 20" (§12).
+ */
+.cb-slide-eyebrow,
+.exam-question-eyebrow {
+  display: block;
+  margin-bottom: 0.25rem;
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--color-text-muted);
+}
+
+.cb-slide-title {
+  margin-bottom: 0;
+}
+
+.cb-slide-title:focus {
+  outline: none;
+}
+
+/*
+ * The floating bar at the bottom of the screen: the slide bar (Previous /
+ * counter / Next) and the exam page's bar (§12). Above page content, below
+ * Bootstrap's sticky top bar, drawers and modals.
+ */
+.cb-slide-nav,
+.exam-bar {
+  z-index: 1010;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  padding: 0.5rem;
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 0.75rem;
+  box-shadow: 0 0.5rem 1.5rem rgba(0, 0, 0, 0.12);
+}
+
+.cb-slide-nav .btn,
+.exam-bar .btn {
+  white-space: nowrap;
+}
+
+/*
+ * The slide bar is fixed, so it stays in the same place on every slide,
+ * however short or long. Centred on the stage: the layout is centred on the
+ * screen, so from lg up the bar is centred on the part right of the sidebar
+ * column and gap (18.5rem).
+ */
+.cb-slide-nav {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 1rem;
+  width: min(36rem, calc(100% - 2rem));
+  margin: 0 auto;
+}
+
+@media (min-width: 992px) {
+  .cb-slide-nav {
+    left: 18.5rem;
+  }
+}
+
+.cb-slide-nav-status {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-width: 0;
+}
+
+.cb-slide-counter,
+.exam-bar-status {
+  font-size: 0.9rem;
+  color: var(--color-text-muted);
+  white-space: nowrap;
+}
+
+/*
+ * Exam Blocks Studio outline & teleport scroll
+ * (docs/application/exam_blocks_editor.md). Every teleport target gets
+ * breathing room above it so a smooth-scroll landing never touches the
  * viewport edge.
  */
-.content-block,
 .cb-block {
   scroll-margin-top: 1.5rem;
 }
 
 /*
- * Shared course-page layout for the Studio editor and the inductee page.
- * The reading canvas is centered purely by its own .content-canvas rule
- * (max-width:1024px + margin:auto) inside a plain full-width container —
- * nothing sits beside it in normal flow, so its centering is never
- * affected by the sidebar.
+ * The Exam Blocks Studio's page layout. The question column is the centred
+ * 720px .page-narrow column, like the exam page, with nothing beside it in
+ * normal flow.
  *
- * .cb-content-area is a position:relative wrapper placed immediately
- * around the sidebar + canvas, right where the canvas begins in the
- * document (i.e. after whatever variable-height content — page title,
- * description, state alerts — precedes it on a given page). The sidebar
- * rail is position:absolute, top:0/bottom:0 *within that wrapper*, not
- * fixed to the viewport — so it always starts level with the top of the
- * canvas and spans its full height, on every page, regardless of how
- * tall the content above happens to be. (The earlier position:fixed
- * version anchored to a blind viewport offset, which overlapped the
- * canvas/title whenever a page had more content above it than assumed —
- * e.g. a long induction title.) The nav inside the rail is what actually
- * sticks during scroll, via position:sticky, now that it has proper
- * scroll range to stick within.
+ * .cb-content-area is a position:relative wrapper around the outline rail
+ * and the column. The rail is position:absolute, top:0/bottom:0 within it,
+ * so it starts level with the first question and spans the column's
+ * height; the nav inside the rail sticks during scroll.
  *
- * Horizontally, the rail sits at calc(50% - 796px) — half the canvas
- * (512px) + a 24px gap + the rail's own 260px width — landing in the
- * gutter centering naturally leaves empty; symmetric container padding
- * on any ancestor doesn't shift this, since it never moves a 50% point.
- * It only fits without overlapping the canvas once that gutter is wide
- * enough — viewport >= 1024 + 2*(260+24) = 1592px — so it's shown only at
- * 1600px+; every narrower viewport (most real screens, not just phones)
- * uses a toggle button + Bootstrap offcanvas drawer instead, per
- * docs/application/content_blocks_editor.md #8.
+ * Horizontally, the rail sits at calc(50% - 644px): half the column
+ * (360px) + a 24px gap + the rail's own 260px, in the gutter centring
+ * leaves empty. It fits once that gutter is wide enough (720 + 2 x 284 =
+ * 1288px), so it shows from 1300px; narrower screens use the Exam Outline
+ * button and its drawer.
  */
 .cb-content-area {
   position: relative;
@@ -808,16 +1025,13 @@ h1, h2, h3, h4, h5, h6,
   position: absolute;
   top: 0;
   bottom: 0;
-  left: calc(50% - 796px);
+  left: calc(50% - 644px);
   width: 260px;
 }
 
 /*
- * The nav sticks within the rail's top:0/bottom:0 span (see above), at an
- * offset that clears whatever sits above the canvas on that specific page.
- * The inductee navbar scrolls away with the page, so a small offset is
- * enough there; the Studio topbar is itself sticky, so its page sets
- * --cb-sidebar-sticky-top higher to clear it (see .cb-studio-main).
+ * The nav sticks within the rail's top:0/bottom:0 span (see above), below
+ * the Studio's sticky top bar (--cb-sidebar-sticky-top, see .cb-studio-main).
  */
 .cb-outline-sidebar {
   position: sticky;
@@ -826,13 +1040,13 @@ h1, h2, h3, h4, h5, h6,
   overflow-y: auto;
 }
 
-/* The Studio topbar is sticky (~4rem tall), so the sidebar needs a taller
-   clearance than the inductee page's non-sticky navbar. */
+/* Both Studios' top bars are sticky (~4rem tall), so their sidebars and
+   slides need a taller clearance than the inductee page's non-sticky navbar. */
 .cb-studio-main {
   --cb-sidebar-sticky-top: 4.5rem;
 }
 
-@media (min-width: 1600px) {
+@media (min-width: 1300px) {
   .cb-outline-sidebar-rail {
     display: block;
   }
@@ -900,11 +1114,10 @@ h1, h2, h3, h4, h5, h6,
 }
 
 /*
- * Small type badge above Section/Lecture titles (Studio editor only — the
- * inductee page stays clean prose without editorial/CMS labels). Reuses the
- * brand primary/accent tokens rather than introducing new colors, so the
- * two structural block types stay easy to tell apart at a glance now that
- * the canvas has no visual nesting to signal hierarchy.
+ * Small type badge: Section or Lecture on the Content Blocks Studio's slide
+ * toolbar (Studio only; the inductee page has no editorial labels). Reuses
+ * the brand primary/accent tokens rather than introducing new colors, so
+ * the two slide levels stay easy to tell apart at a glance.
  */
 .cb-type-badge {
   display: inline-flex;
@@ -926,12 +1139,6 @@ h1, h2, h3, h4, h5, h6,
 .cb-type-badge-lecture {
   background-color: rgba(var(--color-accent-rgb), 0.12);
   color: var(--color-accent-500);
-}
-
-/* Exam Blocks Studio. */
-.cb-type-badge-question {
-  background-color: rgba(var(--color-primary-rgb), 0.12);
-  color: var(--color-primary-700);
 }
 
 /* Spinner icon shown on the Save button while a save request is in flight. */
@@ -1215,4 +1422,252 @@ h1, h2, h3, h4, h5, h6,
     border: 0.2mm solid #999;
     box-shadow: none;
   }
+}
+
+/* 12. Exams ---------------------------------------------------------------- */
+
+/*
+ * An exam question card (docs/application/exam_blocks_editor.md §3-4): the
+ * same markup and look on the inductee's exam page, the result page and in
+ * the Exam Blocks Studio, so the Studio is a true preview. All three put the
+ * cards in the centred .page-narrow column.
+ */
+.exam-questions {
+  display: grid;
+  gap: 1rem;
+}
+
+.exam-question > .card-body {
+  padding: 1.5rem;
+}
+
+/*
+ * On the exam page the eyebrow and question are the fieldset's <legend>.
+ * Bootstrap floats legends so they sit inside the padding; keep that.
+ */
+.exam-question-legend {
+  margin-bottom: 0;
+  font-size: inherit;
+}
+
+.exam-question-text {
+  display: block;
+  margin-bottom: 1rem;
+  font-size: 1.15rem;
+  font-weight: 600;
+  line-height: 1.45;
+}
+
+.exam-question-diagram {
+  display: block;
+  margin-bottom: 1rem;
+}
+
+/*
+ * Answer options, one bordered row each. On the exam page each row is the
+ * <label> of its radio, so the whole row is the click target; the result
+ * page and the Studio preview mark the correct and incorrect answers.
+ * States always pair colour with an icon and words ("Your answer",
+ * "Correct answer"), never colour alone.
+ */
+.exam-choices {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 0.5rem;
+}
+
+.exam-choice {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: 0.75rem;
+  margin: 0;
+  padding: 0.75rem 1rem;
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 0.5rem;
+  transition: border-color 0.15s ease, background-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+label.exam-choice {
+  cursor: pointer;
+}
+
+label.exam-choice:hover {
+  border-color: rgba(var(--color-primary-rgb), 0.45);
+  background-color: rgba(var(--color-primary-rgb), 0.04);
+}
+
+/* The selected answer: a 2px primary edge (the inset shadow adds 1px without moving the text). */
+label.exam-choice:has(.exam-choice-radio:checked) {
+  border-color: var(--color-primary-700);
+  background-color: rgba(var(--color-primary-rgb), 0.08);
+  box-shadow: inset 0 0 0 1px var(--color-primary-700);
+}
+
+label.exam-choice:has(.exam-choice-radio:focus-visible) {
+  box-shadow: inset 0 0 0 1px var(--color-primary-700), 0 0 0 0.25rem var(--bs-focus-ring-color);
+}
+
+/* Radio and icon markers, 20px, level with the first line of the text. */
+.exam-choice-radio {
+  flex-shrink: 0;
+  width: 1.25rem;
+  height: 1.25rem;
+  margin: 0.125rem 0 0;
+  cursor: pointer;
+}
+
+/* The row shows keyboard focus (above), so the radio needs no ring of its own. */
+.exam-choice-radio:focus {
+  box-shadow: none;
+}
+
+.exam-choice-icon {
+  flex-shrink: 0;
+  font-size: 1.25rem;
+  line-height: 1.2;
+  color: var(--color-text-muted);
+}
+
+/* Narrower than 10rem beside a note, the note drops to its own line instead. */
+.exam-choice-text {
+  flex: 1 1 10rem;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.exam-choice-note {
+  flex-shrink: 0;
+  align-self: center;
+  margin-left: auto;
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+.exam-choice.is-correct {
+  border-color: var(--bs-success);
+  background-color: var(--bs-success-bg-subtle);
+}
+
+.exam-choice.is-correct .exam-choice-icon {
+  color: var(--bs-success);
+}
+
+.exam-choice.is-correct .exam-choice-note {
+  color: var(--bs-success-text-emphasis);
+}
+
+.exam-choice.is-correct .exam-choice-radio:checked {
+  background-color: var(--bs-success);
+  border-color: var(--bs-success);
+}
+
+.exam-choice.is-incorrect {
+  border-color: var(--bs-danger);
+  background-color: var(--bs-danger-bg-subtle);
+}
+
+.exam-choice.is-incorrect .exam-choice-icon {
+  color: var(--bs-danger);
+}
+
+.exam-choice.is-incorrect .exam-choice-note {
+  color: var(--bs-danger-text-emphasis);
+}
+
+/* Studio: an option being edited, with its text as a borderless input. */
+.exam-choice-edit {
+  align-items: center;
+  padding-top: 0.5rem;
+  padding-bottom: 0.5rem;
+}
+
+.exam-choice-edit:focus-within {
+  border-color: var(--color-primary-700);
+  box-shadow: 0 0 0 0.25rem var(--bs-focus-ring-color);
+}
+
+.exam-choice-edit .exam-choice-radio {
+  margin-top: 0;
+}
+
+.exam-choice-input {
+  flex: 1;
+  min-width: 0;
+  padding: 0.25rem 0;
+  color: inherit;
+  background: transparent;
+  border: 0;
+}
+
+.exam-choice-input:focus {
+  outline: none;
+}
+
+.exam-choice-remove {
+  flex-shrink: 0;
+  color: var(--color-text-muted);
+}
+
+.exam-explanation {
+  margin: 1rem 0 0;
+  padding: 0.75rem 1rem;
+  font-size: 0.9rem;
+  color: var(--color-text-muted);
+  background-color: var(--color-surface-subtle);
+  border-radius: 0.5rem;
+}
+
+/*
+ * Exam page: Cancel, the answered count and Submit Exam, in the slide bar's
+ * look (§9). Sticky, so it stays in reach while scrolling through the
+ * questions and rests under the last one.
+ */
+.exam-bar {
+  position: sticky;
+  bottom: 1rem;
+  margin-top: 1.5rem;
+}
+
+/* May wrap onto two lines on a phone, so the buttons keep their size. */
+.exam-bar-status {
+  min-width: 0;
+  line-height: 1.25;
+  text-align: center;
+  white-space: normal;
+}
+
+.exam-bar-status.is-complete {
+  font-weight: 600;
+  color: var(--bs-success-text-emphasis);
+}
+
+/*
+ * Exam Blocks Studio: each question block is a question card, which shows
+ * the hover and selected states in place of the block's own tint. An
+ * outline, since the card's shadow-sm is !important.
+ */
+.cb-block[data-type="question"] {
+  margin-top: 1rem;
+  padding: 0;
+}
+
+.cb-block[data-type="question"]:first-child {
+  margin-top: 0;
+}
+
+.cb-block[data-type="question"]:hover,
+.cb-block[data-type="question"].active,
+.cb-block[data-type="question"].focused {
+  background-color: transparent;
+}
+
+.cb-block[data-type="question"]:hover .exam-question {
+  outline: 1px solid rgba(var(--color-primary-rgb), 0.35);
+}
+
+.cb-block[data-type="question"].active .exam-question,
+.cb-block[data-type="question"].focused .exam-question {
+  outline: 2px solid var(--color-primary-700);
 }

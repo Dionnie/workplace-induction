@@ -33,6 +33,29 @@ function redirect(string $url): void
 }
 
 /**
+ * $url when it is a root-relative path on this site, otherwise null. Guards
+ * redirect_to so a crafted link can't send users to another site: rejects
+ * absolute and protocol-relative URLs, backslashes (browsers read "/\" as
+ * "//") and control characters (browsers drop tabs and newlines).
+ */
+function safe_redirect_path(mixed $url): ?string
+{
+    if (!is_string($url) || !str_starts_with($url, '/') || str_starts_with($url, '//')
+        || preg_match('/[\\\\\x00-\x1F\x7F]/', $url)) {
+        return null;
+    }
+    return $url;
+}
+
+/**
+ * "?redirect_to=..." carrying $path on to the next page, or "" without one.
+ */
+function redirect_to_query(?string $path): string
+{
+    return $path !== null ? '?redirect_to=' . rawurlencode($path) : '';
+}
+
+/**
  * Absolute URL for a root-relative path. Uses config/app.php 'url' when set,
  * which is needed wherever there is no request host (e.g. cron-sent emails).
  */

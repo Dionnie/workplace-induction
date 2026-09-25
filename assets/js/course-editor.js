@@ -1,16 +1,22 @@
 /**
- * Content Blocks Studio editor. See docs/application/content_blocks_editor.md #7.
+ * Content Blocks Studio editor. See docs/application/content_blocks_editor.md #6.
  *
- * Single-active-block WYSIWYG editing: only the selected block renders its
- * edit fields; every other block renders its inductee-facing preview markup
- * inline in the same canvas. The active block's own fields are styled to
- * already look like the final result (heading-sized title input, live
- * image/video/alert preview) so editing IS the preview, not a separate form.
- * Server-side (ContentBlockRenderer) renders the same block types for the
- * inductee page; this file's preview markup is a deliberate, independent
- * duplicate for live client-side editing, matching this project's pattern
- * of parallel client/server implementations (exam-editor.js does the same)
- * rather than a network round trip per edit.
+ * The induction's content is slides: Section slides, each with its Lecture
+ * slides. The outline sidebar lists them; the stage shows one slide at a
+ * time, the same way the inductee page does: its title (not a block) at
+ * the top, then its blocks. Previous / Next and the outline move
+ * between slides; the slide toolbar adds, moves and deletes them.
+ *
+ * Blocks on a slide use single-active-block WYSIWYG editing: only the
+ * selected block renders its edit fields; every other block renders its
+ * inductee-facing preview markup inline in the same canvas. The active
+ * block's own fields are styled to already look like the final result
+ * (live image/video/alert preview) so editing IS the preview, not a
+ * separate form. Server-side (ContentBlockRenderer) renders the same block
+ * types for the inductee page; this file's preview markup is a deliberate,
+ * independent duplicate for live client-side editing, matching this
+ * project's pattern of parallel client/server implementations
+ * (exam-editor.js does the same) rather than a network round trip per edit.
  */
 (function () {
     'use strict';
@@ -21,14 +27,13 @@
     var IMAGE_SHAPES = ['rounded', 'square', 'circle', 'as-is'];
     var IMAGE_ASPECTS = ['natural', '16-9', '4-3', '1-1'];
     var IFRAME_ASPECT_RATIOS = ['16:9', '4:3'];
-    var TEXT_BASED_TYPES = ['section', 'lecture', 'text', 'alert'];
+    var TEXT_BASED_TYPES = ['text', 'alert'];
+    var BLOCK_TYPES = ['text', 'alert', 'image', 'gallery', 'iframe', 'raw_html'];
 
     // Bootstrap Icons (loaded by views/admin/inductions/editor.php) — used
     // throughout the Studio editor for quick visual scanning; never relied
     // on as the only cue (every icon button still carries a title/label).
     var BLOCK_ICONS = {
-        section: 'bi-bookmark',
-        lecture: 'bi-journal-text',
         text: 'bi-text-paragraph',
         alert: 'bi-exclamation-triangle',
         image: 'bi-image',
@@ -37,7 +42,9 @@
         raw_html: 'bi-code-slash',
     };
     var ALERT_ICONS = { info: 'bi-info-circle', warning: 'bi-exclamation-triangle', danger: 'bi-exclamation-octagon', success: 'bi-check-circle' };
-    var BLOCK_LABELS = { section: 'Section', lecture: 'Lecture', text: 'Text', alert: 'Alert', image: 'Image', gallery: 'Gallery', iframe: 'Video', raw_html: 'Raw HTML' };
+    var BLOCK_LABELS = { text: 'Text', alert: 'Alert', image: 'Image', gallery: 'Gallery', iframe: 'Video', raw_html: 'Raw HTML' };
+    var SLIDE_ICONS = { section: 'bi-bookmark', lecture: 'bi-journal-text' };
+    var SLIDE_LABELS = { section: 'Section', lecture: 'Lecture' };
     var GALLERY_COLUMNS = [2, 3, 4];
 
     /**
@@ -88,19 +95,20 @@
         return url;
     }
 
-    // A small badge above section/lecture titles so the two structural
-    // block types stay identifiable at a glance now that the canvas has no
-    // visual nesting/indentation to signal hierarchy.
-    function typeBadgeHtml(type) {
-        if (type !== 'section' && type !== 'lecture') {
-            return '';
-        }
-        return '<span class="cb-type-badge cb-type-badge-' + type + '">'
-            + iconHtml(BLOCK_ICONS[type], 'me-1') + BLOCK_LABELS[type] + '</span>';
-    }
-
     function generateId(prefix) {
         return prefix + '_' + Math.random().toString(36).slice(2, 10);
+    }
+
+    // A slide as saved: id, title and blocks (sections also have lectures).
+    function slideFrom(data, prefix) {
+        return {
+            id: data.id || generateId(prefix),
+            title: data.title || '',
+            blocks: (Array.isArray(data.blocks) ? data.blocks : []).map(function (block) {
+                block.id = block.id || generateId('blk');
+                return block;
+            }),
+        };
     }
 
     function selectHtml(field, options, labels, current) {
@@ -145,50 +153,343 @@
 
     var CourseEditor = {
         init: function (options) {
-            this.container = document.querySelector(options.blocksContainer);
-            this.emptyHint = document.querySelector(options.emptyHint);
-
-            // The outline renders into two places at once — the floating
-            // rail (wide viewports) and the offcanvas drawer (everywhere
-            // else) — kept in sync from the same data so whichever one is
-            // visible is always current.
-            this.outlineLists = [options.outlineList, options.outlineListOffcanvas]
-                .filter(Boolean).map(function (sel) { return document.querySelector(sel); }).filter(Boolean);
-            this.outlineEmpties = [options.outlineEmpty, options.outlineEmptyOffcanvas]
-                .filter(Boolean).map(function (sel) { return document.querySelector(sel); }).filter(Boolean);
-            this.offcanvasEl = options.offcanvas ? document.querySelector(options.offcanvas) : null;
+            this.stage = document.querySelector(options.stage);
+            this.outline = document.querySelector(options.outline);
+            this.outlineList = document.querySelector(options.outlineList);
+            this.outlineEmpty = document.querySelector(options.outlineEmpty);
+            this.addLectureButton = document.querySelector(options.addLectureButton);
+            this.nav = document.querySelector(options.nav);
+            this.prevButton = this.nav.querySelector('[data-slide-prev]');
+            this.nextButton = this.nav.querySelector('[data-slide-next]');
+            this.counter = this.nav.querySelector('[data-slide-counter]');
 
             this.saveButton = document.querySelector(options.saveButton);
             this.saveStatus = document.querySelector(options.saveStatus);
             this.saveUrl = options.saveUrl;
             this.csrfToken = options.csrfToken;
 
-            if (!this.container) {
+            if (!this.stage) {
                 return;
             }
 
+            // this.sections is the whole induction; this.blocks is always
+            // the current slide's own blocks array (the same array, so block
+            // edits change the slide in place); this.container is the
+            // current slide's block canvas.
+            this.sections = [];
+            this.currentSlideId = null;
             this.blocks = [];
+            this.container = null;
             this.activeBlockId = null;
             this.focusedBlockId = null;
             this.dirty = false;
 
-            var initial = this.container.dataset.initial;
-            if (initial) {
-                try {
-                    var parsed = JSON.parse(initial);
-                    if (Array.isArray(parsed)) {
-                        this.blocks = parsed.map(function (block) {
-                            block.id = block.id || generateId('blk');
-                            return block;
-                        });
-                    }
-                } catch (e) {
-                    this.blocks = [];
+            var parsed = [];
+            try {
+                parsed = JSON.parse(this.stage.dataset.initial || '[]');
+            } catch (e) {
+                parsed = [];
+            }
+
+            this.sections = (Array.isArray(parsed) ? parsed : []).map(function (data) {
+                var section = slideFrom(data, 'sec');
+                section.lectures = (Array.isArray(data.lectures) ? data.lectures : []).map(function (lecture) {
+                    return slideFrom(lecture, 'lec');
+                });
+                return section;
+            });
+
+            this.attachGlobalEvents();
+
+            // The current slide is kept in the URL hash, so a reload stays on it.
+            var hashId = decodeURIComponent(window.location.hash.replace(/^#slide-/, ''));
+            var first = this.slideList()[0];
+            this.goToSlide(this.findSlide(hashId) ? hashId : (first ? first.slide.id : null));
+        },
+
+        /**
+         * Every slide in reading order: each section slide, then its lecture
+         * slides. s/l are its section and lecture index (l is -1 on a section).
+         */
+        slideList: function () {
+            var list = [];
+            this.sections.forEach(function (section, s) {
+                list.push({ slide: section, kind: 'section', s: s, l: -1 });
+                section.lectures.forEach(function (lecture, l) {
+                    list.push({ slide: lecture, kind: 'lecture', s: s, l: l });
+                });
+            });
+            list.forEach(function (item, index) {
+                item.index = index;
+                item.total = list.length;
+            });
+            return list;
+        },
+
+        findSlide: function (id) {
+            if (!id) {
+                return null;
+            }
+            return this.slideList().find(function (item) { return item.slide.id === id; }) || null;
+        },
+
+        currentSlide: function () {
+            return this.findSlide(this.currentSlideId);
+        },
+
+        goToSlide: function (id, focusTitle) {
+            this.syncActiveBlockData();
+            this.activeBlockId = null;
+            this.focusedBlockId = null;
+
+            var found = this.findSlide(id);
+            this.currentSlideId = found ? found.slide.id : null;
+            this.blocks = found ? found.slide.blocks : [];
+
+            this.renderStage();
+            this.renderOutline();
+            this.renderNav();
+
+            if (this.outline && window.bootstrap) {
+                var drawer = window.bootstrap.Offcanvas.getInstance(this.outline);
+                if (drawer) {
+                    drawer.hide();
                 }
             }
 
+            if (!found) {
+                return;
+            }
+
+            history.replaceState(null, '', '#slide-' + found.slide.id);
+
+            // The slide starts at the top of the page, below the sticky top bar.
+            if (window.scrollY > 0) {
+                window.scrollTo(0, 0);
+            }
+
+            if (focusTitle) {
+                var title = this.stage.querySelector('[data-slide-title]');
+                if (title) {
+                    title.focus();
+                }
+            }
+        },
+
+        /**
+         * A new section goes after the current section (and its lectures);
+         * a new lecture goes right after the current slide, in its section.
+         */
+        addSlide: function (kind) {
+            this.syncActiveBlockData();
+
+            var found = this.currentSlide();
+            var slide = { id: generateId(kind === 'section' ? 'sec' : 'lec'), title: '', blocks: [] };
+
+            if (kind === 'section') {
+                slide.lectures = [];
+                this.sections.splice(found ? found.s + 1 : this.sections.length, 0, slide);
+            } else {
+                if (!found) {
+                    return;
+                }
+                this.sections[found.s].lectures.splice(found.l + 1, 0, slide);
+            }
+
+            this.markDirty();
+            this.goToSlide(slide.id, true);
+        },
+
+        /**
+         * A section moves past its neighbouring section, lectures and all. A
+         * lecture moves within its section, and past the first/last lecture
+         * into the previous/next section.
+         */
+        moveSlide: function (direction) {
+            this.syncActiveBlockData();
+
+            var found = this.currentSlide();
+            if (!found) {
+                return;
+            }
+
+            var sections = this.sections;
+            var up = direction === 'up';
+
+            if (found.kind === 'section') {
+                var to = up ? found.s - 1 : found.s + 1;
+                if (to < 0 || to >= sections.length) {
+                    return;
+                }
+                sections.splice(to, 0, sections.splice(found.s, 1)[0]);
+            } else {
+                var lectures = sections[found.s].lectures;
+                var lecture = lectures[found.l];
+
+                if (up && found.l > 0) {
+                    lectures.splice(found.l, 1);
+                    lectures.splice(found.l - 1, 0, lecture);
+                } else if (up && found.s > 0) {
+                    lectures.splice(found.l, 1);
+                    sections[found.s - 1].lectures.push(lecture);
+                } else if (!up && found.l < lectures.length - 1) {
+                    lectures.splice(found.l, 1);
+                    lectures.splice(found.l + 1, 0, lecture);
+                } else if (!up && found.s < sections.length - 1) {
+                    lectures.splice(found.l, 1);
+                    sections[found.s + 1].lectures.unshift(lecture);
+                } else {
+                    return;
+                }
+            }
+
+            this.markDirty();
+            this.goToSlide(found.slide.id);
+
+            // Keep focus on the button, so it can be pressed again.
+            var button = this.stage.querySelector('[data-move-slide="' + direction + '"]');
+            if (button && !button.disabled) {
+                button.focus();
+            }
+        },
+
+        deleteSlide: function () {
+            var found = this.currentSlide();
+            if (!found) {
+                return;
+            }
+
+            var message = 'Delete this lecture and its content blocks?';
+            if (found.kind === 'section') {
+                var count = this.sections[found.s].lectures.length;
+                message = count
+                    ? 'Delete this section and its ' + count + ' lecture' + (count === 1 ? '' : 's') + '? All their content blocks are deleted too.'
+                    : 'Delete this section and its content blocks?';
+            }
+            if (!window.confirm(message)) {
+                return;
+            }
+
+            // Land on the slide before it (still there), or the new first slide.
+            var before = found.index > 0 ? this.slideList()[found.index - 1].slide.id : null;
+
+            if (found.kind === 'section') {
+                this.sections.splice(found.s, 1);
+            } else {
+                this.sections[found.s].lectures.splice(found.l, 1);
+            }
+
+            this.activeBlockId = null;
+            this.markDirty();
+
+            var first = this.slideList()[0];
+            this.goToSlide(before || (first ? first.slide.id : null));
+        },
+
+        renderStage: function () {
+            var found = this.currentSlide();
+
+            if (!found) {
+                this.container = null;
+                this.stage.innerHTML = '<div class="card border-0 shadow-sm"><div class="card-body p-4">'
+                    + '<p class="text-muted mb-3">No slides yet. Start with a section: its own slide comes first, then the lecture slides under it.</p>'
+                    + '<button type="button" class="btn btn-sm btn-outline-primary" data-add-slide="section">' + iconHtml('bi-plus-lg', 'me-1') + 'Add Section</button>'
+                    + '</div></div>';
+                return;
+            }
+
+            var slide = found.slide;
+            var section = this.sections[found.s];
+            var label = SLIDE_LABELS[found.kind];
+            var last = this.sections.length - 1;
+            var canMoveUp = found.kind === 'section' ? found.s > 0 : (found.s > 0 || found.l > 0);
+            var canMoveDown = found.kind === 'section' ? found.s < last : (found.s < last || found.l < section.lectures.length - 1);
+
+            // Same eyebrow as the inductee page: where the slide sits.
+            var eyebrow = found.kind === 'section' ? 'Section ' + (found.s + 1) : (section.title || 'Untitled Section');
+
+            this.stage.innerHTML = ''
+                + '<div class="d-flex align-items-center justify-content-between flex-wrap gap-2 mb-2">'
+                + '<span class="cb-type-badge cb-type-badge-' + found.kind + ' mb-0">' + iconHtml(SLIDE_ICONS[found.kind], 'me-1') + label + '</span>'
+                + '<div class="d-flex gap-1">'
+                + '<button type="button" class="btn btn-sm btn-outline-secondary" data-move-slide="up" title="Move ' + label.toLowerCase() + ' up" aria-label="Move ' + label.toLowerCase() + ' up"' + (canMoveUp ? '' : ' disabled') + '>' + iconHtml('bi-arrow-up') + '</button>'
+                + '<button type="button" class="btn btn-sm btn-outline-secondary" data-move-slide="down" title="Move ' + label.toLowerCase() + ' down" aria-label="Move ' + label.toLowerCase() + ' down"' + (canMoveDown ? '' : ' disabled') + '>' + iconHtml('bi-arrow-down') + '</button>'
+                + '<button type="button" class="btn btn-sm btn-outline-danger" data-delete-slide>' + iconHtml('bi-trash', 'me-1') + 'Delete ' + label + '</button>'
+                + '</div>'
+                + '</div>'
+                + '<article class="cb-slide card border-0 shadow-sm">'
+                + '<div class="cb-slide-band" aria-hidden="true"></div>'
+                + '<div class="card-body">'
+                + '<header class="cb-slide-header">'
+                + '<p class="cb-slide-eyebrow">' + escapeHtml(eyebrow) + '</p>'
+                + '<input type="text" class="cb-title-input cb-heading-2 cb-slide-title" data-slide-title placeholder="Untitled ' + label + '" aria-label="' + label + ' title" value="' + escapeHtml(slide.title) + '">'
+                + '</header>'
+                + '<div class="cb-blocks-container" data-blocks></div>'
+                + '</div>'
+                + '<div class="cb-slide-band cb-slide-band-bottom" aria-hidden="true"></div>'
+                + '</article>';
+
+            this.container = this.stage.querySelector('[data-blocks]');
             this.render();
-            this.attachGlobalEvents();
+        },
+
+        renderOutline: function () {
+            var currentId = this.currentSlideId;
+
+            function linkHtml(slide, kind) {
+                var active = slide.id === currentId;
+                var label = slide.title
+                    ? escapeHtml(slide.title)
+                    : '<span class="fst-italic">Untitled ' + SLIDE_LABELS[kind] + '</span>';
+
+                return '<a href="#slide-' + escapeHtml(slide.id) + '" class="cb-outline-link'
+                    + (kind === 'section' ? ' cb-outline-link-section' : '') + (active ? ' active' : '') + '"'
+                    + (active ? ' aria-current="step"' : '')
+                    + ' data-slide-link="' + escapeHtml(slide.id) + '">' + label + '</a>';
+            }
+
+            this.outlineList.innerHTML = this.sections.map(function (section) {
+                var items = section.lectures.map(function (lecture) {
+                    return '<li>' + linkHtml(lecture, 'lecture') + '</li>';
+                }).join('');
+
+                return '<li class="cb-outline-section">' + linkHtml(section, 'section')
+                    + (items ? '<ul class="cb-outline-items list-unstyled">' + items + '</ul>' : '')
+                    + '</li>';
+            }).join('');
+
+            this.outlineEmpty.hidden = this.sections.length > 0;
+            if (this.addLectureButton) {
+                this.addLectureButton.disabled = this.sections.length === 0;
+            }
+
+            // Scroll the outline itself (never the page) to the current slide,
+            // counting only the part of the outline on screen.
+            var active = this.outlineList.querySelector('.active');
+            var scroller = active && (active.closest('.offcanvas.show .offcanvas-body') || active.closest('.cb-slides-sidebar'));
+            if (scroller) {
+                var box = scroller.getBoundingClientRect();
+                var top = Math.max(box.top, 0);
+                var bottom = Math.min(box.bottom, window.innerHeight);
+                var item = active.getBoundingClientRect();
+                if (item.top < top) {
+                    scroller.scrollTop -= top - item.top + 8;
+                } else if (item.bottom > bottom) {
+                    scroller.scrollTop += item.bottom - bottom + 8;
+                }
+            }
+        },
+
+        renderNav: function () {
+            var found = this.currentSlide();
+            this.nav.hidden = !found;
+            if (!found) {
+                return;
+            }
+
+            this.prevButton.disabled = found.index === 0;
+            this.nextButton.disabled = found.index === found.total - 1;
+            this.counter.innerHTML = '<span class="d-none d-sm-inline">Slide </span>' + (found.index + 1) + ' of ' + found.total;
         },
 
         defaultsFor: function (type) {
@@ -196,10 +497,6 @@
             // sample text, so the admin's own words are never mistaken for
             // already-authored content.
             switch (type) {
-                case 'section':
-                    return { title: '', description: '' };
-                case 'lecture':
-                    return { title: '', content: '' };
                 case 'text':
                     return { content: '' };
                 case 'alert':
@@ -218,6 +515,10 @@
         },
 
         addBlock: function (type, afterId) {
+            if (!this.container) {
+                return;
+            }
+
             this.syncActiveBlockData();
 
             var block = Object.assign({ id: generateId('blk'), type: type }, this.defaultsFor(type));
@@ -242,7 +543,11 @@
                 return;
             }
 
-            this.blocks = this.blocks.filter(function (b) { return b.id !== id; });
+            // Spliced in place: this.blocks is the slide's own array.
+            var index = this.blocks.findIndex(function (b) { return b.id === id; });
+            if (index !== -1) {
+                this.blocks.splice(index, 1);
+            }
             if (this.activeBlockId === id) {
                 this.activeBlockId = null;
             }
@@ -329,7 +634,7 @@
         focusActiveField: function () {
             var self = this;
             window.setTimeout(function () {
-                var wrapper = self.container.querySelector('.cb-block.active');
+                var wrapper = self.container && self.container.querySelector('.cb-block.active');
                 if (!wrapper) {
                     return;
                 }
@@ -348,7 +653,7 @@
         },
 
         syncActiveBlockData: function () {
-            if (!this.activeBlockId) {
+            if (!this.activeBlockId || !this.container) {
                 return;
             }
 
@@ -387,6 +692,18 @@
         save: function () {
             this.syncActiveBlockData();
 
+            // The server refuses a slide without a title; show which one.
+            var untitled = this.slideList().find(function (item) { return !item.slide.title.trim(); });
+            if (untitled) {
+                this.goToSlide(untitled.slide.id);
+                window.alert('Every slide needs a title. Give this ' + SLIDE_LABELS[untitled.kind].toLowerCase() + ' a title, then save again.');
+                var title = this.stage.querySelector('[data-slide-title]');
+                if (title) {
+                    title.focus();
+                }
+                return;
+            }
+
             if (this.saveButton) {
                 this.saveButton.disabled = true;
                 this.saveButton.innerHTML = iconHtml('bi-arrow-repeat', 'me-1 cb-spin') + 'Saving...';
@@ -394,7 +711,7 @@
 
             var body = new URLSearchParams();
             body.set('csrf_token', this.csrfToken);
-            body.set('content_blocks', JSON.stringify(this.blocks));
+            body.set('content_blocks', JSON.stringify(this.sections));
 
             var self = this;
             fetch(this.saveUrl, { method: 'POST', body: body })
@@ -439,6 +756,60 @@
                 }
             });
 
+            // Slides: Previous / Next, the outline, add / move / delete.
+            this.prevButton.addEventListener('click', function () {
+                var found = self.currentSlide();
+                if (found && found.index > 0) {
+                    self.goToSlide(self.slideList()[found.index - 1].slide.id);
+                }
+            });
+
+            this.nextButton.addEventListener('click', function () {
+                var found = self.currentSlide();
+                if (found && found.index < found.total - 1) {
+                    self.goToSlide(self.slideList()[found.index + 1].slide.id);
+                }
+            });
+
+            document.addEventListener('click', function (e) {
+                var link = e.target.closest('[data-slide-link]');
+                if (link) {
+                    e.preventDefault();
+                    self.goToSlide(link.dataset.slideLink);
+                    return;
+                }
+
+                var add = e.target.closest('[data-add-slide]');
+                if (add) {
+                    self.addSlide(add.dataset.addSlide);
+                    return;
+                }
+
+                var move = e.target.closest('[data-move-slide]');
+                if (move) {
+                    self.moveSlide(move.dataset.moveSlide);
+                    return;
+                }
+
+                if (e.target.closest('[data-delete-slide]')) {
+                    self.deleteSlide();
+                }
+            });
+
+            // The title is part of the slide, not a block: typing updates the
+            // slide and its outline entry directly.
+            this.stage.addEventListener('input', function (e) {
+                if (!e.target.matches('[data-slide-title]')) {
+                    return;
+                }
+                var found = self.currentSlide();
+                if (found) {
+                    found.slide.title = e.target.value;
+                    self.markDirty();
+                    self.renderOutline();
+                }
+            });
+
             document.addEventListener('click', function (e) {
                 if (e.target.closest('.cb-block') || e.target.closest('.cb-quick-insert')) {
                     return;
@@ -473,41 +844,14 @@
                     self.markDirty();
                 }
             });
-
-            // Course outline teleport scroll — mirrors course-outline.js's
-            // behavior on the inductee page (same pulse re-trigger via
-            // remove/reflow/add) so both surfaces feel identical.
-            document.addEventListener('click', function (e) {
-                var link = e.target.closest('[data-teleport]');
-                if (!link) {
-                    return;
-                }
-
-                var target = document.getElementById(link.dataset.teleport);
-                if (!target) {
-                    return;
-                }
-
-                e.preventDefault();
-
-                // Close the offcanvas drawer first (if the link was clicked
-                // from inside it) so it doesn't obscure the scroll.
-                if (self.offcanvasEl && self.offcanvasEl.contains(link) && window.bootstrap) {
-                    var instance = window.bootstrap.Offcanvas.getInstance(self.offcanvasEl);
-                    if (instance) {
-                        instance.hide();
-                    }
-                }
-
-                target.scrollIntoView({ behavior: 'smooth', block: 'center' });
-
-                target.classList.remove('teleport-highlight-pulse');
-                void target.offsetWidth;
-                target.classList.add('teleport-highlight-pulse');
-            });
         },
 
+        // Renders the current slide's blocks into its block canvas.
         render: function () {
+            if (!this.container) {
+                return;
+            }
+
             this.container.innerHTML = '';
 
             var self = this;
@@ -524,85 +868,15 @@
                 this.insertQuickInsertBar(null);
             }
 
-            if (this.emptyHint) {
-                this.emptyHint.style.display = this.blocks.length === 0 ? '' : 'none';
-            }
-
             this.bindBlockEvents();
-            this.renderOutline();
-        },
-
-        /**
-         * Live course-structure outline, mirroring CourseOutlineBuilder.php's
-         * logic client-side (a deliberate parallel implementation, not a
-         * network round trip — the same pattern exam-editor.js follows
-         * with ExamService). Every "section" block
-         * starts a new node; only "lecture" blocks nest under it as items —
-         * every other block type is canvas content, not a navigable outline
-         * item. A lecture appearing before any section gets an implicit
-         * leading section rather than being dropped.
-         */
-        buildOutline: function () {
-            var sections = [];
-            var currentIndex = null;
-            var sectionNumber = 0;
-
-            this.blocks.forEach(function (block) {
-                if (block.type === 'section') {
-                    sectionNumber++;
-                    sections.push({ id: block.id, title: block.title || ('Section ' + sectionNumber), items: [] });
-                    currentIndex = sections.length - 1;
-                    return;
-                }
-
-                if (block.type !== 'lecture') {
-                    return;
-                }
-
-                if (currentIndex === null) {
-                    sections.push({ id: 'section-overview', title: 'Section 1: Course Overview', items: [] });
-                    currentIndex = sections.length - 1;
-                }
-
-                sections[currentIndex].items.push({ id: block.id, label: block.title || 'Lecture' });
-            });
-
-            return sections;
-        },
-
-        renderOutline: function () {
-            if (this.outlineLists.length === 0) {
-                return;
-            }
-
-            var outline = this.buildOutline();
-
-            var html = outline.map(function (section) {
-                var items = section.items.map(function (item) {
-                    return '<li><a href="#block-' + item.id + '" class="cb-outline-link" data-teleport="block-' + item.id + '">'
-                        + escapeHtml(item.label) + '</a></li>';
-                }).join('');
-
-                return '<li class="cb-outline-section">'
-                    + '<a href="#block-' + section.id + '" class="cb-outline-link cb-outline-link-section" data-teleport="block-' + section.id + '">'
-                    + escapeHtml(section.title) + '</a>'
-                    + (items ? '<ul class="cb-outline-items list-unstyled">' + items + '</ul>' : '')
-                    + '</li>';
-            }).join('');
-
-            this.outlineLists.forEach(function (list) { list.innerHTML = html; });
-            this.outlineEmpties.forEach(function (empty) {
-                empty.style.display = outline.length === 0 ? '' : 'none';
-            });
         },
 
         insertQuickInsertBar: function (afterEl) {
             var bar = document.createElement('div');
             bar.className = 'cb-quick-insert d-flex flex-wrap gap-2 justify-content-center py-3 my-3 border border-dashed rounded';
 
-            var types = ['section', 'lecture', 'text', 'alert', 'image', 'gallery', 'iframe', 'raw_html'];
             var self = this;
-            bar.innerHTML = types.map(function (type) {
+            bar.innerHTML = BLOCK_TYPES.map(function (type) {
                 return '<button type="button" class="cb-add-block-btn btn btn-outline-secondary" data-quick-add="' + type + '">'
                     + iconHtml(BLOCK_ICONS[type], 'me-1') + BLOCK_LABELS[type] + '</button>';
             }).join('');
@@ -626,7 +900,6 @@
 
             var wrapper = document.createElement('div');
             wrapper.className = 'cb-block' + (isActive ? ' active' : '') + (isFocused ? ' focused' : '');
-            wrapper.id = 'block-' + block.id;
             wrapper.dataset.id = block.id;
             wrapper.dataset.type = block.type;
 
@@ -662,14 +935,6 @@
 
         editHtml: function (block) {
             switch (block.type) {
-                case 'section':
-                    return typeBadgeHtml('section')
-                        + '<input type="text" class="cb-title-input cb-heading-2" data-field="title" placeholder="Untitled Section" value="' + escapeHtml(block.title) + '">'
-                        + richTextEditHtml('description', block.description, block.id, 'Add a short description (optional)');
-                case 'lecture':
-                    return typeBadgeHtml('lecture')
-                        + '<input type="text" class="cb-title-input cb-heading-3" data-field="title" placeholder="Untitled Lecture" value="' + escapeHtml(block.title) + '">'
-                        + richTextEditHtml('content', block.content, block.id, 'Write the lecture content...');
                 case 'text':
                     return richTextEditHtml('content', block.content, block.id, 'Start writing...');
                 case 'alert':
@@ -781,14 +1046,6 @@
 
         previewHtml: function (block) {
             switch (block.type) {
-                case 'section':
-                    return typeBadgeHtml('section')
-                        + '<h2 class="cb-heading-2">' + escapeHtml(block.title) + '</h2>'
-                        + (block.description ? '<div class="mt-2">' + block.description + '</div>' : '');
-                case 'lecture':
-                    return typeBadgeHtml('lecture')
-                        + '<h3 class="cb-heading-3">' + escapeHtml(block.title) + '</h3>'
-                        + (block.content ? '<div class="mt-2">' + block.content + '</div>' : '');
                 case 'text':
                     return block.content ? '<div>' + block.content + '</div>' : '<p class="text-muted fst-italic mb-0">Empty text block.</p>';
                 case 'alert':
@@ -906,12 +1163,6 @@
                                 preview.innerHTML = value || '<span class="text-muted fst-italic">Live preview will appear here.</span>';
                             }
                         }
-
-                        // The outline list is a separate DOM subtree from the
-                        // field being typed into, so refreshing it here never
-                        // disturbs focus/cursor — titles and captions show up
-                        // in the sidebar as you type them.
-                        self.renderOutline();
                     });
 
                     // Selects (layout/aspect choices) and URL fields refresh

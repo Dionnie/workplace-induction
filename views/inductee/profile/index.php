@@ -7,6 +7,7 @@ use App\Inductee\InducteeProfileService;
 /**
  * @var array<string, mixed> $profile
  * @var array<string, string> $errors
+ * @var ?string $redirectTo
  */
 $pageTitle = 'My Profile';
 $currentPage = 'profile';
@@ -32,6 +33,9 @@ $isComplete = !empty($profile['profile_completed']);
 
             <form method="post" action="/inductee/profile/index.php" novalidate>
                 <?= csrf_field() ?>
+                <?php if ($redirectTo !== null): ?>
+                    <input type="hidden" name="redirect_to" value="<?= e($redirectTo) ?>">
+                <?php endif; ?>
 
                 <div class="row g-3 mb-3">
                     <div class="col-sm">

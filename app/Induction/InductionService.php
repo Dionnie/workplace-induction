@@ -126,12 +126,12 @@ class InductionService
             return ['success' => false, 'errors' => ['form' => 'Induction not found.']];
         }
 
-        $blocks = $this->contentBlocks->validate($json);
-        if ($blocks === null) {
-            return ['success' => false, 'errors' => ['content_blocks' => 'Content contains invalid blocks.']];
+        $sections = $this->contentBlocks->validate($json);
+        if (is_string($sections)) {
+            return ['success' => false, 'errors' => ['content_blocks' => $sections]];
         }
 
-        $this->inductions->updateContentBlocks($id, json_encode($blocks));
+        $this->inductions->updateContentBlocks($id, json_encode($sections));
         return ['success' => true, 'errors' => []];
     }
 

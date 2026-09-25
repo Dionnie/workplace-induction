@@ -3,8 +3,14 @@
 declare(strict_types=1);
 
 /**
+ * Content Blocks Studio: the induction's content as slides
+ * (docs/application/content_blocks_editor.md #6). The outline sidebar lists
+ * the Section and Lecture slides; the stage shows one slide at a time, the
+ * same way the inductee page does. course-editor.js renders the outline and
+ * the stage from $initialSlidesJson.
+ *
  * @var array<string, mixed> $induction
- * @var string $initialBlocksJson
+ * @var string $initialSlidesJson
  */
 $documentTitle = 'Edit Content · ' . $induction['title'] . ' · ' . site_settings()['company_name'];
 ?>
@@ -24,52 +30,59 @@ $documentTitle = 'Edit Content · ' . $induction['title'] . ' · ' . site_settin
             <span class="cb-induction-title fw-semibold text-truncate"><?= e($induction['title']) ?></span>
             <span id="cb-save-status" class="cb-save-status badge text-bg-success">Saved</span>
         </div>
-        <div class="d-flex align-items-center gap-2">
-            <button type="button" class="cb-outline-toggle btn btn-outline-secondary" data-bs-toggle="offcanvas" data-bs-target="#cbOutlineOffcanvas" aria-controls="cbOutlineOffcanvas">
-                <i class="bi bi-list-ul me-1" aria-hidden="true"></i>Course Outline
-            </button>
-            <button type="button" id="cb-save-btn" class="cb-save-button btn btn-primary">
-                <i class="bi bi-check2-circle me-1" aria-hidden="true"></i>Save Changes
-            </button>
-        </div>
+        <button type="button" id="cb-save-btn" class="cb-save-button btn btn-primary">
+            <i class="bi bi-check2-circle me-1" aria-hidden="true"></i>Save Changes
+        </button>
     </div>
 </header>
 
-<!-- Same outline content, for narrower viewports via the toggle button above. -->
-<div class="offcanvas offcanvas-start" tabindex="-1" id="cbOutlineOffcanvas" aria-labelledby="cbOutlineOffcanvasLabel">
-    <div class="offcanvas-header">
-        <h2 class="offcanvas-title fs-6 fw-semibold" id="cbOutlineOffcanvasLabel">Course Outline</h2>
-        <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
-    </div>
-    <div class="offcanvas-body">
-        <ul class="cb-outline-list list-unstyled mb-0" id="cb-outline-list-offcanvas"></ul>
-        <p class="cb-outline-empty mb-0" id="cb-outline-empty-offcanvas">Add a Section to start building your outline.</p>
-    </div>
-</div>
-
-<main class="cb-studio-main py-5">
-    <div class="cb-studio-container container-fluid px-4">
-        <div class="content-canvas">
-            <?php require __DIR__ . '/../../partials/flash.php'; ?>
-        </div>
-
-        <div class="cb-content-area">
-            <!-- Floating sidebar rail: starts level with the canvas below (not the viewport top), so it never overlaps whatever precedes it, and shown only when there's enough gutter beside the centered canvas not to overlap it (see .cb-outline-sidebar-rail in app.css). -->
-            <aside class="cb-outline-sidebar-rail">
-                <nav class="cb-outline-sidebar card border-0 shadow-sm p-3" aria-label="Course outline">
-                    <div class="cb-outline-heading small text-uppercase text-muted fw-semibold mb-2">Course Outline</div>
-                    <ul class="cb-outline-list list-unstyled mb-0" id="cb-outline-list"></ul>
-                    <p class="cb-outline-empty mb-0" id="cb-outline-empty">Add a Section to start building your outline.</p>
-                </nav>
-            </aside>
-
-            <div class="content-canvas">
-                <div class="card border-0 shadow-sm">
-                    <div class="card-body">
-                        <div id="cb-blocks" class="cb-blocks-container" data-initial="<?= e($initialBlocksJson) ?>"></div>
-                        <p class="cb-empty-hint text-muted small mb-0" id="cb-empty-hint">No content blocks yet. Use the buttons above to add some.</p>
+<main class="cb-studio-main py-4">
+    <div class="container-fluid px-3 px-lg-4">
+        <div class="cb-slides-layout">
+            <aside class="cb-slides-sidebar">
+                <div class="offcanvas-lg offcanvas-start" tabindex="-1" id="slide-outline" aria-labelledby="slide-outline-title">
+                    <div class="offcanvas-header">
+                        <h2 class="offcanvas-title fs-6" id="slide-outline-title">Outline</h2>
+                        <button type="button" class="btn-close" data-bs-dismiss="offcanvas" data-bs-target="#slide-outline" aria-label="Close"></button>
+                    </div>
+                    <div class="offcanvas-body">
+                        <nav class="cb-slide-outline" aria-label="Outline">
+                            <div class="small text-uppercase text-muted fw-semibold mb-2 d-none d-lg-block">Outline</div>
+                            <div class="d-grid gap-2 mb-3">
+                                <button type="button" class="btn btn-sm btn-outline-primary" data-add-slide="section">
+                                    <i class="bi bi-plus-lg me-1" aria-hidden="true"></i>Add Section
+                                </button>
+                                <button type="button" class="btn btn-sm btn-outline-primary" data-add-slide="lecture" id="cb-add-lecture">
+                                    <i class="bi bi-plus-lg me-1" aria-hidden="true"></i>Add Lecture
+                                </button>
+                            </div>
+                            <ol class="cb-outline-list list-unstyled mb-0" id="cb-outline-list"></ol>
+                            <p class="cb-outline-empty mb-0" id="cb-outline-empty">No slides yet.</p>
+                        </nav>
                     </div>
                 </div>
+            </aside>
+
+            <div class="cb-slides-stage">
+                <?php require __DIR__ . '/../../partials/flash.php'; ?>
+
+                <div id="cb-slide-stage" data-initial="<?= e($initialSlidesJson) ?>"></div>
+
+                <nav class="cb-slide-nav" id="cb-slide-nav" aria-label="Slides" hidden>
+                    <button type="button" class="btn btn-outline-secondary" data-slide-prev aria-label="Previous slide">
+                        <i class="bi bi-arrow-left" aria-hidden="true"></i><span class="d-none d-sm-inline ms-1">Previous</span>
+                    </button>
+                    <div class="cb-slide-nav-status">
+                        <button type="button" class="btn btn-sm btn-outline-secondary d-lg-none" data-bs-toggle="offcanvas"
+                                data-bs-target="#slide-outline" aria-controls="slide-outline" aria-label="Open outline" title="Outline">
+                            <i class="bi bi-list-ul" aria-hidden="true"></i>
+                        </button>
+                        <span class="cb-slide-counter" data-slide-counter aria-live="polite"></span>
+                    </div>
+                    <button type="button" class="btn btn-primary" data-slide-next aria-label="Next slide">
+                        <span class="d-none d-sm-inline me-1">Next</span><i class="bi bi-arrow-right" aria-hidden="true"></i>
+                    </button>
+                </nav>
             </div>
         </div>
     </div>
@@ -80,13 +93,12 @@ $documentTitle = 'Edit Content · ' . $induction['title'] . ' · ' . site_settin
 <script src="/assets/js/course-editor.js"></script>
 <script>
     CourseEditor.init({
-        blocksContainer: '#cb-blocks',
-        emptyHint: '#cb-empty-hint',
+        stage: '#cb-slide-stage',
+        outline: '#slide-outline',
         outlineList: '#cb-outline-list',
         outlineEmpty: '#cb-outline-empty',
-        outlineListOffcanvas: '#cb-outline-list-offcanvas',
-        outlineEmptyOffcanvas: '#cb-outline-empty-offcanvas',
-        offcanvas: '#cbOutlineOffcanvas',
+        addLectureButton: '#cb-add-lecture',
+        nav: '#cb-slide-nav',
         saveButton: '#cb-save-btn',
         saveStatus: '#cb-save-status',
         saveUrl: <?= json_encode('/admin/inductions/editor.php?id=' . (int) $induction['id']) ?>,

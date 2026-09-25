@@ -3,8 +3,8 @@
 declare(strict_types=1);
 
 /**
- * Exam Blocks Studio: the same layout as the Content Blocks Studio
- * (views/admin/inductions/editor.php), for building an exam's questions.
+ * Exam Blocks Studio: the Content Blocks Studio's top bar, over the exam
+ * page's centred column of question cards (views/inductee/exams/take.php).
  * See docs/application/exam_blocks_editor.md.
  *
  * @var array<string, mixed> $exam
@@ -56,12 +56,12 @@ $documentTitle = 'Edit Exam Blocks · ' . $exam['title'] . ' · ' . site_setting
 
 <main class="cb-studio-main py-5">
     <div class="cb-studio-container container-fluid px-4">
-        <div class="content-canvas">
+        <div class="page-narrow mx-auto">
             <?php require __DIR__ . '/../../partials/flash.php'; ?>
         </div>
 
         <div class="cb-content-area">
-            <!-- Floating outline rail beside the canvas on wide screens; see .cb-outline-sidebar-rail in app.css. -->
+            <!-- Floating outline rail beside the column on wide screens; see .cb-outline-sidebar-rail in app.css. -->
             <aside class="cb-outline-sidebar-rail">
                 <nav class="cb-outline-sidebar card border-0 shadow-sm p-3" aria-label="Exam outline">
                     <div class="cb-outline-heading small text-uppercase text-muted fw-semibold mb-2">Exam Outline</div>
@@ -70,13 +70,9 @@ $documentTitle = 'Edit Exam Blocks · ' . $exam['title'] . ' · ' . site_setting
                 </nav>
             </aside>
 
-            <div class="content-canvas">
-                <div class="card border-0 shadow-sm">
-                    <div class="card-body">
-                        <div id="cb-blocks" class="cb-blocks-container" data-initial="<?= e($initialBlocksJson) ?>"></div>
-                        <p class="cb-empty-hint text-muted small mb-0" id="cb-empty-hint">No questions yet. Add one with the buttons above.</p>
-                    </div>
-                </div>
+            <div class="page-narrow mx-auto">
+                <div id="cb-blocks" class="cb-blocks-container" data-initial="<?= e($initialBlocksJson) ?>"></div>
+                <p class="cb-empty-hint text-muted small text-center mb-0" id="cb-empty-hint">No questions yet. Add one with the buttons above.</p>
             </div>
         </div>
     </div>

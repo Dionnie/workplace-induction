@@ -98,7 +98,9 @@ Rules that follow from this:
 - **Never hard-code a brand hex value.** In CSS, use `var(--color-primary-700)` etc. For tints, use `rgba(var(--color-primary-rgb), 0.12)`, never `rgba(15, 93, 95, 0.12)`. In markup, use Bootstrap's primary classes.
 - Before using a Bootstrap component that is not bridged yet (switches, ranges, progress bars, nav pills, accordions), bridge it in `app.css`.
 - Every page gets its `<head>` from `views/partials/head.php`, which outputs the theme.
-- Emails cannot use CSS variables. They get the theme colors through `App\Core\Theme::colors()` (see `views/emails/layout.php`).
+- The theme is for the app's own screens only. What leaves the app is neutral, because an administrator's colour choice (a very dark primary, say) can't be checked against every logo and text colour there:
+  - **Emails** (`views/emails/layout.php`, one layout for every email): a white card with a subtle grey border and soft shadow on a light grey page. Inside it, the logo (when one is set) and the company name on white over a thin grey rule, never a coloured header band, then the message in dark text; a small grey footer below the card. Links are dark and underlined; long links wrap. The column is fluid up to 600px, so it reads on a phone. Most emails are plain text that the layout turns into HTML; one that needs tables (the admin report, `views/emails/admin-report.php`) also sets its own `$bodyHtml` in old-school email-safe markup: tables only, inline styles, the font on every cell, a solid dark button, and dates written out ("Thursday 24 September 2026", "25 Sep 2026" with the time under it).
+  - **Printed documents**: the certificate card (`docs/core/design-system.html#certificate`).
 - Primary and accent must stay dark enough for white text (contrast of at least 4.5:1). The presets meet this, and custom colors are validated on save.
 - Semantic colors (success, warning, danger, info) and neutrals are **not** themeable.
 
@@ -116,7 +118,7 @@ Use the primary color for what the user should act on: main actions, links, acti
 
 Accent 500 is secondary brand emphasis (warm terracotta by default).
 
-Use it sparingly for small secondary emphasis, such as the Lecture badge in the Studio editor. Do not use it everywhere, and never as a status color.
+Use it sparingly for small secondary emphasis, such as the Lecture badge in the Studio editor, or the slanted block in the brand band along a slide's top and bottom edge (`.cb-slide-band`, primary with an accent block: branding, the one decorative use of the brand colors). Do not use it everywhere, and never as a status color.
 
 ### Warm Supporting Color
 
@@ -212,6 +214,10 @@ Active means currently selected: the current navbar item, the current Settings s
 
 Disabled means the action is currently unavailable. Use Bootstrap's `disabled` attribute; controls should look unavailable without becoming unreadable. Authorization must still be enforced server-side even when a control is hidden or disabled.
 
+### Read-only
+
+A record with no edit form (Compliance Record, Exam Attempt) shows its values as `readonly` form fields rather than label/value text, with a View button beside any related record. They share the disabled fill but stay focusable, so values such as a certificate number can be copied. See "Read-only fields" in `design-system.html`.
+
 ### Loading
 
 When an action is processing, give clear feedback and prevent duplicate submissions.
@@ -254,7 +260,7 @@ This applies particularly to status badges, validation messages, alerts, tables,
 # 10. Layout and Navigation
 
 - Every page uses a layout partial (admin, inductee or guest). Never hand-write a `<head>`, navbar or footer.
-- Every page starts with a `.page-header`: the page title, an optional one-line subtitle, and the page's actions.
+- Every page starts with a `.page-header`: the page title, an optional one-line subtitle, and the page's actions. The one exception is the inductee's slide view of an induction, where the slide gets the whole screen: the induction's title sits at the top of the outline sidebar, with an About modal for the description (`docs/application/content_blocks_editor.md` §5).
 - Pages below a section's index (create, edit, detail, exam) show a breadcrumb in the page header. It replaces ad-hoc "Back" buttons.
 - Form, profile and detail pages are capped with `.page-narrow`.
 - Both areas have a top bar with the brand and the account menu (My Profile, Log Out). The active item comes from the view's `$currentPage`.
@@ -277,6 +283,8 @@ Rules:
 - Mark every **required** field with a red asterisk (`.required` on its label, or on the `legend` of a required group) and give the control the `required` attribute, so screen readers announce it; the asterisk itself is hidden from them. A field without an asterisk is optional; do not also write "(optional)".
 - "Required" follows the server-side validation: the form is rejected without it. A field whose blank value has a meaning ("Blank uses the Company Name", "Leave blank to keep the current password") is optional. Fields labelled only by `aria-label` (filters, one-field inline forms) carry no asterisk.
 - The red asterisk is the one use of the danger color that is not a negative state. It is kept because it is a universally understood convention.
+- Short help goes in a `form-text` line under the field. When a form has so many fields that those lines become a wall of text (every Settings tab), put the help in a tooltip on an info button after the label instead (`.field-help`, `docs/core/design-system.html#forms`), with the control's `aria-describedby` pointing at the button. Help that holds a link or code a user needs to click or copy stays as visible text, since a tooltip can't be clicked into.
+- A placeholder is never a label or an example. On a field whose blank value has a meaning, it shows what a blank field will use (the Company Name, the Primary Email); when there is no such value, leave the placeholder out.
 - Validation happens server-side. Show errors with `is-invalid` and `invalid-feedback` next to the field (`invalid-feedback d-block` when the message cannot sit directly after the control). Show form-level errors as an `alert alert-danger` above the fields.
 - Preserve submitted values after validation errors (`old()`).
 - Put buttons in `.form-actions`: the main action first, then Cancel.

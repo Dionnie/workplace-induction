@@ -10,6 +10,9 @@ use DateTimeImmutable;
 
 class AuthService
 {
+    /** How long an account setup link lasts; a password reset link lasts 1 hour. */
+    public const SETUP_LINK_DAYS = 7;
+
     private UserRepository $users;
 
     public function __construct()
@@ -108,15 +111,51 @@ class AuthService
     }
 
     /**
+     * Emails the user a link to choose their own password, for an account an
+     * administrator created (docs/core/auth.md #5). It is a password reset
+     * link that lasts SETUP_LINK_DAYS, since the user isn't expecting it. A
+     * current password keeps working until the link is used.
+     *
+     * @return bool Whether the email was handed to the mail system.
+     */
+    public function sendAccountSetupEmail(int $userId): bool
+    {
+        $user = $this->users->findById($userId);
+        if (!$user) {
+            return false;
+        }
+
+        $token = bin2hex(random_bytes(32));
+        $expiresAt = (new DateTimeImmutable('+' . self::SETUP_LINK_DAYS . ' days'))->format('Y-m-d H:i:s');
+
+        $this->users->setPasswordResetToken($userId, $token, $expiresAt);
+
+        return $this->sendSystemEmail($user['email'], Mailer::renderTemplate('account-setup', [
+            'email' => $user['email'],
+            'setupUrl' => public_url('/reset-password.php?token=' . $token),
+            'expiryDays' => self::SETUP_LINK_DAYS,
+        ]));
+    }
+
+    /**
+     * Whether a reset or account setup link can still be used, so the page
+     * can say so before the user types a password.
+     */
+    public function isValidResetToken(string $token): bool
+    {
+        return $this->findByValidResetToken($token) !== null;
+    }
+
+    /**
+     * Sets the password from a reset or account setup link.
+     *
      * @return array{success: bool, errors: array<string, string>}
      */
     public function resetPassword(string $token, string $password, string $passwordConfirmation): array
     {
-        $user = $this->users->findByResetToken($token);
-
-        if (!$user || $user['password_reset_expires_at'] === null
-            || new DateTimeImmutable($user['password_reset_expires_at']) < new DateTimeImmutable()) {
-            return ['success' => false, 'errors' => ['form' => 'This password reset link is invalid or has expired.']];
+        $user = $this->findByValidResetToken($token);
+        if (!$user) {
+            return ['success' => false, 'errors' => ['form' => 'This link is invalid or has expired.']];
         }
 
         $errors = $this->validatePassword($password, $passwordConfirmation);
@@ -125,7 +164,28 @@ class AuthService
         }
 
         $this->users->updatePassword((int) $user['id'], password_hash($password, PASSWORD_DEFAULT));
+
+        // The link was sent to their address, so using it proves they own it (#6).
+        if ($user['email_verified_at'] === null) {
+            $this->users->markEmailVerified((int) $user['id']);
+        }
+
         return ['success' => true, 'errors' => []];
+    }
+
+    /**
+     * The user a reset token belongs to, while it is unused and unexpired.
+     */
+    private function findByValidResetToken(string $token): ?array
+    {
+        $user = $token !== '' ? $this->users->findByResetToken($token) : null;
+
+        if (!$user || $user['password_reset_expires_at'] === null
+            || new DateTimeImmutable($user['password_reset_expires_at']) < new DateTimeImmutable()) {
+            return null;
+        }
+
+        return $user;
     }
 
     /**
@@ -180,10 +240,10 @@ class AuthService
      *
      * @param array{subject: string, body: string, html: string} $rendered
      */
-    private function sendSystemEmail(string $to, array $rendered): void
+    private function sendSystemEmail(string $to, array $rendered): bool
     {
         $settings = (new EmailSettingsService())->get();
-        Mailer::send($to, $rendered['subject'], $rendered['body'], [
+        return Mailer::send($to, $rendered['subject'], $rendered['body'], [
             'from_name' => $settings['inductee_sender_name'],
             'from_email' => $settings['inductee_sender_email'],
             'html' => $rendered['html'],

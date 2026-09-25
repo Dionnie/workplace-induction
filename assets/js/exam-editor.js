@@ -2,10 +2,10 @@
  * Exam Blocks Studio editor (views/admin/exams/editor.php). See
  * docs/application/exam_blocks_editor.md.
  *
- * The same editing model and layout as the Content Blocks Studio
- * (course-editor.js): only the selected block shows its edit fields; every
- * other block previews as inductees see it on the exam page
- * (views/inductee/exams/take.php), with the correct answer marked for the
+ * The same editing model as the Content Blocks Studio (course-editor.js):
+ * only the selected block shows its edit fields; every other block previews
+ * as inductees see it on the exam page (views/inductee/exams/take.php): the
+ * same question card (app.css §12), with the correct answer marked for the
  * admin. Kept as a parallel file rather than a shared editor, per this
  * project's convention of small, single-purpose JS files.
  *
@@ -381,9 +381,11 @@
 
                 target.scrollIntoView({ behavior: 'smooth', block: 'center' });
 
-                target.classList.remove('teleport-highlight-pulse');
-                void target.offsetWidth;
-                target.classList.add('teleport-highlight-pulse');
+                // The question card covers its block, so the card pulses.
+                var card = target.querySelector('.exam-question') || target;
+                card.classList.remove('teleport-highlight-pulse');
+                void card.offsetWidth;
+                card.classList.add('teleport-highlight-pulse');
             });
         },
 
@@ -480,51 +482,52 @@
             var number = index + 1;
             var body = isActive ? this.editHtml(block, number) : this.previewHtml(block, number);
 
-            // Questions read at the 700px text width, like text blocks in
-            // the Content Blocks Studio.
-            wrapper.innerHTML = controls + '<div class="cb-block-body"><div class="content-block-inner">' + body + '</div></div>';
+            wrapper.innerHTML = controls
+                + '<div class="exam-question card border-0 shadow-sm"><div class="card-body">' + body + '</div></div>';
 
             return wrapper;
         },
 
-        badgeHtml: function (number) {
-            return '<span class="cb-type-badge cb-type-badge-question">' + iconHtml('bi-question-circle', 'me-1') + 'Question ' + number + '</span>';
+        // "Question 3 of 20", as on the exam page.
+        eyebrowHtml: function (number) {
+            return '<p class="exam-question-eyebrow">Question ' + number + ' of ' + this.blocks.length + '</p>';
         },
 
+        diagramHtml: function (block) {
+            return block.diagram_img_url
+                ? '<img src="' + escapeHtml(block.diagram_img_url) + '" class="exam-question-diagram img-fluid rounded" alt="">'
+                : '';
+        },
+
+        // The question card with its fields in place: the question text and
+        // each option are edited where the inductee reads them.
         editHtml: function (block, number) {
             var canRemoveOption = block.options.length > 2;
             var options = block.options.map(function (option, i) {
-                return '<div class="input-group mb-2" data-option-id="' + option.id + '">'
-                    + '<div class="input-group-text">'
-                    + '<input class="form-check-input mt-0" type="radio" name="correct_' + block.id + '" data-option-correct '
-                    + 'aria-label="Option ' + (i + 1) + ' is the correct answer"' + (option.correct ? ' checked' : '') + '>'
-                    + '</div>'
-                    + '<input type="text" class="form-control' + (option.correct ? ' is-valid' : '') + '" data-option-text '
+                return '<div class="exam-choice exam-choice-edit' + (option.correct ? ' is-correct' : '') + '" data-option-id="' + option.id + '">'
+                    + '<input class="form-check-input exam-choice-radio" type="radio" name="correct_' + block.id + '" data-option-correct '
+                    + 'title="Mark as the correct answer" aria-label="Option ' + (i + 1) + ' is the correct answer"' + (option.correct ? ' checked' : '') + '>'
+                    + '<input type="text" class="exam-choice-input" data-option-text '
                     + 'placeholder="Option ' + (i + 1) + '" aria-label="Option ' + (i + 1) + '" value="' + escapeHtml(option.text) + '">'
-                    + '<button type="button" class="btn btn-outline-secondary" data-remove-option title="Remove option" '
+                    + (option.correct ? '<span class="exam-choice-note">Correct</span>' : '')
+                    + '<button type="button" class="exam-choice-remove btn btn-sm" data-remove-option title="Remove option" '
                     + 'aria-label="Remove option ' + (i + 1) + '"' + (canRemoveOption ? '' : ' disabled') + '>' + iconHtml('bi-x-lg') + '</button>'
                     + '</div>';
             }).join('');
 
-            var diagram = block.diagram_img_url
-                ? '<img src="' + escapeHtml(block.diagram_img_url) + '" class="img-fluid rounded mt-2" alt="">'
-                : '';
-
-            return this.badgeHtml(number)
-                + '<textarea class="cb-title-input cb-question-input" data-field="question" rows="2" placeholder="Write the question..." '
+            return this.eyebrowHtml(number)
+                + '<textarea class="cb-title-input cb-question-input exam-question-text" data-field="question" rows="2" placeholder="Write the question..." '
                 + 'aria-label="Question ' + number + '">' + escapeHtml(block.question) + '</textarea>'
-                + diagram
-                + '<div class="cb-settings-panel">'
+                + this.diagramHtml(block)
+                + '<div class="form-label small text-muted mb-2 required">Options (select the correct answer)</div>'
+                + '<div class="exam-choices">' + options + '</div>'
+                + '<button type="button" class="btn btn-sm btn-outline-primary mt-2" data-add-option>' + iconHtml('bi-plus-lg', 'me-1') + 'Add Option</button>'
+                + '<div class="cb-settings-panel mt-3">'
                 + '<div class="input-group input-group-sm">'
                 + '<input type="url" class="form-control" data-field="diagram_img_url" placeholder="Diagram image URL (optional)" '
                 + 'aria-label="Diagram image URL" value="' + escapeHtml(block.diagram_img_url) + '">'
                 + '<button type="button" class="btn btn-outline-secondary" data-browse-library>' + iconHtml('bi-images', 'me-1') + 'Browse Library</button>'
                 + '</div></div>'
-                + '<div class="cb-settings-panel">'
-                + '<div class="form-label small text-muted mb-2 required">Options (select the correct answer)</div>'
-                + options
-                + '<button type="button" class="btn btn-sm btn-outline-primary" data-add-option>' + iconHtml('bi-plus-lg', 'me-1') + 'Add Option</button>'
-                + '</div>'
                 + '<div class="cb-settings-panel">'
                 + '<textarea class="form-control form-control-sm" data-field="explanation" rows="2" '
                 + 'placeholder="Explanation shown with the exam result (optional)" aria-label="Explanation">' + escapeHtml(block.explanation) + '</textarea>'
@@ -532,31 +535,31 @@
         },
 
         /**
-         * The question as inductees see it on the exam page, plus what only
-         * the admin needs: the correct answer, the explanation, and what is
-         * still missing.
+         * The question card as inductees see it on the exam page, plus what
+         * only the admin needs: the correct answer (marked as on the result
+         * page), the explanation, and what is still missing.
          */
         previewHtml: function (block, number) {
             var options = block.options.map(function (option) {
                 var text = trim(option.text) ? escapeHtml(option.text) : '<span class="text-muted fst-italic">Empty option</span>';
-                return '<li class="d-flex align-items-start gap-2 mb-1">'
-                    + (option.correct
-                        ? iconHtml('bi-check-circle-fill', 'text-success mt-1') + '<span>' + text + ' <span class="badge text-bg-success ms-1">Correct</span></span>'
-                        : iconHtml('bi-circle', 'text-muted mt-1') + '<span>' + text + '</span>')
-                    + '</li>';
+                return '<div class="exam-choice' + (option.correct ? ' is-correct' : '') + '">'
+                    + iconHtml(option.correct ? 'bi-check-circle-fill' : 'bi-circle', 'exam-choice-icon')
+                    + '<span class="exam-choice-text">' + text + '</span>'
+                    + (option.correct ? '<span class="exam-choice-note">Correct</span>' : '')
+                    + '</div>';
             }).join('');
 
             var problems = problemsFor(block);
 
-            return this.badgeHtml(number)
-                + '<p class="mb-2">' + (trim(block.question) ? nl2br(escapeHtml(block.question)) : '<span class="text-muted fst-italic">No question yet.</span>') + '</p>'
-                + (block.diagram_img_url ? '<img src="' + escapeHtml(block.diagram_img_url) + '" class="img-fluid rounded mb-3" alt="">' : '')
-                + '<ul class="list-unstyled mb-0">' + options + '</ul>'
+            return this.eyebrowHtml(number)
+                + '<p class="exam-question-text">' + (trim(block.question) ? nl2br(escapeHtml(block.question)) : '<span class="text-muted fst-italic fw-normal">No question yet.</span>') + '</p>'
+                + this.diagramHtml(block)
+                + '<div class="exam-choices">' + options + '</div>'
                 + (trim(block.explanation)
-                    ? '<p class="text-muted small mt-2 mb-0">' + iconHtml('bi-lightbulb', 'me-1') + nl2br(escapeHtml(block.explanation)) + '</p>'
+                    ? '<p class="exam-explanation">' + iconHtml('bi-lightbulb', 'me-1') + nl2br(escapeHtml(block.explanation)) + '</p>'
                     : '')
                 + (problems.length
-                    ? '<p class="text-warning-emphasis small mt-2 mb-0">' + iconHtml('bi-exclamation-triangle', 'me-1') + problems.join(' ') + '</p>'
+                    ? '<p class="text-warning-emphasis small mt-3 mb-0">' + iconHtml('bi-exclamation-triangle', 'me-1') + problems.join(' ') + '</p>'
                     : '');
         },
 

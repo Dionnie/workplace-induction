@@ -493,6 +493,8 @@ Verification
 
 The developer may explicitly approve destructive operations when working with disposable test data.
 
+Temporary test accounts are disposable by definition. Creating and deleting them with `database/test-users.php` is allowed (`docs/core/auth.md` #19). That script deletes only accounts carrying the test marker, never existing records.
+
 ---
 
 # 17. Unknown Data Must Be Treated as Real

@@ -23,9 +23,10 @@ inductions
 - `exam_id = NULL` → no exam required.
 - `exam_id != NULL` → the induction requires the linked exam.
 - `validity_months` determines the resulting compliance validity.
-- `content_blocks` contains the induction material. See
-  `docs/application/content_blocks_editor.md` for the block JSON shapes
-  and editor design.
+- `content_blocks` contains the induction material: Section slides, each
+  with its Lecture slides, every slide holding its own content blocks. See
+  `docs/application/content_blocks_editor.md` for the JSON shape and the
+  editor design.
 
 ---
 

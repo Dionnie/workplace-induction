@@ -11,5 +11,6 @@ Do not substitute these with invented alternatives.
 | Credential document              | Certificate        | Badge, License, Certification             |
 | Renewal of compliance            | Renewal            | Re-certification, Recertification         |
 | Induction learning material      | Content Blocks     | Lessons, Modules, Sections                |
+| One screen of induction content  | Slide (a Section slide or a Lecture slide) | Page, Screen, Step, Lesson, Module |
 | Exam questions                   | Exam Blocks        | Question Blocks, Questions                |
 | Currently valid compliance       | Current Compliance | Active Certification, Valid Certification |

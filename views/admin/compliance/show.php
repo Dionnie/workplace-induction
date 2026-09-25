@@ -8,6 +8,7 @@ $currentPage = 'compliance';
 require __DIR__ . '/../../partials/admin-header.php';
 
 $holder = trim($record['first_name'] . ' ' . $record['last_name']) ?: $record['email'];
+$examPercentage = (int) $record['exam_total_score'] > 0 ? round((int) $record['exam_score'] / (int) $record['exam_total_score'] * 100) : 0;
 ?>
 
 <div class="page-narrow">
@@ -28,48 +29,80 @@ $holder = trim($record['first_name'] . ' ' . $record['last_name']) ?: $record['e
 
     <div class="card shadow-sm">
         <div class="card-body p-4">
-            <div class="d-flex justify-content-between align-items-start gap-3 mb-3">
-                <h2 class="fs-5 mb-0"><?= e($record['induction_title']) ?></h2>
-                <?= status_badge((string) $record['status']) ?>
+            <div class="row g-3 mb-3">
+                <div class="col-sm">
+                    <label for="inductee" class="form-label">Inductee</label>
+                    <div class="input-group">
+                        <input type="text" class="form-control" id="inductee" value="<?= e($holder) ?>" readonly>
+                        <a href="/admin/users/edit.php?id=<?= (int) $record['user_id'] ?>" class="btn btn-outline-secondary">View<span class="visually-hidden"> user</span></a>
+                    </div>
+                </div>
+                <div class="col-sm">
+                    <label for="email" class="form-label">Email</label>
+                    <input type="email" class="form-control" id="email" value="<?= e($record['email']) ?>" readonly>
+                </div>
             </div>
 
-            <dl class="row mb-0">
-                <dt class="col-sm-5 text-muted fw-normal">Inductee</dt>
-                <dd class="col-sm-7">
-                    <a href="/admin/users/edit.php?id=<?= (int) $record['user_id'] ?>"><?= e($holder) ?></a>
-                    <div class="text-muted small"><?= e($record['email']) ?></div>
-                </dd>
+            <div class="row g-3 mb-3">
+                <div class="col-sm-8">
+                    <label for="induction" class="form-label">Induction</label>
+                    <div class="input-group">
+                        <input type="text" class="form-control" id="induction" value="<?= e($record['induction_title']) ?>" readonly>
+                        <a href="/admin/inductions/edit.php?id=<?= (int) $record['induction_id'] ?>" class="btn btn-outline-secondary">View<span class="visually-hidden"> induction</span></a>
+                    </div>
+                </div>
+                <div class="col-sm-4">
+                    <label for="induction_code" class="form-label">Induction Code</label>
+                    <input type="text" class="form-control" id="induction_code" value="<?= e($record['induction_code']) ?>" readonly>
+                </div>
+            </div>
 
-                <dt class="col-sm-5 text-muted fw-normal">Certificate Number</dt>
-                <dd class="col-sm-7"><code><?= e($record['certificate_number']) ?></code></dd>
+            <div class="row g-3 mb-3">
+                <div class="col-sm">
+                    <label for="certificate_number" class="form-label">Certificate Number</label>
+                    <input type="text" class="form-control" id="certificate_number" value="<?= e($record['certificate_number']) ?>" readonly>
+                </div>
+                <div class="col-sm">
+                    <label for="status" class="form-label">Status</label>
+                    <input type="text" class="form-control" id="status" value="<?= e(ucfirst((string) $record['status'])) ?>" readonly>
+                </div>
+            </div>
 
-                <dt class="col-sm-5 text-muted fw-normal">Induction Code</dt>
-                <dd class="col-sm-7"><?= e($record['induction_code']) ?></dd>
+            <div class="row g-3 mb-3">
+                <div class="col-sm">
+                    <label for="issue_date" class="form-label">Issue Date</label>
+                    <input type="text" class="form-control" id="issue_date" value="<?= e($record['issue_date']) ?>" readonly>
+                </div>
+                <div class="col-sm">
+                    <label for="expiry_date" class="form-label">Expiry Date</label>
+                    <input type="text" class="form-control" id="expiry_date" value="<?= e($record['expiry_date']) ?>" readonly>
+                </div>
+            </div>
 
-                <dt class="col-sm-5 text-muted fw-normal">Issue Date</dt>
-                <dd class="col-sm-7"><?= e($record['issue_date']) ?></dd>
-
-                <dt class="col-sm-5 text-muted fw-normal">Expiry Date</dt>
-                <dd class="col-sm-7"><?= e($record['expiry_date']) ?></dd>
-
-                <dt class="col-sm-5 text-muted fw-normal">Exam Attempt</dt>
-                <dd class="col-sm-7">
+            <div class="row g-3">
+                <div class="col-sm">
+                    <label for="exam_attempt" class="form-label">Exam Attempt</label>
                     <?php if ($record['exam_attempt_id'] !== null): ?>
-                        <a href="/admin/exam-attempts/show.php?id=<?= (int) $record['exam_attempt_id'] ?>">View exam attempt</a>
+                        <div class="input-group">
+                            <input type="text" class="form-control" id="exam_attempt" value="<?= (int) $record['exam_score'] ?> / <?= (int) $record['exam_total_score'] ?> (<?= (int) $examPercentage ?>%)" readonly>
+                            <a href="/admin/exam-attempts/show.php?id=<?= (int) $record['exam_attempt_id'] ?>" class="btn btn-outline-secondary">View<span class="visually-hidden"> exam attempt</span></a>
+                        </div>
                     <?php else: ?>
-                        <span class="text-muted">None</span>
+                        <input type="text" class="form-control" id="exam_attempt" placeholder="None" readonly>
                     <?php endif; ?>
-                </dd>
-
-                <dt class="col-sm-5 text-muted fw-normal">Renewal Of</dt>
-                <dd class="col-sm-7 mb-0">
+                </div>
+                <div class="col-sm">
+                    <label for="renewed_from" class="form-label">Renewal Of</label>
                     <?php if ($record['renewed_from_id'] !== null): ?>
-                        <a href="/admin/compliance/show.php?id=<?= (int) $record['renewed_from_id'] ?>">Previous compliance record</a>
+                        <div class="input-group">
+                            <input type="text" class="form-control" id="renewed_from" value="<?= e($record['renewed_from_certificate_number']) ?>" readonly>
+                            <a href="/admin/compliance/show.php?id=<?= (int) $record['renewed_from_id'] ?>" class="btn btn-outline-secondary">View<span class="visually-hidden"> previous compliance record</span></a>
+                        </div>
                     <?php else: ?>
-                        <span class="text-muted">None</span>
+                        <input type="text" class="form-control" id="renewed_from" placeholder="None" readonly>
                     <?php endif; ?>
-                </dd>
-            </dl>
+                </div>
+            </div>
         </div>
     </div>
 

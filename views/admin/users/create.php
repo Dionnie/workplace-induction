@@ -2,10 +2,14 @@
 
 declare(strict_types=1);
 
+use App\Core\Auth\AuthService;
+
 /** @var array<string, string> $errors */
 $pageTitle = 'Add User';
 $currentPage = 'users';
 require __DIR__ . '/../../partials/admin-header.php';
+
+$sendSetupEmail = old('send_setup_email', '1') === '1';
 ?>
 
 <div class="page-narrow">
@@ -34,7 +38,7 @@ require __DIR__ . '/../../partials/admin-header.php';
                     <?php if ($error = error_for($errors, 'email')): ?>
                         <div class="invalid-feedback"><?= e($error) ?></div>
                     <?php else: ?>
-                        <div class="form-text">The address is treated as verified: no confirmation email is sent.</div>
+                        <div class="form-text">Treated as verified, so they aren't asked to confirm it.</div>
                     <?php endif; ?>
                 </div>
 
@@ -62,7 +66,21 @@ require __DIR__ . '/../../partials/admin-header.php';
                     </div>
                 </div>
 
-                <div class="row g-3 mb-3">
+                <div class="form-check mb-3">
+                    <input class="form-check-input <?= error_for($errors, 'send_setup_email') ? 'is-invalid' : '' ?>" type="checkbox"
+                           id="send_setup_email" name="send_setup_email" value="1" <?= $sendSetupEmail ? 'checked' : '' ?>>
+                    <label class="form-check-label" for="send_setup_email">Email the user a link to set their password</label>
+                    <?php if ($error = error_for($errors, 'send_setup_email')): ?>
+                        <div class="invalid-feedback"><?= e($error) ?></div>
+                    <?php else: ?>
+                        <div class="form-text mt-0">
+                            They choose their own password, so no one else knows it. The link lasts <?= AuthService::SETUP_LINK_DAYS ?> days.
+                            Untick to set a password yourself; nothing is emailed.
+                        </div>
+                    <?php endif; ?>
+                </div>
+
+                <div class="row g-3 mb-3" id="password-fields" <?= $sendSetupEmail ? 'hidden' : '' ?>>
                     <div class="col-sm">
                         <label for="password" class="form-label required">Password</label>
                         <input type="password" class="form-control <?= error_for($errors, 'password') ? 'is-invalid' : '' ?>"
@@ -91,5 +109,19 @@ require __DIR__ . '/../../partials/admin-header.php';
         </div>
     </div>
 </div>
+
+<script>
+    (function () {
+        'use strict';
+
+        // The password is only set here when no setup email is sent.
+        var sendSetupEmail = document.getElementById('send_setup_email');
+        var passwordFields = document.getElementById('password-fields');
+
+        sendSetupEmail.addEventListener('change', function () {
+            passwordFields.hidden = sendSetupEmail.checked;
+        });
+    })();
+</script>
 
 <?php require __DIR__ . '/../../partials/admin-footer.php'; ?>

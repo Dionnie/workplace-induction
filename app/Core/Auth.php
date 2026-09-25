@@ -48,10 +48,14 @@ class Auth
         self::$userCache = null;
     }
 
+    /**
+     * Sends a guest to the login page, which returns them to this page after
+     * logging in (redirect_to, docs/core/auth.md #8).
+     */
     public static function requireLogin(): void
     {
         if (!self::check()) {
-            redirect('/login.php');
+            redirect('/login.php' . redirect_to_query(self::currentPage()));
         }
     }
 
@@ -78,6 +82,7 @@ class Auth
     /**
      * Sends a user with an incomplete profile to their profile page, for
      * actions that need a completed profile (e.g. starting an induction).
+     * Completing the profile returns them to this page (redirect_to).
      */
     public static function requireCompletedProfile(string $profileUrl, string $message): void
     {
@@ -85,7 +90,40 @@ class Auth
 
         if (!self::profileCompleted()) {
             flash('error', $message);
-            redirect($profileUrl);
+            redirect($profileUrl . redirect_to_query(self::currentPage()));
         }
+    }
+
+    /**
+     * The logged-in user's entry point for their user type (docs/core/auth.md #8).
+     */
+    public static function homeUrl(): string
+    {
+        return self::area() . 'index.php';
+    }
+
+    /**
+     * Where to send the logged-in user after login or profile completion:
+     * $redirectTo when it is a safe path inside their own area, otherwise
+     * their home page. Another area's page would only answer "Forbidden".
+     */
+    public static function intendedUrl(mixed $redirectTo): string
+    {
+        $path = safe_redirect_path($redirectTo);
+        return $path !== null && str_starts_with($path, self::area()) ? $path : self::homeUrl();
+    }
+
+    private static function area(): string
+    {
+        return (self::user()['user_type'] ?? null) === 'admin' ? '/admin/' : '/inductee/';
+    }
+
+    /**
+     * The requested page, to return to later. GET only: a form submission
+     * can't be repeated by a redirect.
+     */
+    private static function currentPage(): ?string
+    {
+        return ($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'GET' ? ($_SERVER['REQUEST_URI'] ?? null) : null;
     }
 }

@@ -1,17 +1,17 @@
 <?php
 /** @var array<string, string> $errors */
 /** @var string $token */
-$pageTitle = 'Reset Password';
+$pageTitle = 'Set Your Password';
 require __DIR__ . '/../partials/guest-header.php';
 ?>
 <div class="card shadow-sm">
     <div class="card-body p-4">
-        <h1 class="page-title mb-3">Reset Password</h1>
+        <h1 class="page-title mb-3">Set Your Password</h1>
 
         <?php if ($error = error_for($errors, 'form')): ?>
             <div class="alert alert-danger"><?= e($error) ?></div>
             <p class="text-center text-muted small mb-0">
-                <a href="/forgot-password.php">Request a new reset link</a>
+                <a href="/forgot-password.php">Request a new link</a>
             </p>
         <?php else: ?>
             <form method="post" action="/reset-password.php" novalidate>
@@ -39,7 +39,7 @@ require __DIR__ . '/../partials/guest-header.php';
                 </div>
 
                 <div class="form-actions">
-                    <button type="submit" class="btn btn-primary w-100">Reset Password</button>
+                    <button type="submit" class="btn btn-primary w-100">Set Password</button>
                 </div>
             </form>
         <?php endif; ?>

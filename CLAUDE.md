@@ -28,6 +28,11 @@ Generic, white-label Flat-file PHP Induction System.
 
 - Consult: `docs\core\auth.md`
 
+## For End-to-End Testing
+
+- Log in with a temporary test account from `database/test-users.php`, and delete it when done. Never use a real account.
+- Consult: `docs\core\auth.md` #19 (Test Accounts).
+
 ## For Public / Landing Pages
 
 - Consult: `docs\core\public_page.md`

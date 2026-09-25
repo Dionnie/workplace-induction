@@ -24,6 +24,12 @@
         }, 0);
     });
 
+    // Bootstrap tooltips are opt-in: start every one on the page
+    // (field help, .field-help).
+    document.querySelectorAll('[data-bs-toggle="tooltip"]').forEach(function (element) {
+        bootstrap.Tooltip.getOrCreateInstance(element);
+    });
+
     // Going Back can restore the page from the browser cache with the
     // button still disabled; put it back.
     window.addEventListener('pageshow', function (event) {

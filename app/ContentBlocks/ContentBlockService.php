@@ -5,11 +5,15 @@ declare(strict_types=1);
 namespace App\ContentBlocks;
 
 /**
- * Validates and normalizes the content_blocks JSON stored on an induction.
- * See docs/application/content_blocks_editor.md for the block shapes.
+ * Validates and normalizes the content_blocks JSON stored on an induction:
+ * a list of Section slides, each holding its own content blocks and its
+ * Lecture slides. See docs/application/content_blocks_editor.md #3 for the
+ * shape.
  */
 class ContentBlockService
 {
+    private const INVALID = 'Content contains invalid slides or blocks.';
+
     private const ALLOWED_TAGS = [
         'p', 'strong', 'b', 'em', 'i', 'u', 's', 'a', 'ul', 'ol', 'li', 'br', 'blockquote',
         'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'table', 'thead', 'tbody', 'tr', 'th', 'td', 'code', 'pre', 'hr',
@@ -26,15 +30,76 @@ class ContentBlockService
     ];
 
     /**
-     * @return array<int, array<string, mixed>>|null Null when the input is malformed.
+     * @return array<int, array<string, mixed>>|string The validated sections,
+     *     or an error message when the input can't be saved.
      */
-    public function validate(string $json): ?array
+    public function validate(string $json): array|string
     {
         $decoded = json_decode($json, true);
-        if (!is_array($decoded)) {
-            return null;
+        if (!is_array($decoded) || !array_is_list($decoded)) {
+            return self::INVALID;
         }
 
+        $sections = [];
+
+        foreach ($decoded as $section) {
+            $slide = $this->validateSlide($section);
+            if (is_string($slide)) {
+                return $slide;
+            }
+
+            $lectures = $section['lectures'] ?? [];
+            if (!is_array($lectures) || !array_is_list($lectures)) {
+                return self::INVALID;
+            }
+
+            // Lectures are the second and last level: any "lectures" key on
+            // a lecture is ignored, since validateSlide() never copies it.
+            $slide['lectures'] = [];
+            foreach ($lectures as $lecture) {
+                $lectureSlide = $this->validateSlide($lecture);
+                if (is_string($lectureSlide)) {
+                    return $lectureSlide;
+                }
+                $slide['lectures'][] = $lectureSlide;
+            }
+
+            $sections[] = $slide;
+        }
+
+        return $sections;
+    }
+
+    /**
+     * @return array{id: string, title: string, blocks: array<int, array<string, mixed>>}|string
+     */
+    private function validateSlide(mixed $slide): array|string
+    {
+        if (!is_array($slide) || !isset($slide['id']) || !is_array($slide['blocks'] ?? null)) {
+            return self::INVALID;
+        }
+
+        // Titles are required rather than dropped-when-empty: dropping the
+        // slide would silently discard every block on it.
+        $title = trim((string) ($slide['title'] ?? ''));
+        if ($title === '') {
+            return 'Every slide needs a title.';
+        }
+
+        $blocks = $this->validateBlocks($slide['blocks']);
+        if ($blocks === null) {
+            return self::INVALID;
+        }
+
+        return ['id' => (string) $slide['id'], 'title' => $title, 'blocks' => $blocks];
+    }
+
+    /**
+     * @param array<mixed> $decoded
+     * @return array<int, array<string, mixed>>|null Null when any block is malformed.
+     */
+    private function validateBlocks(array $decoded): ?array
+    {
         $blocks = [];
 
         foreach ($decoded as $block) {
@@ -46,11 +111,8 @@ class ContentBlockService
             $id = (string) $block['id'];
 
             $result = match ($type) {
-                BlockTypes::LEGACY_HEADING => $this->validateHeading($id, $block),
                 BlockTypes::TEXT => $this->validateText($id, $block),
                 BlockTypes::IMAGE => $this->validateImage($id, $block),
-                BlockTypes::SECTION => $this->validateSection($id, $block),
-                BlockTypes::LECTURE => $this->validateLecture($id, $block),
                 BlockTypes::ALERT => $this->validateAlert($id, $block),
                 BlockTypes::IFRAME => $this->validateIframe($id, $block),
                 BlockTypes::RAW_HTML => $this->validateRawHtml($id, $block),
@@ -71,66 +133,16 @@ class ContentBlockService
     }
 
     /**
-     * Converts legacy block shapes into their current equivalent. Read-time
-     * only — callers never re-persist the converted shape as-is, so no
-     * destructive migration of existing induction data is required.
-     *
-     * @param array<int, array<string, mixed>> $blocks
-     * @return array<int, array<string, mixed>>
-     */
-    public function normalize(array $blocks): array
-    {
-        return array_map(function (array $block): array {
-            if (($block['type'] ?? null) === BlockTypes::LEGACY_HEADING) {
-                return [
-                    'id' => $block['id'],
-                    'type' => BlockTypes::SECTION,
-                    'title' => $block['text'] ?? '',
-                    'description' => '',
-                ];
-            }
-
-            return $block;
-        }, $blocks);
-    }
-
-    /**
-     * @param array<string, mixed> $block
-     */
-    private function validateHeading(string $id, array $block): ?array
-    {
-        $text = trim((string) ($block['text'] ?? ''));
-        if ($text === '') {
-            return null;
-        }
-
-        return ['id' => $id, 'type' => BlockTypes::LEGACY_HEADING, 'text' => $text];
-    }
-
-    /**
      * @param array<string, mixed> $block
      */
     private function validateText(string $id, array $block): ?array
     {
-        // The Studio editor writes rich HTML under "content"; only blocks
-        // persisted by the old plain-text editor use "text". Distinguish by
-        // field presence rather than by a version flag, so old and new
-        // persisted data both keep validating without a migration.
-        if (array_key_exists('content', $block)) {
-            $content = $this->sanitizeRichHtml((string) ($block['content'] ?? ''));
-            if ($content === '') {
-                return null;
-            }
-
-            return ['id' => $id, 'type' => BlockTypes::TEXT, 'content' => $content];
-        }
-
-        $text = trim((string) ($block['text'] ?? ''));
-        if ($text === '') {
+        $content = $this->sanitizeRichHtml((string) ($block['content'] ?? ''));
+        if ($content === '') {
             return null;
         }
 
-        return ['id' => $id, 'type' => BlockTypes::TEXT, 'text' => $text];
+        return ['id' => $id, 'type' => BlockTypes::TEXT, 'content' => $content];
     }
 
     /**
@@ -152,42 +164,6 @@ class ContentBlockService
             'align' => $this->oneOf((string) ($block['align'] ?? ''), BlockTypes::IMAGE_ALIGNS, 'center'),
             'shape' => $this->oneOf((string) ($block['shape'] ?? ''), BlockTypes::IMAGE_SHAPES, 'as-is'),
             'aspect' => $this->oneOf((string) ($block['aspect'] ?? ''), BlockTypes::IMAGE_ASPECTS, '4-3'),
-        ];
-    }
-
-    /**
-     * @param array<string, mixed> $block
-     */
-    private function validateSection(string $id, array $block): ?array
-    {
-        $title = trim((string) ($block['title'] ?? ''));
-        if ($title === '') {
-            return null;
-        }
-
-        return [
-            'id' => $id,
-            'type' => BlockTypes::SECTION,
-            'title' => $title,
-            'description' => $this->sanitizeRichHtml((string) ($block['description'] ?? '')),
-        ];
-    }
-
-    /**
-     * @param array<string, mixed> $block
-     */
-    private function validateLecture(string $id, array $block): ?array
-    {
-        $title = trim((string) ($block['title'] ?? ''));
-        if ($title === '') {
-            return null;
-        }
-
-        return [
-            'id' => $id,
-            'type' => BlockTypes::LECTURE,
-            'title' => $title,
-            'content' => $this->sanitizeRichHtml((string) ($block['content'] ?? '')),
         ];
     }
 

@@ -6,18 +6,16 @@ namespace App\ContentBlocks;
 
 /**
  * Content block type names and the allowed values for their enum-like
- * fields. Shared source of truth for ContentBlockService and, once built,
- * the Studio editor and course outline builder.
+ * fields. Shared source of truth for ContentBlockService and
+ * ContentBlockRenderer; course-editor.js mirrors these lists client-side.
+ *
+ * Section and Lecture are not block types: they are the two slide levels
+ * that hold blocks (docs/application/content_blocks_editor.md #3).
  */
 final class BlockTypes
 {
-    /** Legacy type, accepted on read/write for backward compatibility. */
-    public const LEGACY_HEADING = 'heading';
-
     public const TEXT = 'text';
     public const IMAGE = 'image';
-    public const SECTION = 'section';
-    public const LECTURE = 'lecture';
     public const ALERT = 'alert';
     public const IFRAME = 'iframe';
     public const RAW_HTML = 'raw_html';

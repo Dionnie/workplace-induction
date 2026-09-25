@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Admin\Services;
 
 use App\Compliance\ComplianceService;
+use App\Core\Auth\AuthService;
 use App\Core\Auth\UserRepository;
 use App\Core\Database;
 use App\Exam\ExamAttemptRepository;
@@ -42,16 +43,30 @@ class UserManagementService
      * profile when they first log in; administrators have no profile
      * requirements, so theirs counts as complete (docs/core/auth.md #3, #12).
      *
-     * @return array{success: bool, errors: array<string, string>}
+     * With send_setup_email, the user is emailed a link to choose their own
+     * password, and the administrator never sets or sees one (#5). A failed
+     * email doesn't undo the account: email_error says what went wrong.
+     *
+     * @return array{success: bool, errors: array<string, string>, id?: int, email_error?: string}
      */
     public function create(array $data): array
     {
+        $sendSetupEmail = !empty($data['send_setup_email']);
+        if ($sendSetupEmail) {
+            // Until they use the link, the account holds a random password nobody knows.
+            $data['password'] = $data['password_confirmation'] = bin2hex(random_bytes(32));
+        }
+
         $errors = $this->validate($data, null);
+        if ($sendSetupEmail && ($data['status'] ?? '') !== 'active') {
+            $errors['send_setup_email'] = 'Only an active account can be sent a setup email. Set Status to Active, or untick this and set a password.';
+        }
+
         if ($errors) {
             return ['success' => false, 'errors' => $errors];
         }
 
-        $this->users->create([
+        $id = $this->users->create([
             'email' => trim($data['email']),
             'password' => password_hash($data['password'], PASSWORD_DEFAULT),
             'user_type' => $data['user_type'],
@@ -59,6 +74,38 @@ class UserManagementService
             'profile_completed' => $data['user_type'] === 'admin',
             'email_verified_at' => date('Y-m-d H:i:s'),
         ]);
+
+        if ($sendSetupEmail) {
+            $sent = $this->sendSetupEmail($id);
+            if (!$sent['success']) {
+                return ['success' => true, 'errors' => [], 'id' => $id, 'email_error' => $sent['errors']['form']];
+            }
+        }
+
+        return ['success' => true, 'errors' => [], 'id' => $id];
+    }
+
+    /**
+     * Emails the user a link to choose their own password (docs/core/auth.md
+     * #5), e.g. when their setup email was lost or has expired. Only for an
+     * active account, since no one else could log in with it.
+     *
+     * @return array{success: bool, errors: array<string, string>}
+     */
+    public function sendSetupEmail(int $id): array
+    {
+        $user = $this->users->findById($id);
+        if (!$user) {
+            return ['success' => false, 'errors' => ['form' => 'User not found.']];
+        }
+
+        if ($user['status'] !== 'active') {
+            return ['success' => false, 'errors' => ['form' => 'Only an active account can be sent a setup email. Set Status to Active first.']];
+        }
+
+        if (!(new AuthService())->sendAccountSetupEmail($id)) {
+            return ['success' => false, 'errors' => ['form' => "The setup email couldn't be sent. Check the email settings (Settings › Email), then try again."]];
+        }
 
         return ['success' => true, 'errors' => []];
     }

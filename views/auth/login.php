@@ -1,5 +1,8 @@
 <?php
-/** @var array<string, string> $errors */
+/**
+ * @var array<string, string> $errors
+ * @var ?string $redirectTo
+ */
 $pageTitle = 'Log In';
 require __DIR__ . '/../partials/guest-header.php';
 ?>
@@ -14,6 +17,9 @@ require __DIR__ . '/../partials/guest-header.php';
 
         <form method="post" action="/login.php" novalidate>
             <?= csrf_field() ?>
+            <?php if ($redirectTo !== null): ?>
+                <input type="hidden" name="redirect_to" value="<?= e($redirectTo) ?>">
+            <?php endif; ?>
 
             <div class="mb-3">
                 <label for="email" class="form-label required">Email</label>

@@ -28,6 +28,12 @@ $navGroups = [
 ];
 
 $checked = fn (string $field): string => old($field, $settings[$field] ? '1' : '') === '1' ? 'checked' : '';
+
+// Field help in a tooltip (docs/core/design-system.html#forms): an info
+// button after the label. The control points at it with aria-describedby.
+$help = fn (string $id, string $text): string => '<button type="button" class="field-help" id="' . e($id) . '"'
+    . ' data-bs-toggle="tooltip" data-bs-title="' . e($text) . '" aria-label="' . e($text) . '">'
+    . '<i class="bi bi-info-circle" aria-hidden="true"></i></button>';
 $logoUrl = old_raw('logo_url', (string) ($site['logo_url'] ?? ''));
 $frequency = old_raw('admin_notification_frequency', (string) $settings['admin_notification_frequency']);
 ?>
@@ -76,16 +82,18 @@ $frequency = old_raw('admin_notification_frequency', (string) $settings['admin_n
                         </div>
 
                         <div class="mb-3">
-                            <label class="form-label d-block" for="logo-choose">Company Logo</label>
+                            <div class="mb-2">
+                                <label class="form-label mb-0" for="logo-choose">Company Logo</label>
+                                <?= $help('logo-help', 'Pick an image from the Media Library. A wide logo on a transparent background works best.') ?>
+                            </div>
                             <input type="hidden" id="logo_url" name="logo_url" value="<?= e($logoUrl) ?>">
                             <div class="d-flex flex-wrap align-items-center gap-3">
-                                <!-- Shown on the navbar colour, since that's where the logo appears. -->
                                 <div class="logo-preview-box rounded d-flex align-items-center justify-content-center">
                                     <img id="logo-preview" <?= $logoUrl !== '' ? 'src="' . e($logoUrl) . '"' : '' ?> alt="Company logo" <?= $logoUrl === '' ? 'hidden' : '' ?>>
-                                    <span id="logo-empty" class="text-white-50 small" <?= $logoUrl !== '' ? 'hidden' : '' ?>>No logo</span>
+                                    <span id="logo-empty" class="text-muted small" <?= $logoUrl !== '' ? 'hidden' : '' ?>>No logo</span>
                                 </div>
                                 <div class="d-flex gap-2">
-                                    <button type="button" class="btn btn-outline-secondary btn-sm" id="logo-choose">
+                                    <button type="button" class="btn btn-outline-secondary btn-sm" id="logo-choose" aria-describedby="logo-help">
                                         <i class="bi bi-images me-1" aria-hidden="true"></i>Choose Logo
                                     </button>
                                     <button type="button" class="btn btn-outline-danger btn-sm" id="logo-remove" <?= $logoUrl === '' ? 'hidden' : '' ?>>Remove</button>
@@ -93,20 +101,17 @@ $frequency = old_raw('admin_notification_frequency', (string) $settings['admin_n
                             </div>
                             <?php if ($error = error_for($errors, 'logo_url')): ?>
                                 <div class="invalid-feedback d-block"><?= e($error) ?></div>
-                            <?php else: ?>
-                                <div class="form-text">Pick an image from the Media Library. A wide logo on a transparent background works best.</div>
                             <?php endif; ?>
                         </div>
 
                         <div class="mb-3">
                             <label for="primary_email" class="form-label">Primary Email</label>
+                            <?= $help('primary_email-help', "Your organization's contact address. Shown in email footers and used as the sender address unless one is set under Email.") ?>
                             <input type="email" class="form-control <?= error_for($errors, 'primary_email') ? 'is-invalid' : '' ?>"
-                                   id="primary_email" name="primary_email" placeholder="e.g. hse@example.com"
+                                   id="primary_email" name="primary_email" aria-describedby="primary_email-help"
                                    value="<?= old('primary_email', (string) ($site['primary_email'] ?? '')) ?>">
                             <?php if ($error = error_for($errors, 'primary_email')): ?>
                                 <div class="invalid-feedback"><?= e($error) ?></div>
-                            <?php else: ?>
-                                <div class="form-text">Your organization's contact address. Shown in email footers and used as the sender address unless one is set under Email.</div>
                             <?php endif; ?>
                         </div>
 
@@ -146,7 +151,7 @@ $frequency = old_raw('admin_notification_frequency', (string) $settings['admin_n
                 <div class="card-body p-4">
                     <h2 class="fs-6 mb-1">Appearance</h2>
                     <p class="text-muted small mb-3">
-                        Brand colours for the navbar, buttons, links and emails. Status colours (green, amber, red) never change.
+                        Brand colours for the navbar, buttons and links. Emails and certificates stay plain white, so they read well with any logo. Status colours (green, amber, red) never change.
                     </p>
 
                     <form method="post" action="/admin/settings/update-appearance.php" novalidate id="appearance-form">
@@ -186,19 +191,19 @@ $frequency = old_raw('admin_notification_frequency', (string) $settings['admin_n
                                     <?php foreach ([
                                         'theme_primary' => ['Primary', $themePrimary, 'Header, buttons and links. Must be dark enough for white text.'],
                                         'theme_accent' => ['Accent', $themeAccent, 'Small highlights, used sparingly.'],
-                                    ] as $name => [$label, $color, $help]): ?>
+                                    ] as $name => [$label, $color, $colorHelp]): ?>
                                         <div class="col-sm-6">
                                             <label for="<?= e($name) ?>" class="form-label required"><?= e($label) ?></label>
+                                            <?= $help($name . '-help', $colorHelp) ?>
                                             <div class="d-flex align-items-center gap-2">
                                                 <input type="color" class="form-control form-control-color <?= error_for($errors, $name) ? 'is-invalid' : '' ?>"
-                                                       id="<?= e($name) ?>" name="<?= e($name) ?>" value="<?= e($color) ?>" required>
+                                                       id="<?= e($name) ?>" name="<?= e($name) ?>" value="<?= e($color) ?>" required
+                                                       aria-describedby="<?= e($name) ?>-help">
                                                 <code class="small text-body" data-hex-for="<?= e($name) ?>"><?= e($color) ?></code>
                                                 <span class="badge text-bg-danger" data-contrast-warning="<?= e($name) ?>" hidden>Too light</span>
                                             </div>
                                             <?php if ($error = error_for($errors, $name)): ?>
                                                 <div class="invalid-feedback d-block"><?= e($error) ?></div>
-                                            <?php else: ?>
-                                                <div class="form-text"><?= e($help) ?></div>
                                             <?php endif; ?>
                                         </div>
                                     <?php endforeach; ?>
@@ -256,6 +261,7 @@ $frequency = old_raw('admin_notification_frequency', (string) $settings['admin_n
                 'inductee' => 'Completion confirmations, expiry reminders and account emails (verify email, password reset).',
                 'admin' => 'New registration and completion alerts, and the periodic report.',
             ];
+            $primaryEmail = (string) ($site['primary_email'] ?? '');
             ?>
             <?php if (empty($site['primary_email'])): ?>
                 <div class="alert alert-warning small">
@@ -273,76 +279,49 @@ $frequency = old_raw('admin_notification_frequency', (string) $settings['admin_n
                     $field = fn (string $name): string => "{$audience}_{$name}";
                     $value = fn (string $name): string => old($field($name), (string) ($settings[$field($name)] ?? ''));
                     $invalid = fn (string $name): string => error_for($errors, $field($name)) ? 'is-invalid' : '';
+                    $notCopied = $audience === 'inductee' ? ' Account emails (verify email, password reset) are never copied.' : '';
+
+                    // A blank field uses its fallback, so the placeholder shows that
+                    // fallback, and nothing when there is none.
+                    $fields = [
+                        'sender_name' => ['Sender Name', 'text', $site['company_name'], 'Blank uses the Company Name.'],
+                        'sender_email' => ['Sender Email', 'email', $primaryEmail, 'Blank uses the Primary Email, set under General.'],
+                        'cc' => ['CC', 'text', '', 'Other people to copy, separated by commas.' . $notCopied],
+                        'bcc' => ['BCC', 'text', '', 'Hidden copies, e.g. for records, separated by commas.' . $notCopied],
+                    ];
                     ?>
                     <div class="card shadow-sm mb-3">
                         <div class="card-body p-4">
-                            <div class="d-flex justify-content-between align-items-start gap-3 mb-3">
-                                <div>
-                                    <h2 class="fs-6 mb-1"><?= e($audienceLabel) ?> Emails</h2>
-                                    <p class="text-muted small mb-0"><?= e($audienceHelp[$audience]) ?></p>
-                                </div>
+                            <div class="d-flex justify-content-between align-items-center gap-3 mb-3">
+                                <h2 class="fs-6 mb-0">
+                                    <?= e($audienceLabel) ?> Emails
+                                    <?= $help($field('help'), $audienceHelp[$audience]) ?>
+                                </h2>
                                 <button type="submit" form="test-email-<?= e($audience) ?>" class="btn btn-outline-secondary btn-sm text-nowrap"
                                         title="Sends a sample to <?= e((string) ($authUser['email'] ?? '')) ?> using the saved settings">
                                     <i class="bi bi-send me-1" aria-hidden="true"></i>Send Test Email
                                 </button>
                             </div>
 
-                            <div class="row g-3 mb-3">
-                                <div class="col-sm">
-                                    <label for="<?= e($field('sender_name')) ?>" class="form-label">Sender Name</label>
-                                    <input type="text" class="form-control <?= $invalid('sender_name') ?>" maxlength="150"
-                                           id="<?= e($field('sender_name')) ?>" name="<?= e($field('sender_name')) ?>"
-                                           placeholder="<?= e($site['company_name']) ?>" value="<?= $value('sender_name') ?>">
-                                    <?php if ($error = error_for($errors, $field('sender_name'))): ?>
-                                        <div class="invalid-feedback"><?= e($error) ?></div>
-                                    <?php else: ?>
-                                        <div class="form-text">Blank uses the Company Name.</div>
-                                    <?php endif; ?>
-                                </div>
-                                <div class="col-sm">
-                                    <label for="<?= e($field('sender_email')) ?>" class="form-label">Sender Email</label>
-                                    <input type="email" class="form-control <?= $invalid('sender_email') ?>"
-                                           id="<?= e($field('sender_email')) ?>" name="<?= e($field('sender_email')) ?>"
-                                           placeholder="<?= e((string) ($site['primary_email'] ?: 'no-reply@localhost')) ?>" value="<?= $value('sender_email') ?>">
-                                    <?php if ($error = error_for($errors, $field('sender_email'))): ?>
-                                        <div class="invalid-feedback"><?= e($error) ?></div>
-                                    <?php else: ?>
-                                        <div class="form-text">Blank uses the Primary Email.</div>
-                                    <?php endif; ?>
-                                </div>
-                            </div>
-
-                            <div class="row g-3">
-                                <div class="col-sm">
-                                    <label for="<?= e($field('cc')) ?>" class="form-label">CC</label>
-                                    <input type="text" class="form-control <?= $invalid('cc') ?>"
-                                           id="<?= e($field('cc')) ?>" name="<?= e($field('cc')) ?>"
-                                           placeholder="e.g. hse@example.com, manager@example.com" value="<?= $value('cc') ?>">
-                                    <?php if ($error = error_for($errors, $field('cc'))): ?>
-                                        <div class="invalid-feedback"><?= e($error) ?></div>
-                                    <?php else: ?>
-                                        <div class="form-text">Other people to copy. Comma-separated.</div>
-                                    <?php endif; ?>
-                                </div>
-                                <div class="col-sm">
-                                    <label for="<?= e($field('bcc')) ?>" class="form-label">BCC</label>
-                                    <input type="text" class="form-control <?= $invalid('bcc') ?>"
-                                           id="<?= e($field('bcc')) ?>" name="<?= e($field('bcc')) ?>" value="<?= $value('bcc') ?>">
-                                    <?php if ($error = error_for($errors, $field('bcc'))): ?>
-                                        <div class="invalid-feedback"><?= e($error) ?></div>
-                                    <?php else: ?>
-                                        <div class="form-text">Hidden copies, e.g. for records.</div>
-                                    <?php endif; ?>
-                                </div>
+                            <div class="row row-cols-1 row-cols-sm-2 g-3">
+                                <?php foreach ($fields as $name => [$label, $type, $placeholder, $helpText]): ?>
+                                    <div class="col">
+                                        <label for="<?= e($field($name)) ?>" class="form-label"><?= e($label) ?></label>
+                                        <?= $help($field($name) . '-help', $helpText) ?>
+                                        <input type="<?= $type ?>" class="form-control <?= $invalid($name) ?>"
+                                               id="<?= e($field($name)) ?>" name="<?= e($field($name)) ?>"
+                                               <?= $name === 'sender_name' ? 'maxlength="150"' : '' ?>
+                                               <?= $placeholder !== '' ? 'placeholder="' . e($placeholder) . '"' : '' ?>
+                                               aria-describedby="<?= e($field($name)) ?>-help" value="<?= $value($name) ?>">
+                                        <?php if ($error = error_for($errors, $field($name))): ?>
+                                            <div class="invalid-feedback"><?= e($error) ?></div>
+                                        <?php endif; ?>
+                                    </div>
+                                <?php endforeach; ?>
                             </div>
                         </div>
                     </div>
                 <?php endforeach; ?>
-
-                <p class="text-muted small">
-                    <i class="bi bi-info-circle me-1" aria-hidden="true"></i>
-                    Account emails (verify email, password reset) are only ever sent to the account holder, never copied.
-                </p>
 
                 <div class="form-actions mb-4">
                     <button type="submit" class="btn btn-primary">Save</button>
@@ -367,9 +346,10 @@ $frequency = old_raw('admin_notification_frequency', (string) $settings['admin_n
 
                         <div class="d-flex justify-content-between align-items-start gap-3 py-2 border-bottom">
                             <div class="form-check mb-0">
-                                <input type="checkbox" class="form-check-input" id="notify_inductee_on_completion" name="notify_inductee_on_completion" value="1" <?= $checked('notify_inductee_on_completion') ?>>
+                                <input type="checkbox" class="form-check-input" id="notify_inductee_on_completion" name="notify_inductee_on_completion" value="1" <?= $checked('notify_inductee_on_completion') ?>
+                                       aria-describedby="notify_inductee_on_completion-help">
                                 <label class="form-check-label" for="notify_inductee_on_completion">Induction completed</label>
-                                <div class="form-text mt-0">Confirmation with a link to their Certificate.</div>
+                                <?= $help('notify_inductee_on_completion-help', 'Confirmation with a link to their Certificate.') ?>
                             </div>
                             <button type="button" class="btn btn-link btn-sm text-nowrap" data-email-preview="induction-completed-inductee">Preview</button>
                         </div>
@@ -402,7 +382,11 @@ $frequency = old_raw('admin_notification_frequency', (string) $settings['admin_n
                         <p class="text-muted small mb-3">Sent to all active administrators, from the sender set under <a href="/admin/settings/index.php?tab=email">Email</a>.</p>
 
                         <fieldset class="mb-3">
-                            <legend class="form-label fs-6 mb-2 required">Delivery</legend>
+                            <?php // The help button is inside the legend, so the group's name carries the help too. ?>
+                            <legend class="form-label fs-6 mb-2">
+                                <span class="required">Delivery</span>
+                                <?= $help('delivery-help', "Instant sends one email per event. A report sends one summary per period (weekly on Mondays, monthly on the 1st), so a busy week doesn't flood your inbox. Periods with no activity send nothing.") ?>
+                            </legend>
                             <?php foreach (EmailSettingsService::ADMIN_FREQUENCIES as $value => $label): ?>
                                 <div class="form-check form-check-inline">
                                     <input type="radio" class="form-check-input" id="frequency_<?= e($value) ?>" name="admin_notification_frequency" required
@@ -413,11 +397,6 @@ $frequency = old_raw('admin_notification_frequency', (string) $settings['admin_n
                             <?php if ($error = error_for($errors, 'admin_notification_frequency')): ?>
                                 <div class="invalid-feedback d-block"><?= e($error) ?></div>
                             <?php endif; ?>
-                            <div class="form-text">
-                                <strong>Instant</strong> sends one email per event. A <strong>report</strong> sends one summary per period
-                                (weekly on Mondays, monthly on the 1st), so a busy week doesn't flood your inbox.
-                                Periods with no activity send nothing.
-                            </div>
                         </fieldset>
 
                         <div class="form-label fs-6 mb-2">Include</div>
@@ -437,9 +416,10 @@ $frequency = old_raw('admin_notification_frequency', (string) $settings['admin_n
                         </div>
                         <div class="py-2 mb-2">
                             <div class="form-check mb-0">
-                                <input type="checkbox" class="form-check-input" id="notify_admin_on_expired" name="notify_admin_on_expired" value="1" <?= $checked('notify_admin_on_expired') ?>>
+                                <input type="checkbox" class="form-check-input" id="notify_admin_on_expired" name="notify_admin_on_expired" value="1" <?= $checked('notify_admin_on_expired') ?>
+                                       aria-describedby="notify_admin_on_expired-help">
                                 <label class="form-check-label" for="notify_admin_on_expired">Expired compliance</label>
-                                <div class="form-text mt-0">Compliance Records that lapsed without renewal. With Instant delivery, sent as a daily list.</div>
+                                <?= $help('notify_admin_on_expired-help', 'Compliance Records that lapsed without renewal. With Instant delivery, sent as a daily list.') ?>
                             </div>
                         </div>
 
@@ -483,6 +463,8 @@ $frequency = old_raw('admin_notification_frequency', (string) $settings['admin_n
                 <button type="button" class="btn btn-link btn-sm p-0 align-baseline" data-email-preview="verify-email">Verify email</button>
                 &middot;
                 <button type="button" class="btn btn-link btn-sm p-0 align-baseline" data-email-preview="password-reset">Password reset</button>
+                &middot;
+                <button type="button" class="btn btn-link btn-sm p-0 align-baseline" data-email-preview="account-setup">Account setup</button>
             </p>
         <?php endif; ?>
 

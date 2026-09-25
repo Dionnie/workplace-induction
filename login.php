@@ -7,9 +7,11 @@ require __DIR__ . '/bootstrap.php';
 use App\Core\Auth;
 use App\Core\Auth\AuthService;
 
+// The page a guest was stopped at, to return to after logging in (docs/core/auth.md #8).
+$redirectTo = safe_redirect_path($_POST['redirect_to'] ?? $_GET['redirect_to'] ?? null);
+
 if (Auth::check()) {
-    $user = Auth::user();
-    redirect($user['user_type'] === 'admin' ? '/admin/index.php' : '/inductee/index.php');
+    redirect(Auth::intendedUrl($redirectTo));
 }
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -23,12 +25,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if ($result['success']) {
         Auth::login((int) $result['user']['id']);
         clear_old();
-        redirect($result['user']['user_type'] === 'admin' ? '/admin/index.php' : '/inductee/index.php');
+        redirect(Auth::intendedUrl($redirectTo));
     }
 
     set_old(['email' => $email]);
     set_errors($result['errors']);
-    redirect('/login.php');
+    redirect('/login.php' . redirect_to_query($redirectTo));
 }
 
 $errors = get_errors();
