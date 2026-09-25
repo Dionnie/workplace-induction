@@ -105,10 +105,16 @@ Deleting a user or an induction with cascade also deletes their compliance recor
 | --- | --- |
 | Admin → **Compliance** (`/admin/compliance/`) | Every record: inductee, induction, certificate number, issued, expires, status. Search, induction and status filters. Rows link to View. |
 | Admin → Compliance → **View** | The record as read-only fields with View buttons for the inductee, induction, exam attempt and the record it renewed; **View Certificate** (the public page); Danger Zone |
-| Admin **dashboard** (`/admin/`) | Active inductees, active inductions, records expiring in the next 30 days and expired records; a Compliance by Induction table (compliant, expired, rate); the next 10 records to expire |
+| Admin **dashboard** (`/admin/`) | Active inductees, active inductions, records expiring in the next 30 days and expired records; the charts and Active Inductees table below; a Compliance by Induction table (compliant, expired, rate); the next 10 records to expire |
 | Inductee → **Compliance** (`/inductee/compliance/`) | All their records, every status, each linking to its certificate |
 | Inductee **dashboard** | Their state per induction (§5) |
 | Emails | Completion (with the certificate link), expiry reminder, administrator report (`docs/core/settings.md` §4) |
+
+The dashboard's charts and Active Inductees table (markup: `docs/rules/design-system.html#charts`, `#tables`):
+
+- **Compliance Records Issued**: bars for the quarters of the last 16 that had records issued (quarters with none are left out), counting every record by its issue date, whatever its status now (a renewal is a new record, and a revoked one was still issued). Issue dates never change, so past quarters stay the same.
+- **Expiring by Quarter**: bars for this quarter (from today) and the next 3, counting active records by their expiry date.
+- **Active Inductees**: a table of active inductees by the employment type or the company on their profile (a switch picks which), with each group's count and share, largest first. Companies are matched ignoring case and surrounding spaces; past 9, the smallest fold into "Other companies". Active inductees with no value are given as a line below the table.
 
 ---
 
@@ -125,6 +131,7 @@ Records imported from the previous induction system (`database/import-legacy-con
 | `app/Compliance/ComplianceService.php` | Issue, lists, lookups, revoke, delete |
 | `app/Compliance/ComplianceRepository.php` | SQL, including `expireLapsed()` and the queries for reminders and reports |
 | `app/Admin/Services/DashboardService.php`, `app/Admin/Repositories/DashboardRepository.php` | Admin dashboard figures |
+| `assets/js/dashboard-charts.js` | Admin dashboard charts |
 | `admin/compliance/`, `views/admin/compliance/` | Admin list, View, Revoke, Delete |
 | `inductee/compliance/`, `inductee/certificates/`, `views/inductee/…` | Inductee records and certificate |
 | `certificate.php`, `views/public/certificate.php` | Public verification |

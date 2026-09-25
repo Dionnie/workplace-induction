@@ -91,6 +91,7 @@
         <a href="#forms">Forms</a>
         <a href="#cards">Cards</a>
         <a href="#tables">Tables</a>
+        <a href="#charts">Charts</a>
         <a href="#filters">Filter bar</a>
         <a href="#badges">Status badges</a>
         <a href="#alerts">Alerts &amp; flash</a>
@@ -977,6 +978,94 @@ require __DIR__ . '/../../partials/admin-header.php';
             </div>
         </div>
     </div>
+
+    <p>
+        When the same figures can be grouped more than one way (the dashboard's Active Inductees, by Employment Type or Company),
+        a <code>btn-group btn-group-sm</code> of <code>btn-outline-secondary</code> buttons beside the title switches the
+        grouping, as the Media Library's view switch does: the selected button is <code>.active</code> with
+        <code>aria-pressed="true"</code>, and each grouping's table sits in its own panel, the others <code>hidden</code>
+        (<code>assets/js/dashboard-charts.js</code> does the switching). Rows go largest first, each label led by a
+        <code>.rank-swatch</code> fading from the primary colour to a light tint down the list; the shade depends on the row's
+        place, so the view sets it inline (<code>rgba(var(--color-primary-rgb), shade)</code>, the kind of inline style design.md §2
+        allows). Past 9 rows, the smallest groups fold into one "Other …" row.
+    </p>
+    <div class="ds-example">
+        <div class="ds-preview ds-preview-page">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <div class="d-flex flex-wrap justify-content-between align-items-start gap-2 mb-3">
+                        <div>
+                            <h2 class="fs-6 mb-1">Active Inductees</h2>
+                            <p class="text-muted small mb-0">By employment type or company.</p>
+                        </div>
+                        <div class="btn-group btn-group-sm" role="group" aria-label="Group inductees by">
+                            <button type="button" class="btn btn-outline-secondary active" aria-pressed="true">Employment Type</button>
+                            <button type="button" class="btn btn-outline-secondary" aria-pressed="false">Company</button>
+                        </div>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="table table-sm align-middle mb-0">
+                            <thead>
+                                <tr><th>Employment Type</th><th class="text-end">Inductees</th><th class="text-end">Share</th></tr>
+                            </thead>
+                            <tbody>
+                                <tr><td><span class="rank-swatch" style="background-color: rgba(var(--color-primary-rgb), 1)" aria-hidden="true"></span>Contractor</td><td class="text-end">58</td><td class="text-end">39%</td></tr>
+                                <tr><td><span class="rank-swatch" style="background-color: rgba(var(--color-primary-rgb), 0.63)" aria-hidden="true"></span>Full-time</td><td class="text-end">36</td><td class="text-end">24%</td></tr>
+                                <tr><td><span class="rank-swatch" style="background-color: rgba(var(--color-primary-rgb), 0.25)" aria-hidden="true"></span>Casual</td><td class="text-end">32</td><td class="text-end">22%</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ===================================================================== -->
+<section class="ds-section" id="charts">
+    <h2>Charts</h2>
+    <p>
+        Charts are drawn by Chart.js (pinned, from jsDelivr) in a page script that reads every colour from the tokens, so they
+        follow the theme. Reference: the admin dashboard (<code>views/admin/dashboard.php</code>,
+        <code>assets/js/dashboard-charts.js</code>).
+    </p>
+
+    <h3>Chart card</h3>
+    <p>
+        A titled card: <code>h2.fs-6.mb-1</code>, a <code>text-muted small</code> line saying what is counted, then the
+        <code>canvas</code> inside <code>.chart-box</code>, which sets the height. The canvas is <code>aria-hidden</code>; the
+        figures are always also in a table (for a single series, a table inside a <code>div.visually-hidden</code>: the class on the
+        table itself doesn't shrink it, and widens the page on a phone). With nothing to plot, the card shows a
+        <code>text-muted small</code> line instead.
+    </p>
+    <div class="ds-example">
+        <script type="text/plain" class="ds-source">
+<div class="card shadow-sm h-100">
+    <div class="card-body">
+        <h2 class="fs-6 mb-1">Expiring by Quarter</h2>
+        <p class="text-muted small mb-3">Active records, this quarter and the next 3.</p>
+        <div class="chart-box">
+            <canvas id="compliance-expiring-chart" aria-hidden="true"></canvas>
+        </div>
+        <div class="visually-hidden">
+            <table>…the same figures…</table>
+        </div>
+    </div>
+</div>
+        </script>
+    </div>
+
+    <ul class="ds-do">
+        <li>A count per period: bars in <code>--color-primary-700</code>, rounded at the top; no legend (the card title names it).</li>
+        <li>Records expiring (Expiring by Quarter): bars in <code>--bs-danger</code>.</li>
+        <li>Show only the periods that matter to the chart: Compliance Records Issued leaves out quarters with nothing issued, while Expiring by Quarter shows every quarter, since "nothing expiring" is the answer there.</li>
+        <li>Hover shows a tooltip with the exact figure.</li>
+        <li>If Chart.js can't load, the tables still give the figures.</li>
+    </ul>
+    <ul class="ds-dont">
+        <li>Use a pie for parts of a whole. A <a href="#tables">widget table</a> with each group's count and share reads better (Active Inductees on the dashboard).</li>
+        <li>Put two y-axes on one chart. Two measures get two charts.</li>
+    </ul>
 </section>
 
 <!-- ===================================================================== -->
@@ -1536,6 +1625,8 @@ require __DIR__ . '/../partials/certificate-card.php';
                     <tr><td><code>.field-help</code></td><td>6</td><td>Info button after a label whose tooltip is the field's help, for forms where help lines would be too much text. <a href="#forms">↗</a></td></tr>
                     <tr><td><code>.card-table</code></td><td>6</td><td>A list table filling a card. <a href="#tables">↗</a></td></tr>
                     <tr><td><code>.link-card</code></td><td>6</td><td>A card that is one link. <a href="#cards">↗</a></td></tr>
+                    <tr><td><code>.chart-box</code></td><td>6</td><td>Holds a chart's <code>canvas</code> and sets its height. <a href="#charts">↗</a></td></tr>
+                    <tr><td><code>.rank-swatch</code></td><td>6</td><td>A square before each label in a ranked widget table, fading down the list; its shade is set inline. <a href="#tables">↗</a></td></tr>
                     <tr><td><code>.bg-surface-subtle</code></td><td>7</td><td>A subtle panel inside a card (drop zones, the custom-colour panel).</td></tr>
                     <tr><td><code>.border-dashed</code></td><td>7</td><td>Dashed border (drop zones).</td></tr>
                     <tr><td><code>.logo-preview-box</code>, <code>.reminder-days</code>, <code>.email-preview-frame</code>, <code>.theme-swatch*</code>, <code>.theme-preview-header</code></td><td>8</td><td>Settings page only.</td></tr>

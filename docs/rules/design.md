@@ -179,6 +179,8 @@ Color used only to make a component "pop"
 
 The same meaning must use the same color treatment throughout the application.
 
+Chart bars are primary, so they follow the theme. Parts of a whole are a table with counts and shares, not a pie. The exception is the dashboard's Expiring by Quarter bars, which are danger red, the one place records that haven't expired yet use danger rather than warning. A chart's figures are always also given as text (`design-system.html#charts`).
+
 ---
 
 # 7. Component States

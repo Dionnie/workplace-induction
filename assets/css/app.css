@@ -402,6 +402,25 @@ h1, h2, h3, h4, h5, h6,
   box-shadow: 0 0.25rem 0.75rem rgba(0, 0, 0, 0.08);
 }
 
+/* A chart in a card: Chart.js fills the box, so the box sets the height. */
+.chart-box {
+  position: relative;
+  height: 20rem;
+}
+
+/*
+ * A square before each label in a ranked widget table, fading from the
+ * primary colour (first row) to a light tint (last row). The view sets the
+ * shade inline, since it depends on the row's place.
+ */
+.rank-swatch {
+  display: inline-block;
+  width: 0.75rem;
+  height: 0.75rem;
+  margin-right: 0.5rem;
+  vertical-align: -0.0625rem;
+  border-radius: 0.1875rem;
+}
 /* 7. Utilities ------------------------------------------------------------ */
 
 .bg-surface-subtle {

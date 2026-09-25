@@ -12,6 +12,8 @@ require __DIR__ . '/../partials/admin-header.php';
 
 // Same sections, groups and order as the sidebar.
 $adminMenu = require __DIR__ . '/../partials/admin-menu.php';
+
+$breakdownLabels = ['employment_type' => 'Employment Type', 'company' => 'Company'];
 ?>
 
 <div class="page-header">
@@ -62,6 +64,116 @@ $adminMenu = require __DIR__ . '/../partials/admin-menu.php';
             <div class="card-body text-center">
                 <div class="fs-3 fw-semibold text-danger"><?= (int) $metrics['expired'] ?></div>
                 <div class="text-muted small">Expired</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="card shadow-sm mb-4">
+    <div class="card-body">
+        <h2 class="fs-6 mb-1">Compliance Records Issued</h2>
+        <p class="text-muted small mb-3">Quarters with records issued, over the last 4 years. A renewal is a new record.</p>
+        <?php if (empty($metrics['issued_per_quarter'])): ?>
+            <p class="text-muted small mb-0">No compliance records issued in the last 4 years.</p>
+        <?php else: ?>
+            <div class="chart-box">
+                <canvas id="compliance-issued-chart" aria-hidden="true"></canvas>
+            </div>
+            <div class="visually-hidden">
+                <table>
+                    <caption>Compliance records issued per quarter</caption>
+                    <thead><tr><th>Quarter</th><th>Issued</th></tr></thead>
+                    <tbody>
+                        <?php foreach ($metrics['issued_per_quarter'] as $quarter): ?>
+                            <tr><td><?= e($quarter['label']) ?></td><td><?= (int) $quarter['count'] ?></td></tr>
+                        <?php endforeach; ?>
+                    </tbody>
+                </table>
+            </div>
+        <?php endif; ?>
+    </div>
+</div>
+
+<div class="row g-3 mb-4">
+    <div class="col-12 col-xl-5">
+        <div class="card shadow-sm h-100">
+            <div class="card-body">
+                <h2 class="fs-6 mb-1">Expiring by Quarter</h2>
+                <p class="text-muted small mb-3">Active records, this quarter and the next 3.</p>
+                <?php if (max(array_column($metrics['expiring_per_quarter'], 'count')) === 0): ?>
+                    <p class="text-muted small mb-0">No active records expire in the next 4 quarters.</p>
+                <?php else: ?>
+                    <div class="chart-box">
+                        <canvas id="compliance-expiring-chart" aria-hidden="true"></canvas>
+                    </div>
+                    <div class="visually-hidden">
+                        <table>
+                            <caption>Active compliance records expiring per quarter</caption>
+                            <thead><tr><th>Quarter</th><th>Expiring</th></tr></thead>
+                            <tbody>
+                                <?php foreach ($metrics['expiring_per_quarter'] as $quarter): ?>
+                                    <tr><td><?= e($quarter['label']) ?></td><td><?= (int) $quarter['count'] ?></td></tr>
+                                <?php endforeach; ?>
+                            </tbody>
+                        </table>
+                    </div>
+                <?php endif; ?>
+            </div>
+        </div>
+    </div>
+    <div class="col-12 col-xl-7">
+        <div class="card shadow-sm h-100">
+            <div class="card-body">
+                <div class="d-flex flex-wrap justify-content-between align-items-start gap-2 mb-3">
+                    <div>
+                        <h2 class="fs-6 mb-1">Active Inductees</h2>
+                        <p class="text-muted small mb-0">By employment type or company.</p>
+                    </div>
+                    <div class="btn-group btn-group-sm" role="group" aria-label="Group inductees by">
+                        <?php foreach ($breakdownLabels as $field => $label): ?>
+                            <button type="button" class="btn btn-outline-secondary <?= $field === 'employment_type' ? 'active' : '' ?>"
+                                    aria-pressed="<?= $field === 'employment_type' ? 'true' : 'false' ?>" data-breakdown-switch="<?= e($field) ?>"><?= e($label) ?></button>
+                        <?php endforeach; ?>
+                    </div>
+                </div>
+                <?php if ((int) $metrics['total_inductees'] === 0): ?>
+                    <p class="text-muted small mb-0">No active inductees yet.</p>
+                <?php else: ?>
+                    <?php foreach ($breakdownLabels as $field => $label): ?>
+                        <?php $breakdown = $metrics['inductee_breakdowns'][$field]; ?>
+                        <div data-breakdown="<?= e($field) ?>" <?= $field === 'employment_type' ? '' : 'hidden' ?>>
+                            <div class="table-responsive">
+                                <table class="table table-sm align-middle mb-0">
+                                    <thead>
+                                        <tr>
+                                            <th><?= e($label) ?></th>
+                                            <th class="text-end">Inductees</th>
+                                            <th class="text-end">Share</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <?php if (empty($breakdown['rows'])): ?>
+                                            <tr>
+                                                <td colspan="3" class="text-center text-muted py-3">None recorded yet.</td>
+                                            </tr>
+                                        <?php endif; ?>
+                                        <?php foreach ($breakdown['rows'] as $i => $row): ?>
+                                            <?php $shade = round(1 - 0.75 * $i / max(1, count($breakdown['rows']) - 1), 2); ?>
+                                            <tr>
+                                                <td><span class="rank-swatch" style="background-color: rgba(var(--color-primary-rgb), <?= $shade ?>)" aria-hidden="true"></span><?= e($row['label']) ?></td>
+                                                <td class="text-end"><?= (int) $row['count'] ?></td>
+                                                <td class="text-end"><?= (int) $row['share'] ?>%</td>
+                                            </tr>
+                                        <?php endforeach; ?>
+                                    </tbody>
+                                </table>
+                            </div>
+                            <?php if ($breakdown['not_set'] > 0): ?>
+                                <p class="text-muted small mt-2 mb-0"><?= e($label) ?> not set for <?= (int) $breakdown['not_set'] ?> active <?= $breakdown['not_set'] === 1 ? 'inductee' : 'inductees' ?>.</p>
+                            <?php endif; ?>
+                        </div>
+                    <?php endforeach; ?>
+                <?php endif; ?>
             </div>
         </div>
     </div>
@@ -143,5 +255,14 @@ $adminMenu = require __DIR__ . '/../partials/admin-menu.php';
         </div>
     </section>
 <?php endforeach; ?>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.5.0/dist/chart.umd.min.js"></script>
+<script src="/assets/js/dashboard-charts.js"></script>
+<script>
+    DashboardCharts.init({
+        issued: <?= json_encode($metrics['issued_per_quarter'], JSON_HEX_TAG | JSON_HEX_AMP) ?>,
+        expiring: <?= json_encode($metrics['expiring_per_quarter'], JSON_HEX_TAG | JSON_HEX_AMP) ?>
+    });
+</script>
 
 <?php require __DIR__ . '/../partials/admin-footer.php'; ?>
