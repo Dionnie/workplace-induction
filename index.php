@@ -65,18 +65,51 @@ $documentTitle = $appName;
     <section class="py-5">
         <div class="container page-narrow">
             <h2 class="fs-5 mb-4">What you can do</h2>
-            <div class="row g-4">
+            <div class="row g-3">
                 <div class="col-12">
-                    <h3 class="fs-6 mb-1"><i class="bi bi-journal-check text-primary me-2" aria-hidden="true"></i>Complete Inductions</h3>
-                    <p class="text-muted mb-0">Complete assigned induction requirements online.</p>
+                    <div class="card shadow-sm h-100">
+                        <div class="card-body p-4">
+                            <div class="d-flex gap-3">
+                                <div class="flex-shrink-0">
+                                    <i class="bi bi-journal-check fs-5 text-primary" aria-hidden="true"></i>
+                                </div>
+                                <div>
+                                    <h3 class="fs-6 mb-1">Complete Inductions</h3>
+                                    <p class="text-muted mb-0">Complete assigned induction requirements online.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
                 <div class="col-12">
-                    <h3 class="fs-6 mb-1"><i class="bi bi-patch-check text-primary me-2" aria-hidden="true"></i>Review Compliance</h3>
-                    <p class="text-muted mb-0">View your current compliance and previous records.</p>
+                    <div class="card shadow-sm h-100">
+                        <div class="card-body p-4">
+                            <div class="d-flex gap-3">
+                                <div class="flex-shrink-0">
+                                    <i class="bi bi-patch-check fs-5 text-primary" aria-hidden="true"></i>
+                                </div>
+                                <div>
+                                    <h3 class="fs-6 mb-1">Review Compliance</h3>
+                                    <p class="text-muted mb-0">View your current compliance and previous records.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
                 <div class="col-12">
-                    <h3 class="fs-6 mb-1"><i class="bi bi-award text-primary me-2" aria-hidden="true"></i>Access Certificates</h3>
-                    <p class="text-muted mb-0">Download or print your certificate when required.</p>
+                    <div class="card shadow-sm h-100">
+                        <div class="card-body p-4">
+                            <div class="d-flex gap-3">
+                                <div class="flex-shrink-0">
+                                    <i class="bi bi-award fs-5 text-primary" aria-hidden="true"></i>
+                                </div>
+                                <div>
+                                    <h3 class="fs-6 mb-1">Access Certificates</h3>
+                                    <p class="text-muted mb-0">Download or print your certificate when required.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
