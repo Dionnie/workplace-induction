@@ -106,9 +106,10 @@ $frequency = old_raw('admin_notification_frequency', (string) $settings['admin_n
 
                         <div class="mb-3">
                             <label for="primary_email" class="form-label">Primary Email</label>
-                            <?= $help('primary_email-help', "Your organization's contact address. Shown in email footers and used as the sender address unless one is set under Email.") ?>
+                            <?= $help('primary_email-help', "Your organization's contact address. Shown in email footers and used as the From Email unless one is set under Email. Blank uses admin@ this site's domain, the address shown.") ?>
                             <input type="email" class="form-control <?= error_for($errors, 'primary_email') ? 'is-invalid' : '' ?>"
                                    id="primary_email" name="primary_email" aria-describedby="primary_email-help"
+                                   placeholder="<?= e(default_email()) ?>"
                                    value="<?= old('primary_email', (string) ($site['primary_email'] ?? '')) ?>">
                             <?php if ($error = error_for($errors, 'primary_email')): ?>
                                 <div class="invalid-feedback"><?= e($error) ?></div>
@@ -258,18 +259,11 @@ $frequency = old_raw('admin_notification_frequency', (string) $settings['admin_n
         <?php elseif ($tab === 'email'): ?>
             <?php
             $audienceHelp = [
-                'inductee' => 'Completion confirmations, expiry reminders and account emails (verify email, password reset).',
-                'admin' => 'New registration and completion alerts, and the periodic report.',
+                'inductee' => 'Sent to each inductee: completion confirmations, expiry reminders and account emails (verify email, password reset).',
+                'admin' => 'New registration and completion alerts, and the periodic report. Sent to the To list, not to administrator accounts.',
             ];
-            $primaryEmail = (string) ($site['primary_email'] ?? '');
+            $primaryEmail = ($site['primary_email'] ?? '') ?: default_email();
             ?>
-            <?php if (empty($site['primary_email'])): ?>
-                <div class="alert alert-warning small">
-                    <i class="bi bi-exclamation-triangle me-1" aria-hidden="true"></i>
-                    No Primary Email is set, so a blank Sender Email sends from <code>no-reply@localhost</code>, which many mail
-                    servers reject. Set one under <a href="/admin/settings/index.php?tab=general" class="alert-link">General</a>.
-                </div>
-            <?php endif; ?>
 
             <form method="post" action="/admin/settings/update-email.php" novalidate>
                 <?= csrf_field() ?>
@@ -282,13 +276,19 @@ $frequency = old_raw('admin_notification_frequency', (string) $settings['admin_n
                     $notCopied = $audience === 'inductee' ? ' Account emails (verify email, password reset) are never copied.' : '';
 
                     // A blank field uses its fallback, so the placeholder shows that
-                    // fallback, and nothing when there is none.
+                    // fallback, and nothing when there is none. Only administrator
+                    // emails have a To list; inductee emails go to the inductee.
                     $fields = [
-                        'sender_name' => ['Sender Name', 'text', $site['company_name'], 'Blank uses the Company Name.'],
-                        'sender_email' => ['Sender Email', 'email', $primaryEmail, 'Blank uses the Primary Email, set under General.'],
+                        'sender_name' => ['From Name', 'text', $site['company_name'], 'Blank uses the Company Name.'],
+                        'sender_email' => ['From Email', 'email', $primaryEmail, 'Blank uses the Primary Email, set under General.'],
+                        'to' => ['To', 'text', default_email(),"Who receives these emails, separated by commas. Blank sends to admin@ this site's domain, the address shown."],
                         'cc' => ['CC', 'text', '', 'Other people to copy, separated by commas.' . $notCopied],
                         'bcc' => ['BCC', 'text', '', 'Hidden copies, e.g. for records, separated by commas.' . $notCopied],
                     ];
+                    $fields = array_intersect_key($fields, array_flip(EmailSettingsService::FIELDS[$audience]));
+                    $testTitle = $audience === 'admin'
+                        ? 'Sends a sample to the saved To, CC and BCC'
+                        : 'Sends a sample to ' . ($authUser['email'] ?? '') . ' with the saved sender, CC and BCC';
                     ?>
                     <div class="card shadow-sm mb-3">
                         <div class="card-body p-4">
@@ -298,14 +298,14 @@ $frequency = old_raw('admin_notification_frequency', (string) $settings['admin_n
                                     <?= $help($field('help'), $audienceHelp[$audience]) ?>
                                 </h2>
                                 <button type="submit" form="test-email-<?= e($audience) ?>" class="btn btn-outline-secondary btn-sm text-nowrap"
-                                        title="Sends a sample to <?= e((string) ($authUser['email'] ?? '')) ?> using the saved settings">
+                                        title="<?= e($testTitle) ?>">
                                     <i class="bi bi-send me-1" aria-hidden="true"></i>Send Test Email
                                 </button>
                             </div>
 
-                            <div class="row row-cols-1 row-cols-sm-2 g-3">
+                            <div class="row g-3">
                                 <?php foreach ($fields as $name => [$label, $type, $placeholder, $helpText]): ?>
-                                    <div class="col">
+                                    <div class="<?= $name === 'to' ? 'col-12' : 'col-sm-6' ?>">
                                         <label for="<?= e($field($name)) ?>" class="form-label"><?= e($label) ?></label>
                                         <?= $help($field($name) . '-help', $helpText) ?>
                                         <input type="<?= $type ?>" class="form-control <?= $invalid($name) ?>"
@@ -379,7 +379,7 @@ $frequency = old_raw('admin_notification_frequency', (string) $settings['admin_n
                 <div class="card shadow-sm mb-3">
                     <div class="card-body p-4">
                         <h2 class="fs-6 mb-1">Administrator Notifications</h2>
-                        <p class="text-muted small mb-3">Sent to all active administrators, from the sender set under <a href="/admin/settings/index.php?tab=email">Email</a>.</p>
+                        <p class="text-muted small mb-3">Sent to the To list, CC and BCC set under <a href="/admin/settings/index.php?tab=email">Email</a>.</p>
 
                         <fieldset class="mb-3">
                             <?php // The help button is inside the legend, so the group's name carries the help too. ?>

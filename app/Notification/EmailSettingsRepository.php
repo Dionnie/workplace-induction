@@ -24,13 +24,13 @@ class EmailSettingsRepository
     }
 
     /**
-     * @param array<string, string> $data Sender fields for both audiences (see EmailSettingsService::AUDIENCES).
+     * @param array<string, string> $data Sender fields for both audiences (see EmailSettingsService::FIELDS).
      */
     public function updateSenders(array $data): void
     {
         $values = [];
-        foreach (EmailSettingsService::AUDIENCES as $audience => $label) {
-            foreach (['sender_name', 'sender_email', 'cc', 'bcc'] as $field) {
+        foreach (EmailSettingsService::FIELDS as $audience => $fields) {
+            foreach ($fields as $field) {
                 $column = "{$audience}_{$field}";
                 $values[$column] = $data[$column] !== '' ? $data[$column] : null;
             }
@@ -89,6 +89,7 @@ class EmailSettingsRepository
             'inductee_bcc' => null,
             'admin_sender_name' => null,
             'admin_sender_email' => null,
+            'admin_to' => null,
             'admin_cc' => null,
             'admin_bcc' => null,
             'admin_notification_frequency' => 'weekly',

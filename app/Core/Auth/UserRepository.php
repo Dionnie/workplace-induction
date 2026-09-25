@@ -102,6 +102,14 @@ class UserRepository
         return $user ?: null;
     }
 
+    public function setVerificationToken(int $id, string $token, string $expiresAt): void
+    {
+        $stmt = $this->db->prepare(
+            'UPDATE users SET email_verification_token = :token, email_verification_expires_at = :expires_at WHERE id = :id'
+        );
+        $stmt->execute(['token' => $token, 'expires_at' => $expiresAt, 'id' => $id]);
+    }
+
     public function markEmailVerified(int $id): void
     {
         $stmt = $this->db->prepare(

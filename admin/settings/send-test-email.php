@@ -17,9 +17,9 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
 
 verify_csrf();
 
-// Sends a sample email to the signed-in administrator only, using the saved
-// sender for the chosen audience. CC/BCC are left out so no one else is
-// bothered by a test.
+// Sends a sample with the audience's saved sender, CC and BCC, exactly as a
+// real email: an administrator sample to the saved To list, an inductee
+// sample to the signed-in administrator (docs/core/settings.md §3).
 $samples = [
     'inductee' => 'induction-completed-inductee',
     'admin' => 'induction-completed',
@@ -33,17 +33,20 @@ if (!is_string($audience) || !isset($samples[$audience])) {
 
 $templates = require __DIR__ . '/_email-samples.php';
 $rendered = Mailer::renderTemplate($samples[$audience], $templates[$samples[$audience]]());
-$options = EmailSettingsService::senderOptions((new EmailSettingsService())->get(), $audience);
-$to = (string) Auth::user()['email'];
+$settings = (new EmailSettingsService())->get();
+$options = EmailSettingsService::senderOptions($settings, $audience);
+$to = $audience === 'admin' ? EmailSettingsService::adminTo($settings) : (string) Auth::user()['email'];
 
-$sent = Mailer::send($to, '[Test] ' . $rendered['subject'], $rendered['body'], [
-    'from_name' => $options['from_name'],
-    'from_email' => $options['from_email'],
-    'html' => $rendered['html'],
-]);
+$sent = Mailer::send($to, '[Test] ' . $rendered['subject'], $rendered['body'], ['html' => $rendered['html']] + $options);
 
 if ($sent) {
-    flash('success', "Test email sent to {$to}. If it doesn't arrive, check your spam folder and the server's mail setup.");
+    $copies = '';
+    foreach (['cc' => 'CC', 'bcc' => 'BCC'] as $key => $label) {
+        if (!empty($options[$key])) {
+            $copies .= ", {$label} {$options[$key]}";
+        }
+    }
+    flash('success', "Test email sent to {$to}{$copies}. If it doesn't arrive, check your spam folder and the server's mail setup.");
 } else {
     flash('error', 'The test email could not be sent. Check the server\'s mail setup (SMTP settings in php.ini).');
 }

@@ -71,6 +71,17 @@ function public_url(string $path): string
     return $scheme . '://' . $host . $path;
 }
 
+/**
+ * admin@ the site's domain: what a blank Primary Email or administrator To
+ * uses. Settings shows it as those fields' placeholder, so the fallback is
+ * visible, not hidden (docs/core/settings.md §1, §3).
+ */
+function default_email(): string
+{
+    $host = (string) parse_url(public_url('/'), PHP_URL_HOST);
+    return 'admin@' . preg_replace('/^www\./', '', $host);
+}
+
 function e(?string $value): string
 {
     return htmlspecialchars((string) $value, ENT_QUOTES, 'UTF-8');

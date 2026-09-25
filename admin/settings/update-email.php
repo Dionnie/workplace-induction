@@ -17,8 +17,8 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
 verify_csrf();
 
 $data = [];
-foreach (array_keys(EmailSettingsService::AUDIENCES) as $audience) {
-    foreach (['sender_name', 'sender_email', 'cc', 'bcc'] as $field) {
+foreach (EmailSettingsService::FIELDS as $audience => $fields) {
+    foreach ($fields as $field) {
         $data["{$audience}_{$field}"] = trim($_POST["{$audience}_{$field}"] ?? '');
     }
 }

@@ -20,8 +20,8 @@ Each of these breaks something quietly. The sections below cover them.
 | `timezone` in `config/app.php` changed from the one the data was made in | New times jump against old ones; certificates dated in the wrong zone | §4 |
 | Image URLs still on the local domain | Content images load from `workplace-induction.test`, which doesn't exist | §5.1 |
 | Only `http://` replaced, not `https://` (or the reverse) | Some images still broken, or mixed-content warnings | §5.1 |
-| Development email settings carried over | Mail sent from `example.com` is rejected; CC/BCC copies go to development addresses | §5.2 |
-| Default `admin@example.com` still active | A published password, and administrator emails that go nowhere | §5.3 |
+| Development email settings carried over | Mail sent from `example.com` is rejected; administrator emails and CC/BCC copies go to development addresses | §5.2 |
+| Default `admin@example.com` still active | A published password | §5.3 |
 | PHP upload limit below the Media Library limit | Uploads fail with a size error | §3.1, §5.4 |
 | Local database imported over a live site | Everything done on the live site since go-live is lost | §7 |
 
@@ -173,15 +173,15 @@ Images picked from the Media Library are stored as absolute URLs on the domain t
 ### 5.2 Settings (`docs/core/settings.md`)
 
 - **General**: Company Name and Logo. Set **Primary Email** to a real address on the organisation's domain; it appears in every email footer.
-- **Email**: both sender emails on a domain this server may send for. **Review CC and BCC**: addresses carried over from development get a copy of every email. Then follow the deliverability checklist in `docs/core/settings.md` §3 (SPF, DKIM, Send Test Email).
+- **Email**: both From Emails on a domain this server may send for. **Review the administrator To, and CC and BCC**: addresses carried over from development get the administrator emails or a copy of every email. Then follow the deliverability checklist in `docs/core/settings.md` §3 (SPF, DKIM, Send Test Email).
 - **Notifications**: the administrator delivery (Instant or a report), which sections are included, and the reminder days.
-- Locally, every email went to Mailpit. **On the server, every email is real from the first request.** The first cron run emails real inductees whose compliance is within the reminder window, and every active administrator gets the administrator emails.
+- Locally, every email went to Mailpit. **On the server, every email is real from the first request.** The first cron run emails real inductees whose compliance is within the reminder window, and the administrator To list gets the administrator emails.
 - Optional: so the first administrator report covers only activity from go-live, run in phpMyAdmin `UPDATE email_settings SET admin_report_last_sent_at = NOW() WHERE id = 1;`.
 
 ### 5.3 Administrator accounts
 
 - Create the real administrators (**Users → Add User**, type Administrator). A setup link needs working email; otherwise set a password and hand it over.
-- Log in as one of them, then delete, or change the email of, any development administrator. `admin@example.com` from `seeds.sql` has a published default password. Every active administrator receives administrator emails, so one at `example.com` sends mail nowhere.
+- Log in as one of them, then delete, or change the email of, any development administrator. `admin@example.com` from `seeds.sql` has a published default password. Administrator accounts don't receive administrator emails by being administrators; who does is the To list under Settings → Email (§5.2).
 
 ### 5.4 Media Library
 

@@ -16,7 +16,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 
     clear_old();
-    flash('success', 'If an account exists for that email address, a password reset link has been sent.');
+    // The same answer whether or not the email exists, or a link was just sent (docs/core/users.md §7).
+    flash('success', 'If an account exists for that email address, a password reset link has been sent. We send at most one a minute, so if you asked moments ago, use that email.');
     redirect('/forgot-password.php');
 }
 

@@ -61,6 +61,8 @@ Everything else about the inductee is collected by profile completion after the 
 
 - The verification link (`/verify-email.php?token=…`) lasts 24 hours and is single-use. The token is random; opening the page without a valid token verifies nothing.
 - **Inductees must verify before they can log in.** Administrators are created verified.
+- **Lost or expired link:** logging in with the right password while unverified emails the link again, and the login page says so. The current link is resent while it lasts, and its 24 hours restart, so every copy works; an expired one is replaced. The invalid-link page tells the user to log in for a new one.
+- **Resend limit:** at most one verification email per account per minute (`AuthService::RESEND_LIMIT_MINUTES`). Someone can register with another person's address and keep logging in, so without a limit this could flood that inbox. A login within the minute sends nothing, and the page says a link was sent moments ago. The time of the last email comes from the link's expiry, which is set when it is sent.
 - Setting a password from a valid reset or setup link also verifies the email: the link was sent there, so using it proves ownership.
 - On Edit User, an administrator can tick **Email verified** for an inductee whose email never arrived. It can't be unticked.
 
@@ -69,7 +71,7 @@ Everything else about the inductee is collected by profile completion after the 
 ## 5. Login and Logout
 
 ```text
-Email + password → find user → password_verify() → status active? → inductee verified?
+Email + password → find user → password_verify() → status active? → inductee verified? (no: email the link again, §4)
     → Auth::login() (new session id) → redirect (§6)
 ```
 
@@ -103,6 +105,7 @@ A guest who opens a protected page (for example from an email link) is sent to l
 `/forgot-password.php` → email with a link → `/reset-password.php?token=…` ("Set Your Password") → choose a password → log in.
 
 - The response is the same whether or not the email exists.
+- **Resend limit:** at most one reset email per account per minute (`AuthService::RESEND_LIMIT_MINUTES`). Anyone can request a reset for any address, so without a limit repeated requests could flood an inbox. A request within the minute sends nothing and changes nothing, so the link already sent keeps working, and the page gives its usual answer, adding that at most one is sent a minute. The time of the last email comes from the link's expiry. A setup link lasts days, so it only falls in that window for one minute of its life, and then delays a reset by a minute at most. Administrators sending setup links (§8) aren't limited.
 - A reset link lasts 1 hour; a setup link (§8) lasts 7 days (`AuthService::SETUP_LINK_DAYS`). Both are single-use, and one page serves both.
 - The token is stored as a SHA-256 hash in `users.password_reset_token` (`UserRepository` hashes it when storing and looking up). Only the email holds the token itself.
 - Any password change clears the token, and setting one from a link also verifies the email (§4).

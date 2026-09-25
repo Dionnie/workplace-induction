@@ -10,8 +10,22 @@ use DateTimeImmutable;
 
 class AuthService
 {
-    /** How long an account setup link lasts; a password reset link lasts 1 hour. */
+    /** How long an account setup link lasts. */
     public const SETUP_LINK_DAYS = 7;
+
+    /** How long a password reset link lasts. */
+    private const RESET_LINK_HOURS = 1;
+
+    /** How long an email verification link lasts. */
+    private const VERIFICATION_LINK_HOURS = 24;
+
+    /**
+     * The least time between two verification emails, or two password reset
+     * emails, to one account, so repeated requests can't flood an inbox
+     * (docs/core/users.md §4, §7). The login and Forgot Password messages
+     * say "a minute"; change them with it.
+     */
+    public const RESEND_LIMIT_MINUTES = 1;
 
     private UserRepository $users;
 
@@ -37,7 +51,7 @@ class AuthService
         }
 
         $token = bin2hex(random_bytes(32));
-        $expiresAt = (new DateTimeImmutable('+24 hours'))->format('Y-m-d H:i:s');
+        $expiresAt = (new DateTimeImmutable('+' . self::VERIFICATION_LINK_HOURS . ' hours'))->format('Y-m-d H:i:s');
 
         $this->users->create([
             'email' => $email,
@@ -71,8 +85,15 @@ class AuthService
             return ['success' => false, 'errors' => ['form' => 'Your account is not active. Contact your administrator.']];
         }
 
+        // Email the link again, in case the first was deleted or has expired
+        // (docs/core/users.md §4).
         if ($user['user_type'] === 'inductee' && $user['email_verified_at'] === null) {
-            return ['success' => false, 'errors' => ['form' => 'Please verify your email address before logging in.']];
+            $message = match ($this->resendVerificationEmail($user)) {
+                'sent' => "Your email address isn't verified yet. We've emailed a verification link to {$user['email']}: open it, then log in. If it isn't in your inbox, check your spam folder.",
+                'too_soon' => "Your email address isn't verified yet. We emailed a verification link to {$user['email']} moments ago: open it, then log in. If it isn't in your inbox, check your spam folder, or log in again in a minute to get another.",
+                default => "Your email address isn't verified yet, and we couldn't email you a verification link. Try again later, or contact your administrator.",
+            };
+            return ['success' => false, 'errors' => ['form' => $message]];
         }
 
         return ['success' => true, 'errors' => [], 'user' => $user];
@@ -103,10 +124,20 @@ class AuthService
             return;
         }
 
-        $token = bin2hex(random_bytes(32));
-        $expiresAt = (new DateTimeImmutable('+1 hour'))->format('Y-m-d H:i:s');
+        // At most one reset email per RESEND_LIMIT_MINUTES. A reset link's
+        // expiry is set when it is emailed, so a link that expires within
+        // RESET_LINK_HOURS but not RESEND_LIMIT_MINUTES sooner was sent too
+        // recently. A setup link lasts days, so it is in that window for only
+        // one minute of its life (docs/core/users.md §7).
+        $expiresAt = $user['password_reset_expires_at'] !== null ? new DateTimeImmutable($user['password_reset_expires_at']) : null;
+        $newest = (new DateTimeImmutable())->modify('+' . self::RESET_LINK_HOURS . ' hours');
+        if ($expiresAt !== null && $expiresAt <= $newest
+            && $expiresAt > $newest->modify('-' . self::RESEND_LIMIT_MINUTES . ' minutes')) {
+            return;
+        }
 
-        $this->users->setPasswordResetToken((int) $user['id'], $token, $expiresAt);
+        $token = bin2hex(random_bytes(32));
+        $this->users->setPasswordResetToken((int) $user['id'], $token, $newest->format('Y-m-d H:i:s'));
         $this->sendPasswordResetEmail($user['email'], $token);
     }
 
@@ -220,9 +251,42 @@ class AuthService
         return $errors;
     }
 
-    private function sendVerificationEmail(string $email, string $token): void
+    /**
+     * Emails the verification link again, at most once per
+     * RESEND_LIMIT_MINUTES. The current link is kept while it lasts,
+     * so every copy sent still works, and its hours restart; an expired one
+     * is replaced.
+     *
+     * @param array<string, mixed> $user
+     * @return string 'sent', 'too_soon' or 'failed'
+     */
+    private function resendVerificationEmail(array $user): string
     {
-        $this->sendSystemEmail($email, Mailer::renderTemplate('verify-email', [
+        $now = new DateTimeImmutable();
+        $expiresAt = $user['email_verification_expires_at'] !== null
+            ? new DateTimeImmutable($user['email_verification_expires_at'])
+            : null;
+
+        // A link's expiry is set when it is emailed, so it dates the last email.
+        $lastSent = $expiresAt?->modify('-' . self::VERIFICATION_LINK_HOURS . ' hours');
+        if ($lastSent !== null && $lastSent > $now->modify('-' . self::RESEND_LIMIT_MINUTES . ' minutes')) {
+            return 'too_soon';
+        }
+
+        $token = $user['email_verification_token'];
+        if ($token === null || $expiresAt === null || $expiresAt < $now) {
+            $token = bin2hex(random_bytes(32));
+        }
+
+        $newExpiry = $now->modify('+' . self::VERIFICATION_LINK_HOURS . ' hours')->format('Y-m-d H:i:s');
+        $this->users->setVerificationToken((int) $user['id'], $token, $newExpiry);
+
+        return $this->sendVerificationEmail($user['email'], $token) ? 'sent' : 'failed';
+    }
+
+    private function sendVerificationEmail(string $email, string $token): bool
+    {
+        return $this->sendSystemEmail($email, Mailer::renderTemplate('verify-email', [
             'verificationUrl' => public_url('/verify-email.php?token=' . $token),
         ]));
     }

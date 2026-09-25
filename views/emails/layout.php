@@ -19,7 +19,7 @@ declare(strict_types=1);
  * @var string $bodyHtml Already escaped.
  * @var string $companyName
  * @var ?string $logoUrl Absolute URL.
- * @var ?string $primaryEmail
+ * @var string $primaryEmail The Primary Email, or default_email() when blank.
  */
 ?>
 <!DOCTYPE html>

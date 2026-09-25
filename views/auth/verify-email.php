@@ -13,8 +13,11 @@ require __DIR__ . '/../partials/guest-header.php';
         <?php else: ?>
             <i class="bi bi-exclamation-circle fs-1 text-danger d-block mb-2" aria-hidden="true"></i>
             <h1 class="page-title mb-3">Invalid or Expired Link</h1>
-            <p class="text-muted">This verification link is invalid or has expired.</p>
-            <a href="/login.php" class="btn btn-outline-secondary">Back to Log In</a>
+            <p class="text-muted">
+                This verification link is invalid or has expired. If your email isn't verified yet,
+                log in with your email and password and we'll email you a new link.
+            </p>
+            <a href="/login.php" class="btn btn-primary">Log In</a>
         <?php endif; ?>
     </div>
 </div>

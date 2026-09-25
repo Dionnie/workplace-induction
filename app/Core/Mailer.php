@@ -17,7 +17,7 @@ class Mailer
     {
         $site = site_settings();
 
-        $fromEmail = ($options['from_email'] ?? null) ?: ($site['primary_email'] ?: 'no-reply@localhost');
+        $fromEmail = ($options['from_email'] ?? null) ?: ($site['primary_email'] ?: default_email());
         $fromName = ($options['from_name'] ?? null) ?: $site['company_name'];
 
         $headers = [
@@ -34,16 +34,19 @@ class Mailer
         }
 
         if (!empty($options['html'])) {
+            // Line breaks become CRLF first; quoted-printable would encode a
+            // bare \n as "=0A", running the text part into one long line.
+            $encode = fn (string $text): string => quoted_printable_encode(preg_replace('/\r?\n/', "\r\n", $text));
             $boundary = 'b' . bin2hex(random_bytes(12));
             $headers['Content-Type'] = "multipart/alternative; boundary=\"{$boundary}\"";
             $body = "--{$boundary}\r\n"
                 . "Content-Type: text/plain; charset=UTF-8\r\n"
                 . "Content-Transfer-Encoding: quoted-printable\r\n\r\n"
-                . quoted_printable_encode($body) . "\r\n\r\n"
+                . $encode($body) . "\r\n\r\n"
                 . "--{$boundary}\r\n"
                 . "Content-Type: text/html; charset=UTF-8\r\n"
                 . "Content-Transfer-Encoding: quoted-printable\r\n\r\n"
-                . quoted_printable_encode($options['html']) . "\r\n\r\n"
+                . $encode($options['html']) . "\r\n\r\n"
                 . "--{$boundary}--";
         } else {
             $headers['Content-Type'] = 'text/plain; charset=UTF-8';
@@ -54,7 +57,13 @@ class Mailer
             $headerString .= "{$name}: {$value}\r\n";
         }
 
-        return mail($to, mb_encode_mimeheader($subject, 'UTF-8'), $body, $headerString);
+        // The envelope sender (Return-Path): where bounces go and the domain
+        // SPF checks. Without -f the server uses its own user@hostname
+        // (docs/core/settings.md §3). mail() puts it on the sendmail command
+        // line, so only a plain address is passed.
+        $envelope = preg_match('/^[A-Za-z0-9._+-]+@[A-Za-z0-9.-]+$/', (string) $fromEmail) ? '-f' . $fromEmail : '';
+
+        return mail($to, mb_encode_mimeheader($subject, 'UTF-8'), $body, $headerString, $envelope);
     }
 
     /**
@@ -108,7 +117,7 @@ class Mailer
         $site = site_settings();
         $companyName = $site['company_name'];
         $logoUrl = $site['logo_url'] ? public_url($site['logo_url']) : null;
-        $primaryEmail = $site['primary_email'];
+        $primaryEmail = $site['primary_email'] ?: default_email();
 
         // Escape first, then turn bare URLs into links and keep line breaks.
         // Long links (verification tokens) wrap instead of widening a phone screen.

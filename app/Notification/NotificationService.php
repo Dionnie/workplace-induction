@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Notification;
 
-use App\Admin\Services\UserManagementService;
 use App\Compliance\ComplianceRepository;
 use App\Core\Auth\UserRepository;
 use App\Core\Database;
@@ -247,9 +246,6 @@ class NotificationService
     }
 
     /**
-     * @param array{subject: string, body: string, html: string} $rendered
-     */
-    /**
      * Sends to an inductee using the inductee sender, CC and BCC.
      *
      * @param array{subject: string, body: string, html: string} $rendered
@@ -261,55 +257,14 @@ class NotificationService
     }
 
     /**
-     * Sends to every active administrator using the administrator sender,
-     * CC and BCC.
+     * Sends to the administrator To list (EmailSettingsService::adminTo())
+     * using the administrator sender, CC and BCC.
      *
      * @param array{subject: string, body: string, html: string} $rendered
      */
     private function sendToAdmins(array $rendered, array $settings): bool
     {
-        $options = ['html' => $rendered['html']] + EmailSettingsService::senderOptions($settings, 'admin');
-
-        $admins = array_filter(
-            (new UserManagementService())->list('admin'),
-            fn (array $admin): bool => $admin['status'] === 'active'
-        );
-        $to = implode(', ', array_column($admins, 'email'));
-
-        // mail() requires a "to" address; if there are no admin accounts,
-        // fall back to the first CC (or BCC) address so the email still goes out.
-        if ($to === '') {
-            foreach (['cc', 'bcc'] as $list) {
-                $to = $this->firstAddress((string) $options[$list]);
-                if ($to !== '') {
-                    $options[$list] = $this->withoutAddress((string) $options[$list], $to);
-                    break;
-                }
-            }
-        }
-
-        if ($to === '') {
-            return false;
-        }
-
-        return Mailer::send($to, $rendered['subject'], $rendered['body'], $options);
-    }
-
-    private function withoutAddress(string $list, string $address): ?string
-    {
-        $rest = array_filter(array_map('trim', explode(',', $list)), fn (string $a): bool => $a !== '' && $a !== $address);
-        return $rest ? implode(', ', $rest) : null;
-    }
-
-    private function firstAddress(string $list): string
-    {
-        foreach (explode(',', $list) as $address) {
-            $address = trim($address);
-            if ($address !== '') {
-                return $address;
-            }
-        }
-
-        return '';
+        return Mailer::send(EmailSettingsService::adminTo($settings), $rendered['subject'], $rendered['body'],
+            ['html' => $rendered['html']] + EmailSettingsService::senderOptions($settings, 'admin'));
     }
 }

@@ -157,6 +157,8 @@ CREATE TABLE site_settings (
 -- Emails to inductees (including account emails) use the inductee_* sender;
 -- emails to administrators use the admin_* sender. A blank sender name or
 -- email falls back to site_settings' company name / primary email.
+-- Administrator emails go to admin_to, a comma-separated list chosen in
+-- Settings > Email (blank: admin@ the site's domain), not to user accounts.
 -- *_cc/*_bcc are comma-separated address lists for "other concerned people"
 -- who are not necessarily system users.
 -- admin_notification_frequency controls whether administrators get one email
@@ -171,6 +173,7 @@ CREATE TABLE email_settings (
     inductee_bcc VARCHAR(500) NULL,
     admin_sender_name VARCHAR(150) NULL,
     admin_sender_email VARCHAR(255) NULL,
+    admin_to VARCHAR(500) NULL,
     admin_cc VARCHAR(500) NULL,
     admin_bcc VARCHAR(500) NULL,
     admin_notification_frequency ENUM('instant', 'daily', 'weekly', 'monthly') NOT NULL DEFAULT 'weekly',

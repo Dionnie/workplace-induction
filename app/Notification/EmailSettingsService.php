@@ -12,6 +12,15 @@ class EmailSettingsService
         'admin' => 'Administrator',
     ];
 
+    /**
+     * The saved fields of each audience. Inductee emails go to the inductee
+     * themselves, so only administrator emails have a To list.
+     */
+    public const FIELDS = [
+        'inductee' => ['sender_name', 'sender_email', 'cc', 'bcc'],
+        'admin' => ['sender_name', 'sender_email', 'to', 'cc', 'bcc'],
+    ];
+
     public const ADMIN_FREQUENCIES = [
         'instant' => 'Instant',
         'daily' => 'Daily report',
@@ -48,6 +57,7 @@ class EmailSettingsService
             $values["{$audience}_cc"] = $this->normalizeList($data["{$audience}_cc"] ?? '');
             $values["{$audience}_bcc"] = $this->normalizeList($data["{$audience}_bcc"] ?? '');
         }
+        $values['admin_to'] = $this->normalizeList($data['admin_to'] ?? '');
 
         $this->settings->updateSenders($values);
 
@@ -70,6 +80,18 @@ class EmailSettingsService
             'cc' => $settings["{$audience}_cc"] ?? null,
             'bcc' => $settings["{$audience}_bcc"] ?? null,
         ];
+    }
+
+    /**
+     * Who administrator emails go to: the saved To list, or when it is
+     * blank, default_email(). Never derived from user accounts, so only the
+     * people chosen in Settings > Email get them (docs/core/settings.md §3).
+     *
+     * @param array<string, mixed> $settings
+     */
+    public static function adminTo(array $settings): string
+    {
+        return ($settings['admin_to'] ?? '') ?: default_email();
     }
 
     /**
@@ -109,15 +131,18 @@ class EmailSettingsService
 
         foreach (array_keys(self::AUDIENCES) as $audience) {
             if (mb_strlen(trim($data["{$audience}_sender_name"] ?? '')) > 150) {
-                $errors["{$audience}_sender_name"] = 'Sender name must be 150 characters or fewer.';
+                $errors["{$audience}_sender_name"] = 'From Name must be 150 characters or fewer.';
             }
 
             $senderEmail = trim($data["{$audience}_sender_email"] ?? '');
             if ($senderEmail !== '' && !filter_var($senderEmail, FILTER_VALIDATE_EMAIL)) {
-                $errors["{$audience}_sender_email"] = 'Enter a valid sender email address.';
+                $errors["{$audience}_sender_email"] = 'Enter a valid From Email address.';
             }
 
-            foreach (['cc' => 'CC', 'bcc' => 'BCC'] as $field => $label) {
+            foreach (['to' => 'To', 'cc' => 'CC', 'bcc' => 'BCC'] as $field => $label) {
+                if (!in_array($field, self::FIELDS[$audience], true)) {
+                    continue;
+                }
                 $list = $data["{$audience}_{$field}"] ?? '';
                 foreach ($this->splitList($list) as $address) {
                     if (!filter_var($address, FILTER_VALIDATE_EMAIL)) {

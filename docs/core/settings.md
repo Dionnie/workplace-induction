@@ -14,7 +14,7 @@ Stored in `site_settings` (one row, `id = 1`). Until it is first saved, the comp
 | --- | --- |
 | **Company Name** (required) | Page headers, the landing page, every email, certificates |
 | **Company Logo** | Picked from the Media Library (`docs/core/media-library.md` §4); stored as a root-relative path |
-| **Primary Email** | Contact address in email footers, and the sender address when none is set under Email |
+| **Primary Email** | Contact address in email footers, and the From Email when none is set under Email. It doesn't receive administrator emails unless it is in their To list. Blank uses `admin@` the site's domain (`default_email()`), which the field shows as its placeholder. |
 
 `site_settings()` returns these values anywhere in the code.
 
@@ -33,24 +33,27 @@ How the theme reaches every page, and the rules for using brand colours in CSS, 
 
 ## 3. Email
 
-Every email goes to one of two **audiences**, and each has its own sender, stored in `email_settings`:
+Every email goes to one of two **audiences**, and each has its own fields, stored in `email_settings` (`EmailSettingsService::FIELDS`):
 
-| Audience | Gets | Sender fields |
-| --- | --- | --- |
-| **Inductee** | Account emails (verify email, password reset, account setup, for either user type) and inductee notifications | `inductee_sender_name`, `inductee_sender_email`, `inductee_cc`, `inductee_bcc` |
-| **Administrator** | Administrator notifications and reports, sent to every active administrator | `admin_sender_name`, `admin_sender_email`, `admin_cc`, `admin_bcc` |
+| Audience | Gets | Sent to | Fields |
+| --- | --- | --- | --- |
+| **Inductee** | Account emails (verify email, password reset, account setup, for either user type) and inductee notifications | The account holder | From Name, From Email, CC, BCC |
+| **Administrator** | Administrator notifications and reports | The **To** list | From Name, From Email, To, CC, BCC |
 
-- A blank sender name uses the Company Name; a blank sender email uses the Primary Email.
-- CC and BCC are comma-separated addresses, for people who should get copies but aren't users.
-- **Send Test Email** sends a sample to check each sender.
+- A blank From Name uses the Company Name; a blank From Email uses the Primary Email.
+- **To** is who receives administrator emails. It is never taken from user accounts: an administrator gets these emails only if their address is in the list. A blank To sends to `admin@` the site's domain (`default_email()`), which the field shows as its placeholder.
+- To, CC and BCC are comma-separated addresses. CC and BCC are for people who should get copies but aren't users. Account emails are never copied.
+- **Send Test Email** sends a sample with the audience's saved From, CC and BCC, as a real email is sent: an administrator sample to the To list, an inductee sample to you. It lists who it went to. Save changes first; the test doesn't use unsaved edits.
 
 ### How mail is sent
 
 With PHP's `mail()` (`App\Core\Mailer`), through the server's own mail system. There are no SMTP settings; add SMTP only if the server can't deliver mail this way. Locally, Laragon catches every email in Mailpit (`http://localhost:8025`).
 
+The From Email is also the envelope sender (`Return-Path`, passed to sendmail as `-f`): bounces go to it, and SPF checks its domain. Without it the server would use its own `user@hostname`.
+
 Whether mail arrives, rather than landing in spam, depends on the sending domain:
 
-- Set both sender emails to an address on a domain this server may send for, normally the site's own domain.
+- Set both From Emails to an address on a domain this server may send for, normally the site's own domain.
 - On cPanel, check that SPF and DKIM are valid for that domain (cPanel → Email Deliverability).
 - If the domain's email is hosted elsewhere (Microsoft 365, Google Workspace), this server isn't in its SPF record. Send from a subdomain the server handles (e.g. `induction.example.com`), or add the server to the SPF record.
 - Then use **Send Test Email** for both audiences and check the spam folder.
@@ -63,9 +66,9 @@ Whether mail arrives, rather than landing in spam, depends on the sending domain
 | --- | --- | --- | --- |
 | Induction completed | Inductee | Straight away, with a link to the certificate | Induction completed |
 | Compliance expiring soon | Inductee | Once per compliance record, the set number of days before expiry | Compliance expiring soon, days before expiry |
-| New registration | Administrators | Instant, or in the report | New registrations |
-| Induction completed | Administrators | Instant, or in the report | Completed inductions |
-| Expired compliance | Administrators | In the report; with Instant, as a daily list | Expired compliance |
+| New registration | Administrator To list | Instant, or in the report | New registrations |
+| Induction completed | Administrator To list | Instant, or in the report | Completed inductions |
+| Expired compliance | Administrator To list | In the report; with Instant, as a daily list | Expired compliance |
 | Verify email, password reset, account setup | The user | Always | None: account emails can't be turned off |
 
 **Administrator delivery** (`admin_notification_frequency`):
