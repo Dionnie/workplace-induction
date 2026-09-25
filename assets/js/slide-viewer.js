@@ -1,6 +1,6 @@
 /**
  * Slide navigation for the inductee induction page
- * (docs/application/content_blocks_editor.md #5). Every slide is in the
+ * (docs/application/content-blocks.md #5). Every slide is in the
  * page; this shows one at a time and keeps the outline, the counter and the
  * Previous / Next bar in step. On the last slide, Next gives way to the
  * page's finish action (Start Exam / Mark as Complete), when it has one.

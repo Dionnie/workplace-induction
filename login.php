@@ -7,7 +7,7 @@ require __DIR__ . '/bootstrap.php';
 use App\Core\Auth;
 use App\Core\Auth\AuthService;
 
-// The page a guest was stopped at, to return to after logging in (docs/core/auth.md #8).
+// The page a guest was stopped at, to return to after logging in (docs/core/users.md §6).
 $redirectTo = safe_redirect_path($_POST['redirect_to'] ?? $_GET['redirect_to'] ?? null);
 
 if (Auth::check()) {

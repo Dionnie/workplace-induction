@@ -41,10 +41,10 @@ class UserManagementService
      * it directly, so the address is treated as already verified and no
      * confirmation email is sent. An inductee then completes their own
      * profile when they first log in; administrators have no profile
-     * requirements, so theirs counts as complete (docs/core/auth.md #3, #12).
+     * requirements, so theirs counts as complete (docs/core/users.md §1, §9).
      *
      * With send_setup_email, the user is emailed a link to choose their own
-     * password, and the administrator never sets or sees one (#5). A failed
+     * password, and the administrator never sets or sees one (§8). A failed
      * email doesn't undo the account: email_error says what went wrong.
      *
      * @return array{success: bool, errors: array<string, string>, id?: int, email_error?: string}
@@ -86,8 +86,8 @@ class UserManagementService
     }
 
     /**
-     * Emails the user a link to choose their own password (docs/core/auth.md
-     * #5), e.g. when their setup email was lost or has expired. Only for an
+     * Emails the user a link to choose their own password (docs/core/users.md
+     * §8), e.g. when their setup email was lost or has expired. Only for an
      * active account, since no one else could log in with it.
      *
      * @return array{success: bool, errors: array<string, string>}

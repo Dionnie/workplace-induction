@@ -15,6 +15,7 @@ VALUES (
 INSERT INTO admin_profiles (user_id, first_name, last_name)
 VALUES (LAST_INSERT_ID(), 'System', 'Administrator');
 
--- Default email/notification settings
-INSERT INTO email_settings (id, sender_name, sender_email)
-VALUES (1, 'Induction System', NULL);
+-- Default email/notification settings. Every column keeps its schema
+-- default: blank senders fall back to the company name and primary email
+-- set under Settings > General (docs/core/settings.md §3).
+INSERT INTO email_settings (id) VALUES (1);

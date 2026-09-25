@@ -1,38 +1,29 @@
-# UI Guidelines
+# Design
 
-## Purpose
+The rules and reasoning behind the application's UI and UX. Read this, and use the design system, before building or changing any page.
 
-These guidelines define the rules and reasoning behind the application's UI and UX.
-
-The interface should be:
-
-- Simple
-- Compact
-- Professional
-- Practical
-- Consistent
-- Easy to scan
-- Easy to operate
-
-The application uses **Bootstrap 5.3** as its only UI framework. Do not introduce another UI framework or component library without an explicit requirement.
+The interface should be simple, compact, professional, consistent, and easy to scan and operate. **Bootstrap 5.3** is the only UI framework. Don't add another framework or component library without an explicit requirement.
 
 ## How the UI Documents Fit Together
 
 | Document | Owns |
 | --- | --- |
-| [`docs/core/design-system.html`](design-system.html) | **The authority for UI markup.** Tokens, the class vocabulary, component patterns and page patterns, rendered live with copyable code. |
-| `docs/core/ui-guidelines.md` (this file) | The rules and reasoning behind the design system. |
+| [`docs/rules/design-system.html`](design-system.html) | **The authority for UI markup.** Tokens, the class vocabulary, component patterns and page patterns, rendered live with copyable code. |
+| `docs/rules/design.md` (this file) | The rules and reasoning behind the design system. |
+| `docs/rules/terminology.md` | The words used in labels, headings and messages. |
 | `assets/css/app.css` | The implementation. Every class it defines is listed in the design system's Class Reference. |
 | `views/partials/` | The shared layouts: `head.php`, `app-navbar.php`, `account-menu.php`, `flash.php`, `scripts.php`, and the admin, inductee and guest headers and footers. |
 | `views/partials/admin-menu.php` | The one list of admin sections, grouped Application / Core. It feeds the admin sidebar and the dashboard shortcuts. |
 | `status_badge()` in `app/Core/helpers.php` | The one map from status to badge colour. |
-| Settings → Appearance (`admin/settings/update-appearance.php`, `App\Core\Theme`) | The brand colour tokens, chosen by administrators at runtime. |
+| Settings → Appearance (`admin/settings/update-appearance.php`, `App\Core\Theme`) | The brand colour tokens, chosen by administrators at runtime (`docs/core/settings.md` §2). |
 
-Before building or changing a page, open the design system on the running site (`/docs/core/design-system.html`) and use its patterns.
+Before building or changing a page, open the design system on the running site (`/docs/rules/design-system.html`) and use its patterns. If a page and the design system disagree, the page is wrong.
 
 If this file and the design system disagree, the design system wins for markup and class names. Fix whichever is out of date in the same change.
 
-Content Blocks (the reading canvas and the Studio editor) follow `docs/application/content_blocks_editor.md` for their layout. They still use this system's tokens, buttons and states.
+The Content Blocks reading canvas and the two Studio editors have their own layout rules (`docs/application/content-blocks.md` §4–6, `docs/application/exams.md` §4). They still use this system's tokens, buttons and states.
+
+The design may evolve when there is a real technical or product reason. When it does, change `app.css`, the design system and this file together, and check the result with every Appearance theme.
 
 ---
 
@@ -100,7 +91,7 @@ Rules that follow from this:
 - Every page gets its `<head>` from `views/partials/head.php`, which outputs the theme.
 - The theme is for the app's own screens only. What leaves the app is neutral, because an administrator's colour choice (a very dark primary, say) can't be checked against every logo and text colour there:
   - **Emails** (`views/emails/layout.php`, one layout for every email): a white card with a subtle grey border and soft shadow on a light grey page. Inside it, the logo (when one is set) and the company name on white over a thin grey rule, never a coloured header band, then the message in dark text; a small grey footer below the card. Links are dark and underlined; long links wrap. The column is fluid up to 600px, so it reads on a phone. Most emails are plain text that the layout turns into HTML; one that needs tables (the admin report, `views/emails/admin-report.php`) also sets its own `$bodyHtml` in old-school email-safe markup: tables only, inline styles, the font on every cell, a solid dark button, and dates written out ("Thursday 24 September 2026", "25 Sep 2026" with the time under it).
-  - **Printed documents**: the certificate card (`docs/core/design-system.html#certificate`).
+  - **Printed documents**: the certificate card (`docs/rules/design-system.html#certificate`).
 - Primary and accent must stay dark enough for white text (contrast of at least 4.5:1). The presets meet this, and custom colors are validated on save.
 - Semantic colors (success, warning, danger, info) and neutrals are **not** themeable.
 
@@ -260,11 +251,11 @@ This applies particularly to status badges, validation messages, alerts, tables,
 # 10. Layout and Navigation
 
 - Every page uses a layout partial (admin, inductee or guest). Never hand-write a `<head>`, navbar or footer.
-- Every page starts with a `.page-header`: the page title, an optional one-line subtitle, and the page's actions. The one exception is the inductee's slide view of an induction, where the slide gets the whole screen: the induction's title sits at the top of the outline sidebar, with an About modal for the description (`docs/application/content_blocks_editor.md` §5).
+- Every page starts with a `.page-header`: the page title, an optional one-line subtitle, and the page's actions. The one exception is the inductee's slide view of an induction, where the slide gets the whole screen: the induction's title sits at the top of the outline sidebar, with an About modal for the description (`docs/application/content-blocks.md` §5).
 - Pages below a section's index (create, edit, detail, exam) show a breadcrumb in the page header. It replaces ad-hoc "Back" buttons.
 - Form, profile and detail pages are capped with `.page-narrow`.
 - Both areas have a top bar with the brand and the account menu (My Profile, Log Out). The active item comes from the view's `$currentPage`.
-- **Admin** sections live in a sidebar, grouped into **Application** (the induction features: Inductions, Exams, Exam Attempts, Compliance) and **Core** (platform functions any deployment has: Users, Media Library, Tools, Settings), the same split as `docs/application/` and `docs/core/` and the Settings tabs. A vertical list scales to any number of sections; below `lg` it becomes a drawer.
+- **Admin** sections live in a sidebar, grouped into **Application** (the induction features: Inductions, Exams, Exam Attempts, Compliance) and **Core** (platform functions any deployment has: Users, Media Library, Tools, Settings), the same split as `docs/application/` and `docs/core/`. A vertical list scales to any number of sections; below `lg` it becomes a drawer.
 - `views/partials/admin-menu.php` is the only list of admin sections. It feeds both the sidebar and the dashboard shortcuts, so a new admin page is one entry there. Never hand-list sections elsewhere.
 - **Inductee** sections (only two) stay as links in the top navbar, which is quicker to use on a phone.
 - Every page must work from phone width up without horizontal page scrolling. Use Bootstrap's grid: side-by-side fields use `col-sm` so they stack on phones. In admin pages, split into columns at `xl`, because the sidebar takes 240px from `lg` up.
@@ -283,7 +274,7 @@ Rules:
 - Mark every **required** field with a red asterisk (`.required` on its label, or on the `legend` of a required group) and give the control the `required` attribute, so screen readers announce it; the asterisk itself is hidden from them. A field without an asterisk is optional; do not also write "(optional)".
 - "Required" follows the server-side validation: the form is rejected without it. A field whose blank value has a meaning ("Blank uses the Company Name", "Leave blank to keep the current password") is optional. Fields labelled only by `aria-label` (filters, one-field inline forms) carry no asterisk.
 - The red asterisk is the one use of the danger color that is not a negative state. It is kept because it is a universally understood convention.
-- Short help goes in a `form-text` line under the field. When a form has so many fields that those lines become a wall of text (every Settings tab), put the help in a tooltip on an info button after the label instead (`.field-help`, `docs/core/design-system.html#forms`), with the control's `aria-describedby` pointing at the button. Help that holds a link or code a user needs to click or copy stays as visible text, since a tooltip can't be clicked into.
+- Short help goes in a `form-text` line under the field. When a form has so many fields that those lines become a wall of text (every Settings tab), put the help in a tooltip on an info button after the label instead (`.field-help`, `docs/rules/design-system.html#forms`), with the control's `aria-describedby` pointing at the button. Help that holds a link or code a user needs to click or copy stays as visible text, since a tooltip can't be clicked into.
 - A placeholder is never a label or an example. On a field whose blank value has a meaning, it shows what a blank field will use (the Company Name, the Primary Email); when there is no such value, leave the placeholder out.
 - Validation happens server-side. Show errors with `is-invalid` and `invalid-feedback` next to the field (`invalid-feedback d-block` when the message cannot sit directly after the control). Show form-level errors as an `alert alert-danger` above the fields.
 - Preserve submitted values after validation errors (`old()`).
@@ -324,32 +315,7 @@ Wording: "{Verb} {object}? {Consequence}. This cannot be undone." The confirm bu
 
 # 14. Labels and Terminology
 
-UI terminology must remain consistent throughout the application. Use the terms in `docs/application/terminology.md` before introducing a new one.
-
-Database/business concepts must not change names between screens. If the concept is **Induction**, do not call it Program, Training or Course elsewhere.
-
-Labels should clearly describe the underlying field or action. Avoid vague labels such as:
-
-```text
-Manage
-Process
-Handle
-Details
-Go
-```
-
-Prefer:
-
-```text
-Edit
-View
-Create
-Delete
-Save
-Download
-Verify
-Renew
-```
+Use the terms in `docs/rules/terminology.md` in every label, heading, button and message, and add a term there before introducing a new one. A concept keeps its name on every screen. Labels say what the field or action is (Edit, View, Delete, Save), never something vague (Manage, Process, Go).
 
 ---
 

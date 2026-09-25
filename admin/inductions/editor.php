@@ -37,7 +37,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     exit;
 }
 
-// Section slides, each with its lecture slides (docs/application/content_blocks_editor.md #3).
+// Section slides, each with its lecture slides (docs/application/content-blocks.md #3).
 $sections = json_decode((string) $induction['content_blocks'], true);
 $initialSlidesJson = json_encode(is_array($sections) ? $sections : []);
 

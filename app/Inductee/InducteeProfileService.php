@@ -10,7 +10,7 @@ class InducteeProfileService
 {
     /**
      * What an inductee must provide before starting an induction
-     * (docs/core/auth.md #12): who they are (the name goes on their
+     * (docs/core/users.md §9): who they are (the name goes on their
      * certificates), who they work for, and how to reach them or their
      * emergency contact on site. Job position is optional.
      */

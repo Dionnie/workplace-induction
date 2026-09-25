@@ -17,9 +17,14 @@ class Auth
 
     public static function check(): bool
     {
-        return self::id() !== null;
+        return self::user() !== null;
     }
 
+    /**
+     * The logged-in user, loaded once per request. If the account has been
+     * deleted or is no longer active, the session ends here, so a suspended
+     * user is logged out on their next page (docs/core/users.md §2).
+     */
     public static function user(): ?array
     {
         $id = self::id();
@@ -28,7 +33,14 @@ class Auth
         }
 
         if (self::$userCache === null || (int) self::$userCache['id'] !== $id) {
-            self::$userCache = (new UserRepository())->findById($id);
+            $user = (new UserRepository())->findById($id);
+
+            if (!$user || $user['status'] !== 'active') {
+                self::logout();
+                return null;
+            }
+
+            self::$userCache = $user;
         }
 
         return self::$userCache;
@@ -50,7 +62,7 @@ class Auth
 
     /**
      * Sends a guest to the login page, which returns them to this page after
-     * logging in (redirect_to, docs/core/auth.md #8).
+     * logging in (redirect_to, docs/core/users.md §6).
      */
     public static function requireLogin(): void
     {
@@ -72,7 +84,7 @@ class Auth
 
     /**
      * Whether the logged-in user has completed the profile their user type
-     * requires (users.profile_completed; docs/core/auth.md #12).
+     * requires (users.profile_completed; docs/core/users.md §9).
      */
     public static function profileCompleted(): bool
     {
@@ -95,7 +107,7 @@ class Auth
     }
 
     /**
-     * The logged-in user's entry point for their user type (docs/core/auth.md #8).
+     * The logged-in user's entry point for their user type (docs/core/users.md §6).
      */
     public static function homeUrl(): string
     {

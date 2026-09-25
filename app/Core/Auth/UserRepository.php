@@ -85,7 +85,7 @@ class UserRepository
 
     /**
      * Records whether the user has completed the profile their user type
-     * requires (docs/core/auth.md #12). What "complete" means belongs to the
+     * requires (docs/core/users.md §9). What "complete" means belongs to the
      * profile type, e.g. App\Inductee\InducteeProfileService.
      */
     public function setProfileCompleted(int $id, bool $completed): void
@@ -114,7 +114,7 @@ class UserRepository
 
     /**
      * Stores only a SHA-256 hash of the token, so a copy of the database
-     * can't be used to set anyone's password (docs/core/auth.md #10).
+     * can't be used to set anyone's password (docs/core/users.md §7).
      */
     public function setPasswordResetToken(int $id, string $token, string $expiresAt): void
     {

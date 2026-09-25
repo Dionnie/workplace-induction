@@ -56,7 +56,7 @@ class Theme
 
     /**
      * CSS overriding the brand tokens in assets/css/app.css (see
-     * docs/core/design-system.html#colour). Emitted after the stylesheet in
+     * docs/rules/design-system.html#colour). Emitted after the stylesheet in
      * every page head by views/partials/head.php.
      */
     public static function css(array $site): string

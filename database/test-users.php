@@ -3,7 +3,7 @@
 declare(strict_types=1);
 
 /**
- * Temporary test accounts for end-to-end testing (docs/core/auth.md #19).
+ * Temporary test accounts for end-to-end testing (docs/rules/testing.md §2).
  *
  * Usage:
  *   php database/test-users.php create admin|inductee [--incomplete]

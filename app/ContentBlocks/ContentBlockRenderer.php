@@ -133,8 +133,8 @@ class ContentBlockRenderer
     }
 
     /**
-     * A Bootstrap grid row (docs/core/ui-guidelines.md "prefer Bootstrap
-     * grid") of `.col` figures, using `row-cols-*` so images wrap into
+     * A Bootstrap grid row (docs/rules/design.md §2, "Bootstrap
+     * First") of `.col` figures, using `row-cols-*` so images wrap into
      * further rows automatically once there are more than one row's worth —
      * no custom CSS grid needed.
      *

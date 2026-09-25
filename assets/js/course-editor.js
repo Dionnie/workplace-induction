@@ -1,5 +1,5 @@
 /**
- * Content Blocks Studio editor. See docs/application/content_blocks_editor.md #6.
+ * Content Blocks Studio editor. See docs/application/content-blocks.md #6.
  *
  * The induction's content is slides: Section slides, each with its Lecture
  * slides. The outline sidebar lists them; the stage shows one slide at a
@@ -48,8 +48,8 @@
     var GALLERY_COLUMNS = [2, 3, 4];
 
     /**
-     * Bootstrap `row-cols-*` classes (docs/core/ui-guidelines.md "prefer
-     * Bootstrap grid") so gallery images wrap into further rows
+     * Bootstrap `row-cols-*` classes (docs/rules/design.md §2, "Bootstrap
+     * First") so gallery images wrap into further rows
      * automatically past the chosen column count — no custom CSS grid.
      * Mirrors ContentBlockRenderer::galleryRowClasses(), the authoritative
      * server-side copy.

@@ -1,6 +1,6 @@
 /**
  * Exam Blocks Studio editor (views/admin/exams/editor.php). See
- * docs/application/exam_blocks_editor.md.
+ * docs/application/exams.md.
  *
  * The same editing model as the Content Blocks Studio (course-editor.js):
  * only the selected block shows its edit fields; every other block previews
@@ -9,7 +9,7 @@
  * admin. Kept as a parallel file rather than a shared editor, per this
  * project's convention of small, single-purpose JS files.
  *
- * Exam blocks are questions only (docs/application/induction.md). The
+ * Exam blocks are questions only (docs/application/exams.md §2). The
  * checks in problemsFor() mirror ExamService::parseExamBlocks(), which is
  * the authoritative copy; here they only drive warnings while editing.
  */

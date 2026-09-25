@@ -4,7 +4,7 @@
  * with the company's branding and a QR code to the public verification
  * page. Printing the page prints only this card, at its real size.
  * Used by the public verification page and the inductee's Certificate page.
- * See .cert-card in assets/css/app.css and docs/core/design-system.html#certificate.
+ * See .cert-card in assets/css/app.css and docs/rules/design-system.html#certificate.
  *
  * The live status is deliberately not on the card: a printed card can't
  * change, so the page shows the status and the QR code checks it.

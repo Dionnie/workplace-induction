@@ -1,0 +1,23 @@
+# Keeps everything that isn't a page or an asset off the web
+# (docs/rules/security.md §7). Needs Apache or LiteSpeed with mod_rewrite
+# and AllowOverride; an nginx server needs the same rules in its own config.
+
+RewriteEngine On
+
+# Code, settings, templates, scheduled scripts and database files are only
+# ever loaded by PHP or run from the command line, never requested.
+RewriteRule ^(app|config|cron|database|views)(/|$) - [F,NC]
+
+# Documentation: Markdown anywhere (CLAUDE.md, docs/). The design system
+# page, docs/rules/design-system.html, stays viewable.
+RewriteRule \.md$ - [F,NC]
+
+# Dotfiles and dot-folders (.git, .claude, .gitignore), except
+# .well-known, which SSL certificate checks use.
+RewriteRule (^|/)\.(?!well-known(/|$)) - [F]
+
+# No file listings for folders without an index page (uploads, fonts,
+# docs). A rule rather than "Options -Indexes", which some hosts don't
+# allow in .htaccess.
+RewriteCond %{REQUEST_FILENAME} -d
+RewriteRule ^(assets|docs)(/|$) - [F,NC]

@@ -9,7 +9,7 @@ use App\Induction\InductionService;
 
 Auth::requireRole('inductee');
 
-// Inductions need a completed profile (docs/core/auth.md #12).
+// Inductions need a completed profile (docs/core/users.md §9).
 Auth::requireCompletedProfile('/inductee/profile/index.php', 'Complete your profile before starting an induction.');
 
 $id = (int) ($_GET['id'] ?? 0);
@@ -21,7 +21,7 @@ if (!$induction) {
     exit('Induction not found.');
 }
 
-// Section slides, each with its lecture slides (docs/application/content_blocks_editor.md #3).
+// Section slides, each with its lecture slides (docs/application/content-blocks.md #3).
 $sections = json_decode((string) $induction['content_blocks'], true);
 $sections = is_array($sections) ? $sections : [];
 

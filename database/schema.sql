@@ -10,7 +10,7 @@ CREATE TABLE users (
     user_type ENUM('admin', 'inductee') NOT NULL,
     status ENUM('active', 'inactive', 'suspended') NOT NULL DEFAULT 'active',
     -- 1 once the user has completed the profile their user type requires
-    -- (docs/core/auth.md #12); inductees can't start inductions until then.
+    -- (docs/core/users.md §9); inductees can't start inductions until then.
     profile_completed TINYINT(1) NOT NULL DEFAULT 0,
     email_verified_at DATETIME NULL,
     email_verification_token VARCHAR(64) NULL,
@@ -35,11 +35,12 @@ CREATE TABLE admin_profiles (
     CONSTRAINT fk_admin_profiles_user FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- contact_number, job_position, and the emergency_contact_* fields are
--- workplace details the inductee manages themselves; all optional since they
--- are collected after registration via the inductee's own profile page.
--- company and employment_type are required at registration but remain
--- nullable here since an admin-created account does not collect them.
+-- The inductee's own details. Registration and Add User create only the
+-- users row; this row is created when the inductee first saves their
+-- profile. What a save requires is decided by
+-- InducteeProfileService::REQUIRED_FIELDS (docs/core/users.md §9), not
+-- here: the other columns are nullable because job_position is optional
+-- and profiles imported from the previous system may lack some details.
 CREATE TABLE inductee_profiles (
     user_id INT UNSIGNED NOT NULL,
     first_name VARCHAR(100) NOT NULL,

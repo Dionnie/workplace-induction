@@ -8,7 +8,7 @@ use App\Core\Auth;
  * Admin layout, part 1 of 2 (close with admin-footer.php): a slim top bar
  * (brand, account menu) and a sidebar listing every admin section, grouped
  * as in admin-menu.php. Below lg the sidebar becomes a drawer opened from
- * the top bar. See docs/core/design-system.html#navigation.
+ * the top bar. See docs/rules/design-system.html#navigation.
  *
  * @var string $pageTitle
  * @var string $currentPage Key of the active admin-menu.php item.

@@ -6,7 +6,7 @@ use App\Core\Auth;
 
 /**
  * Inductee layout, part 1 of 2 (close with inductee-footer.php).
- * See docs/core/design-system.html#page-shell.
+ * See docs/rules/design-system.html#page-shell.
  *
  * @var string $pageTitle
  * @var string $currentPage Key of the active navbar item.

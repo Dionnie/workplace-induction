@@ -154,7 +154,7 @@
 
     // Every category row starts as its name + an Edit icon. Edit swaps the
     // row for the rename input; only from there can the category be deleted
-    // (docs/core/design-system.html#danger-zone: no delete buttons in lists),
+    // (docs/rules/design-system.html#danger-zone: no delete buttons in lists),
     // and "Delete category" still asks to confirm.
     function showDeleteConfirm(li, show) {
         var confirmForm = li.querySelector('.category-delete-confirm');

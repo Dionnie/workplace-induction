@@ -1,7 +1,7 @@
 <?php
 /**
  * Messages set with flash('success'|'error', ...) before a redirect
- * (docs/core/design-system.html#alerts).
+ * (docs/rules/design-system.html#alerts).
  */
 foreach (['success' => 'success', 'error' => 'danger'] as $flashKey => $flashVariant): ?>
     <?php if ($flashMessage = flash($flashKey)): ?>

@@ -9,7 +9,7 @@ declare(strict_types=1);
  * The single source for the admin sidebar (admin-header.php) and the
  * dashboard shortcuts: add a new admin page here, under the right group,
  * and it appears in both. Keys are the $currentPage values.
- * See docs/core/design-system.html#navigation.
+ * See docs/rules/design-system.html#navigation.
  *
  * @return array<string, array<string, array{label: string, icon: string, url: string, description: string}>>
  */

@@ -6,7 +6,7 @@ use App\Core\Auth;
 
 /**
  * Account dropdown at the right of the top bar, shared by the admin and
- * inductee layouts (docs/core/design-system.html#navigation).
+ * inductee layouts (docs/rules/design-system.html#navigation).
  *
  * @var string $profileUrl
  * @var string $currentPage

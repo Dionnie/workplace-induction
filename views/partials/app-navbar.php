@@ -5,7 +5,7 @@ declare(strict_types=1);
 /**
  * Top navbar with horizontal links, for layouts with only a few sections
  * (the inductee area). The admin area uses a sidebar instead; see
- * admin-header.php and docs/core/design-system.html#navigation.
+ * admin-header.php and docs/rules/design-system.html#navigation.
  *
  * @var array<string, array{0: string, 1: string}> $navItems key => [label, url]
  * @var string $currentPage Key of the active item ('profile' for My Profile).

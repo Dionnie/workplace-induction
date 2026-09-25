@@ -2,7 +2,7 @@
 /**
  * Guest layout, part 1 of 2 (close with guest-footer.php): log in, register,
  * password reset, certificate verification. Pages render their own flash
- * messages inside their card. See docs/core/design-system.html#page-shell.
+ * messages inside their card. See docs/rules/design-system.html#page-shell.
  *
  * @var string $pageTitle
  * @var string $guestContainerClass Optional width class; default .container-guest.

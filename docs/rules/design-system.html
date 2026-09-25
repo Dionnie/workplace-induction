@@ -9,11 +9,11 @@
       vocabulary and component patterns. Every example below renders with
       the real Bootstrap + assets/css/app.css, so what you see is what the
       app does. Open it on the running site (e.g.
-      http://workplace-induction.test/docs/core/design-system.html) so the
+      http://workplace-induction.test/docs/rules/design-system.html) so the
       Poppins font loads.
 
       Companion documents:
-        docs/core/ui-guidelines.md   the rules and reasoning behind this system
+        docs/rules/design.md         the rules and reasoning behind this system
         assets/css/app.css           the implementation of every app class here
     -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -126,15 +126,15 @@
                     <tr><th>Where</th><th>What it owns</th></tr>
                 </thead>
                 <tbody>
-                    <tr><td><code>docs/core/design-system.html</code></td><td><strong>This document.</strong> Tokens, class vocabulary, component markup and page patterns. The authority.</td></tr>
-                    <tr><td><code>docs/core/ui-guidelines.md</code></td><td>The rules and reasoning behind the system: principles, colour meaning, states, forms, terminology.</td></tr>
+                    <tr><td><code>docs/rules/design-system.html</code></td><td><strong>This document.</strong> Tokens, class vocabulary, component markup and page patterns. The authority.</td></tr>
+                    <tr><td><code>docs/rules/design.md</code></td><td>The rules and reasoning behind the system: principles, colour meaning, states, forms, terminology.</td></tr>
                     <tr><td><code>assets/css/app.css</code></td><td>The implementation. Every class it defines is listed in the <a href="#class-reference">Class reference</a>.</td></tr>
                     <tr><td><code>views/partials/</code></td><td>Layouts shared by every page: <code>head.php</code>, <code>app-navbar.php</code>, <code>account-menu.php</code>, <code>flash.php</code>, <code>scripts.php</code> and the admin, inductee and guest headers and footers.</td></tr>
                     <tr><td><code>views/partials/admin-menu.php</code></td><td>Every admin section, grouped Application / Core. Feeds the admin sidebar and the dashboard shortcuts. See <a href="#navigation">Navigation</a>.</td></tr>
                     <tr><td><code>status_badge()</code> in <code>app/Core/helpers.php</code></td><td>The one status → colour map. See <a href="#badges">Status badges</a>.</td></tr>
                     <tr><td><code>assets/js/app.js</code></td><td>App-wide behaviour, currently the <a href="#loading">loading state</a>.</td></tr>
                     <tr><td>Settings → Appearance<br><code>admin/settings/update-appearance.php</code>, <code>App\Core\Theme</code></td><td>Sets the brand colour tokens at runtime. See <a href="#colour">Colour</a>.</td></tr>
-                    <tr><td><code>docs/application/content_blocks_editor.md</code></td><td>The Content Blocks canvas and the Studio editors (<code>.content-*</code>, <code>.cb-*</code>); the Exam Blocks Studio reuses the same layout (<code>docs/application/exam_blocks_editor.md</code>). They use this system's tokens and buttons but have their own layout rules.</td></tr>
+                    <tr><td><code>docs/application/content-blocks.md</code>, <code>docs/application/exams.md</code></td><td>The Content Blocks canvas and the Studio editors (<code>.content-*</code>, <code>.cb-*</code>); the Exam Blocks Studio reuses the same layout. They use this system's tokens and buttons but have their own layout rules.</td></tr>
                 </tbody>
             </table>
         </div>
@@ -224,7 +224,7 @@
         <li>Use <code>var(--color-primary-700)</code> etc. in CSS, and <code>text-primary</code>, <code>btn-primary</code> etc. in markup.</li>
         <li>Use the primary colour for what should be acted on: main actions, links, active navigation.</li>
         <li>Use the accent sparingly, for small secondary emphasis (e.g. the Lecture badge in the Studio editor, the slanted block in the slide brand band below).</li>
-        <li>Emails and printed documents never use the theme: they are white with dark text, so any logo and any theme colour stay legible. Emails (<code>views/emails/layout.php</code>) are a white card with a subtle border and shadow: the logo, when one is set, and the company name on white, then the message (ui-guidelines.md §3).</li>
+        <li>Emails and printed documents never use the theme: they are white with dark text, so any logo and any theme colour stay legible. Emails (<code>views/emails/layout.php</code>) are a white card with a subtle border and shadow: the logo, when one is set, and the company name on white, then the message (design.md §3).</li>
     </ul>
     <ul class="ds-dont">
         <li>Hard-code a brand hex value, or <code>rgba(15, 93, 95, …)</code>. It breaks every other theme.</li>
@@ -404,8 +404,8 @@
                     <tr><td>Admin</td><td><code>admin-header.php</code> / <code>admin-footer.php</code></td><td>Everything under <code>/admin</code>. Top bar and <a href="#navigation">sidebar</a>; the sidebar becomes a drawer below <code>lg</code>. Content sits in a left-aligned <code>container-xxl</code>.</td></tr>
                     <tr><td>Inductee</td><td><code>inductee-header.php</code> / <code>inductee-footer.php</code></td><td>Everything under <code>/inductee</code>. Top navbar that collapses below <code>md</code>. <code>$wideContainer = true</code> for the Content Blocks page.</td></tr>
                     <tr><td>Guest</td><td><code>guest-header.php</code> / <code>guest-footer.php</code></td><td>Log in, register, password reset, email verification, certificate verification. One centered card (<code>.container-guest</code>).</td></tr>
-                    <tr><td>Public page</td><td><code>head.php</code> in <code>index.php</code></td><td>The landing page (<code>docs/core/public_page.md</code>).</td></tr>
-                    <tr><td>Studio</td><td><code>head.php</code> in <code>views/admin/inductions/editor.php</code> and <code>views/admin/exams/editor.php</code></td><td>The Content Blocks and Exam Blocks editors: a full-screen page with its own top bar, outline and canvas (<code>docs/application/content_blocks_editor.md</code>, <code>exam_blocks_editor.md</code>).</td></tr>
+                    <tr><td>Public page</td><td><code>head.php</code> in <code>index.php</code></td><td>The landing page (<code>docs/rules/public-pages.md</code>).</td></tr>
+                    <tr><td>Studio</td><td><code>head.php</code> in <code>views/admin/inductions/editor.php</code> and <code>views/admin/exams/editor.php</code></td><td>The Content Blocks and Exam Blocks editors: a full-screen page with its own top bar, outline and canvas (<code>docs/application/content-blocks.md</code>, <code>exams.md</code>).</td></tr>
                 </tbody>
             </table>
         </div>
@@ -616,7 +616,7 @@ require __DIR__ . '/../../partials/admin-header.php';
                     <tr><td><code>container</code> (inductee layout)</td><td>Bootstrap</td><td>Inductee pages</td></tr>
                     <tr><td><code>.page-narrow</code></td><td>720px</td><td>Form pages, profiles, detail pages (certificate). Wrap the page header and the card in it, so they line up. Centred (<code>.page-narrow.mx-auto</code>) for reading columns: the exam and result pages and the Exam Blocks Studio (<a href="#exam-question">Exam question</a>).</td></tr>
                     <tr><td><code>.container-guest</code> (layout)</td><td>420px</td><td>The guest layout's single card</td></tr>
-                    <tr><td><code>.content-canvas</code>, <code>.cb-slides-stage</code></td><td>1024px</td><td>Content Blocks reading canvas and the slide area beside the outline (see content_blocks_editor.md)</td></tr>
+                    <tr><td><code>.content-canvas</code>, <code>.cb-slides-stage</code></td><td>1024px</td><td>Content Blocks reading canvas and the slide area beside the outline (see content-blocks.md)</td></tr>
                 </tbody>
             </table>
         </div>
@@ -821,7 +821,7 @@ require __DIR__ . '/../../partials/admin-header.php';
         <li>When the error can't sit directly after the control (input groups, radio groups, custom pickers), use <code>invalid-feedback d-block</code>.</li>
         <li>A form-level error ("Invalid email or password") is an <code>alert alert-danger</code> above the fields.</li>
         <li>Use the right input type and <code>autocomplete</code> (<code>email</code>, <code>tel</code>, <code>number</code>, <code>new-password</code>…). Values the user can't change here: a <code>disabled</code> control. A record page with no edit form uses <a href="#read-only-fields">read-only fields</a>.</li>
-        <li>Labels use the database/business term (<a href="../application/terminology.md">terminology.md</a>).</li>
+        <li>Labels use the database/business term (<code>docs/rules/terminology.md</code>).</li>
     </ul>
     <ul class="ds-dont">
         <li><code>text-danger small</code> for field errors, or placeholder text instead of a label.</li>
@@ -1304,7 +1304,7 @@ require __DIR__ . '/../partials/certificate-card.php';
     <h2>Exam question</h2>
     <p>
         One card per question, the same on the inductee's exam page, the result page and in the Exam Blocks Studio, so the
-        Studio is a true preview (exam_blocks_editor.md). All three stack the cards in a centred <code>.page-narrow.mx-auto</code>
+        Studio is a true preview (exams.md §4). All three stack the cards in a centred <code>.page-narrow.mx-auto</code>
         column (<code>.exam-questions</code>). Each answer option is a full-width row.
     </p>
 
@@ -1539,9 +1539,9 @@ require __DIR__ . '/../partials/certificate-card.php';
                     <tr><td><code>.bg-surface-subtle</code></td><td>7</td><td>A subtle panel inside a card (drop zones, the custom-colour panel).</td></tr>
                     <tr><td><code>.border-dashed</code></td><td>7</td><td>Dashed border (drop zones).</td></tr>
                     <tr><td><code>.logo-preview-box</code>, <code>.reminder-days</code>, <code>.email-preview-frame</code>, <code>.theme-swatch*</code>, <code>.theme-preview-header</code></td><td>8</td><td>Settings page only.</td></tr>
-                    <tr><td><code>.content-canvas</code>, <code>.content-block*</code></td><td>9</td><td>Content Blocks reading canvas: 1024px media width, 700px text column (content_blocks_editor.md §4).</td></tr>
-                    <tr><td><code>.cb-slides-layout</code>, <code>.cb-slides-sidebar</code>, <code>.cb-slides-stage</code>, <code>.cb-slides-induction*</code>, <code>.cb-slide-outline</code>, <code>.cb-slide</code>, <code>.cb-slide-band*</code>, <code>.cb-slide-header</code>, <code>.cb-slide-eyebrow</code>, <code>.cb-slide-title</code>, <code>.cb-slide-nav*</code>, <code>.cb-slide-counter</code></td><td>9</td><td>Slides, one at a time, on the inductee induction page and in the Content Blocks Studio: outline sidebar (an <code>.offcanvas-lg</code> drawer below lg; on the inductee page topped by the induction's title and About button), slide card with its <a href="#colour">brand band</a> top and bottom, Previous / Next bar fixed to the bottom of the screen (content_blocks_editor.md §5–6).</td></tr>
-                    <tr><td><code>.cb-*</code> (other), <code>.teleport-highlight-pulse</code></td><td>9</td><td>Both Studio editors: blocks, controls, rich text, type badges; the Exam Blocks Studio's outline rail and teleport scroll (exam_blocks_editor.md).</td></tr>
+                    <tr><td><code>.content-canvas</code>, <code>.content-block*</code></td><td>9</td><td>Content Blocks reading canvas: 1024px media width, 700px text column (content-blocks.md §4).</td></tr>
+                    <tr><td><code>.cb-slides-layout</code>, <code>.cb-slides-sidebar</code>, <code>.cb-slides-stage</code>, <code>.cb-slides-induction*</code>, <code>.cb-slide-outline</code>, <code>.cb-slide</code>, <code>.cb-slide-band*</code>, <code>.cb-slide-header</code>, <code>.cb-slide-eyebrow</code>, <code>.cb-slide-title</code>, <code>.cb-slide-nav*</code>, <code>.cb-slide-counter</code></td><td>9</td><td>Slides, one at a time, on the inductee induction page and in the Content Blocks Studio: outline sidebar (an <code>.offcanvas-lg</code> drawer below lg; on the inductee page topped by the induction's title and About button), slide card with its <a href="#colour">brand band</a> top and bottom, Previous / Next bar fixed to the bottom of the screen (content-blocks.md §5–6).</td></tr>
+                    <tr><td><code>.cb-*</code> (other), <code>.teleport-highlight-pulse</code></td><td>9</td><td>Both Studio editors: blocks, controls, rich text, type badges; the Exam Blocks Studio's outline rail and teleport scroll (exams.md §4).</td></tr>
                     <tr><td><code>.exam-questions</code>, <code>.exam-question*</code>, <code>.exam-choices</code>, <code>.exam-choice*</code>, <code>.exam-explanation</code>, <code>.exam-bar*</code></td><td>12</td><td>The exam question card on the exam page, the result page and in the Exam Blocks Studio; the exam page's bar. <a href="#exam-question">↗</a></td></tr>
                     <tr><td><code>.media-thumb</code>, <code>.media-tile*</code>, <code>.media-picker-*</code></td><td>10</td><td>Media Library and the image picker modal.</td></tr>
                     <tr><td><code>.cert-card</code>, <code>.cert-card-*</code>, <code>.container-certificate</code></td><td>11</td><td>The Certificate as an ID-card-sized pass, via <code>certificate-card.php</code>. <a href="#certificate">↗</a></td></tr>
@@ -1566,7 +1566,7 @@ require __DIR__ . '/../partials/certificate-card.php';
         <li>Lists: <code>.card-table</code>, visually hidden "Actions" heading, empty row, filter <code>aria-label</code>s.</li>
         <li>Icon-only controls have <code>aria-label</code> and <code>title</code>; decorative icons have <code>aria-hidden="true"</code>.</li>
         <li>Works at phone width with no sideways page scroll (tables may scroll inside their card).</li>
-        <li>Labels use the terms in <a href="../application/terminology.md">terminology.md</a>.</li>
+        <li>Labels use the terms in <code>docs/rules/terminology.md</code>.</li>
     </ol>
 </section>
 

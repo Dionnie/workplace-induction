@@ -29,15 +29,19 @@ class Database
                 PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
                 PDO::ATTR_EMULATE_PREPARES => false,
             ]);
+
+            // NOW(), CURDATE() and CURRENT_TIMESTAMP in the app's timezone
+            // (config/app.php), the same as PHP's dates. An offset rather
+            // than a zone name: shared hosts often lack MySQL's zone tables.
+            self::$connection->exec("SET time_zone = '" . (new \DateTimeImmutable())->format('P') . "'");
         }
 
         return self::$connection;
     }
 
     /**
-     * The database server's current time. Use it when comparing against
-     * DATETIME columns filled by CURRENT_TIMESTAMP/NOW(), since PHP's
-     * timezone may differ from the database's.
+     * The database's current time. It agrees with PHP's (see connection());
+     * use it when comparing against DATETIME columns the database filled.
      */
     public static function now(): \DateTimeImmutable
     {

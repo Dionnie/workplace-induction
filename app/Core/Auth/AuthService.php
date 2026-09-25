@@ -25,7 +25,7 @@ class AuthService
      * what authentication needs (email and password). The account starts
      * with an incomplete profile: after verifying their email and logging
      * in, the inductee completes their profile before starting an induction
-     * (docs/core/auth.md #5, #12).
+     * (docs/core/users.md §3, §9).
      *
      * @return array{success: bool, errors: array<string, string>}
      */
@@ -112,7 +112,7 @@ class AuthService
 
     /**
      * Emails the user a link to choose their own password, for an account an
-     * administrator created (docs/core/auth.md #5). It is a password reset
+     * administrator created (docs/core/users.md §8). It is a password reset
      * link that lasts SETUP_LINK_DAYS, since the user isn't expecting it. A
      * current password keeps working until the link is used.
      *
@@ -165,7 +165,7 @@ class AuthService
 
         $this->users->updatePassword((int) $user['id'], password_hash($password, PASSWORD_DEFAULT));
 
-        // The link was sent to their address, so using it proves they own it (#6).
+        // The link was sent to their address, so using it proves they own it (docs/core/users.md §4).
         if ($user['email_verified_at'] === null) {
             $this->users->markEmailVerified((int) $user['id']);
         }

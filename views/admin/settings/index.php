@@ -29,7 +29,7 @@ $navGroups = [
 
 $checked = fn (string $field): string => old($field, $settings[$field] ? '1' : '') === '1' ? 'checked' : '';
 
-// Field help in a tooltip (docs/core/design-system.html#forms): an info
+// Field help in a tooltip (docs/rules/design-system.html#forms): an info
 // button after the label. The control points at it with aria-describedby.
 $help = fn (string $id, string $text): string => '<button type="button" class="field-help" id="' . e($id) . '"'
     . ' data-bs-toggle="tooltip" data-bs-title="' . e($text) . '" aria-label="' . e($text) . '">'

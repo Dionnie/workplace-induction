@@ -156,7 +156,7 @@ function error_for(array $errors, string $field): ?string
 
 /**
  * Status badge. Each status has one colour everywhere in the application
- * (docs/core/design-system.html#badges), so views never pick badge colours
+ * (docs/rules/design-system.html#badges), so views never pick badge colours
  * themselves.
  */
 function status_badge(string $status, ?string $label = null): string

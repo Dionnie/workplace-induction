@@ -5,7 +5,7 @@ declare(strict_types=1);
 /**
  * Exam Blocks Studio: the Content Blocks Studio's top bar, over the exam
  * page's centred column of question cards (views/inductee/exams/take.php).
- * See docs/application/exam_blocks_editor.md.
+ * See docs/application/exams.md.
  *
  * @var array<string, mixed> $exam
  * @var string $initialBlocksJson

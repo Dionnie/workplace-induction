@@ -7,7 +7,7 @@ namespace App\ContentBlocks;
 /**
  * Validates and normalizes the content_blocks JSON stored on an induction:
  * a list of Section slides, each holding its own content blocks and its
- * Lecture slides. See docs/application/content_blocks_editor.md #3 for the
+ * Lecture slides. See docs/application/content-blocks.md #3 for the
  * shape.
  */
 class ContentBlockService

@@ -5,7 +5,7 @@ declare(strict_types=1);
 /**
  * The exam: one card per question in a centred reading column, each answer
  * option a full-width clickable row, and a bar at the bottom with the
- * answered count and Submit Exam (docs/application/exam_blocks_editor.md §7).
+ * answered count and Submit Exam (docs/application/exams.md §7).
  *
  * @var array<string, mixed> $induction
  * @var array<string, mixed> $exam

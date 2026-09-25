@@ -10,7 +10,7 @@ namespace App\ContentBlocks;
  * ContentBlockRenderer; course-editor.js mirrors these lists client-side.
  *
  * Section and Lecture are not block types: they are the two slide levels
- * that hold blocks (docs/application/content_blocks_editor.md #3).
+ * that hold blocks (docs/application/content-blocks.md #3).
  */
 final class BlockTypes
 {

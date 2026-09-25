@@ -6,7 +6,7 @@ use App\ContentBlocks\ContentBlockRenderer;
 
 /**
  * The induction's content as slides, one at a time
- * (docs/application/content_blocks_editor.md #5): the induction's title,
+ * (docs/application/content-blocks.md #5): the induction's title,
  * About button and outline in a sidebar (a drawer below lg), the current
  * slide, and a Previous / Next bar fixed to the bottom of the screen. Every
  * slide is in the page; slide-viewer.js shows one and hides the rest.

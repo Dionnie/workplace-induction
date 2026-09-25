@@ -5,7 +5,7 @@ declare(strict_types=1);
 /**
  * The exam result: the score, then every question as it was on the exam
  * page, with the inductee's answer and the correct answer marked
- * (docs/application/exam_blocks_editor.md §7).
+ * (docs/application/exams.md §7).
  *
  * @var array<string, mixed> $induction
  * @var array<string, mixed> $result score, total, percentage, passed, exam, answers, compliance

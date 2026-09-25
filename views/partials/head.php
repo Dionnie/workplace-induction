@@ -1,7 +1,7 @@
 <?php
 /**
  * <head> contents shared by every page: Bootstrap, Bootstrap Icons, app.css
- * and the site's colour theme (docs/core/design-system.html#page-shell).
+ * and the site's colour theme (docs/rules/design-system.html#page-shell).
  *
  * @var string $documentTitle Browser tab text.
  */

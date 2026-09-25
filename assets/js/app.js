@@ -1,6 +1,6 @@
 /**
  * App-wide UI behaviour, loaded on every page by views/partials/scripts.php.
- * See docs/core/design-system.html#loading.
+ * See docs/rules/design-system.html#loading.
  */
 (function () {
     'use strict';

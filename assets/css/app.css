@@ -1,9 +1,9 @@
 /*
  * Application styles.
  *
- * This file implements the design system. docs/core/design-system.html is
+ * This file implements the design system. docs/rules/design-system.html is
  * the authority for tokens, classes and markup patterns;
- * docs/core/ui-guidelines.md explains the rules behind them. Every class
+ * docs/rules/design.md explains the rules behind them. Every class
  * defined here is listed in the design system's Class Reference -- add new
  * classes there too.
  *
@@ -15,7 +15,7 @@
  *   6. Components
  *   7. Utilities
  *   8. Settings
- *   9. Content Blocks (docs/application/content_blocks_editor.md)
+ *   9. Content Blocks (docs/application/content-blocks.md)
  *  10. Media
  *  11. Certificate card
  */
@@ -511,7 +511,7 @@ h1, h2, h3, h4, h5, h6,
 /* 9. Content Blocks ------------------------------------------------------- */
 
 /*
- * Content Blocks reading canvas (docs/application/content_blocks_editor.md #4).
+ * Content Blocks reading canvas (docs/application/content-blocks.md #4).
  * .content-canvas caps media-width blocks (image/gallery/iframe) at 1024px;
  * .content-block-inner nests inside it to cap text-width blocks (text/alert)
  * at 700px. Both are plain centered max-widths. A slide's own width is the
@@ -529,7 +529,7 @@ h1, h2, h3, h4, h5, h6,
   margin-right: auto;
 }
 
-/* Image block layout variants (docs/application/content_blocks_editor.md #4.2). */
+/* Image block layout variants (docs/application/content-blocks.md #3.1). */
 .cb-image {
   display: block;
 }
@@ -615,7 +615,7 @@ h1, h2, h3, h4, h5, h6,
   margin-bottom: 0;
 }
 
-/* Studio editor (docs/application/content_blocks_editor.md #7). */
+/* Studio editor (docs/application/content-blocks.md #6). */
 .cb-block {
   position: relative;
   padding: 0.5rem 0.75rem;
@@ -759,7 +759,7 @@ h1, h2, h3, h4, h5, h6,
 }
 
 /*
- * Slides (docs/application/content_blocks_editor.md #5): the inductee
+ * Slides (docs/application/content-blocks.md #5): the inductee
  * induction page and the Content Blocks Studio show one slide at a time.
  * From lg up the outline is a sticky sidebar column beside the stage, and
  * scrolls on its own; below lg the same markup is an offcanvas drawer
@@ -992,7 +992,7 @@ h1, h2, h3, h4, h5, h6,
 
 /*
  * Exam Blocks Studio outline & teleport scroll
- * (docs/application/exam_blocks_editor.md). Every teleport target gets
+ * (docs/application/exams.md §3). Every teleport target gets
  * breathing room above it so a smooth-scroll landing never touches the
  * viewport edge.
  */
@@ -1427,7 +1427,7 @@ h1, h2, h3, h4, h5, h6,
 /* 12. Exams ---------------------------------------------------------------- */
 
 /*
- * An exam question card (docs/application/exam_blocks_editor.md §3-4): the
+ * An exam question card (docs/application/exams.md §3–4): the
  * same markup and look on the inductee's exam page, the result page and in
  * the Exam Blocks Studio, so the Studio is a true preview. All three put the
  * cards in the centred .page-narrow column.

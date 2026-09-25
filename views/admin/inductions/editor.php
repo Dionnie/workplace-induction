@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 /**
  * Content Blocks Studio: the induction's content as slides
- * (docs/application/content_blocks_editor.md #6). The outline sidebar lists
+ * (docs/application/content-blocks.md #6). The outline sidebar lists
  * the Section and Lecture slides; the stage shows one slide at a time, the
  * same way the inductee page does. course-editor.js renders the outline and
  * the stage from $initialSlidesJson.

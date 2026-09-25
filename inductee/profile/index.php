@@ -12,7 +12,7 @@ Auth::requireRole('inductee');
 $userId = (int) Auth::id();
 $service = new InducteeProfileService();
 
-// The page that needed a completed profile, to return to once it is complete (docs/core/auth.md #12).
+// The page that needed a completed profile, to return to once it is complete (docs/core/users.md §9).
 $redirectTo = safe_redirect_path($_POST['redirect_to'] ?? $_GET['redirect_to'] ?? null);
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {

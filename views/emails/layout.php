@@ -7,7 +7,7 @@ declare(strict_types=1);
  * shadow, holding the logo (when one is set) and the company name, then the
  * message; a small footer below the card. Neutral colours only, never the
  * Appearance theme, so any logo and any theme colour stay legible
- * (docs/core/ui-guidelines.md §3).
+ * (docs/rules/design.md §3).
  *
  * Table layout and inline styles, since many email clients ignore
  * stylesheets. The column is fluid up to 600px; the <style> block only

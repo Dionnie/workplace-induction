@@ -10,7 +10,7 @@ use App\Induction\InductionService;
 
 Auth::requireRole('inductee');
 
-// Inductions need a completed profile (docs/core/auth.md #12).
+// Inductions need a completed profile (docs/core/users.md §9).
 Auth::requireCompletedProfile('/inductee/profile/index.php', 'Complete your profile before starting an induction.');
 
 $inductionId = (int) ($_GET['induction_id'] ?? $_POST['induction_id'] ?? 0);

@@ -10,8 +10,8 @@ declare(strict_types=1);
  * --color-accent-*) that theme_style_tag() writes into every page head. The
  * Bootstrap bridge in assets/css/app.css maps Bootstrap's primary classes
  * to those tokens, so the whole UI follows the theme; status colours never
- * change. See docs/core/design-system.html#colour and
- * docs/core/ui-guidelines.md section 3.
+ * change. See docs/rules/design-system.html#colour and
+ * docs/rules/design.md §3.
  */
 
 require __DIR__ . '/../../bootstrap.php';

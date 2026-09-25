@@ -1,43 +1,22 @@
-# Content Blocks Editor
+# Content Blocks
 
-## Purpose
+**Application.** An induction's learning material (`inductions.content_blocks`, see `inductions.md`): how it is stored, how inductees read it, and the Studio editor administrators build it in.
 
-An induction's learning material is shown as **slides**, one at a time, like a
-slide deck: Section slides, each followed by its Lecture slides. Every slide
-has a title and holds its own content blocks (text, alerts, images,
-galleries, videos, raw HTML).
+The material is shown as **slides**, one at a time, like a slide deck: Section slides, each followed by its Lecture slides. Every slide has a title and holds its own content blocks (text, alerts, images, galleries, videos, raw HTML).
 
-This replaced one long scrolling page with Section/Lecture heading blocks and
-a scroll-to ("teleport") outline, which was too long a read for inductees.
-The block editor itself (vertical blocks, one active block at a time) did
-not change; it now edits the blocks of one slide at a time.
+This replaced one long scrolling page with Section/Lecture heading blocks and a scroll-to ("teleport") outline, which was too long a read for inductees. The block editor itself (vertical blocks, one active block at a time) did not change; it now edits the blocks of one slide at a time.
 
 ---
 
-## 1. Scope & Relationship to Exam Blocks
+## 1. Scope and Relationship to Exam Blocks
 
-This spec covers the admin Studio editor and the inductee-facing rendering
-of an induction's `content_blocks`. **Exam Blocks** are a separate data
-concept (`docs/application/terminology.md`) with their own Studio
-(`docs/application/exam_blocks_editor.md`). That Studio shares this one's top
-bar and block editing model but keeps a single scrolling canvas, with its own
-outline rail and teleport scroll.
+This doc covers the data, the inductee-facing rendering and the admin Studio for an induction's `content_blocks`. **Exam Blocks** are separate data with their own Studio (`exams.md` §3–4). That Studio shares this one's top bar and block editing model but keeps a single scrolling canvas, with its own outline rail and teleport scroll.
 
 ---
 
-## 2. Terminology
+## 2. Structure
 
-| Term | Meaning |
-| --- | --- |
-| **Content Blocks** | The induction's learning material as a whole (`inductions.content_blocks`, `ContentBlockService`, `app/ContentBlocks/`), and the blocks on each slide. |
-| **Slide** | One screen of content: a title plus its content blocks. |
-| **Section slide** | A first-level slide. It opens a part of the induction and holds that part's Lecture slides. |
-| **Lecture slide** | A second-level slide, inside a Section. |
-
-"Section" and "Lecture" name the two slide levels, not a rename of Content
-Blocks: say "this induction has 6 sections and 40 lectures", not "6
-modules" or "40 lessons". There are exactly two levels; a Lecture never
-holds slides.
+The terms are defined in `docs/rules/terminology.md`. A **Section slide** opens a part of the induction and holds that part's **Lecture slides**. There are exactly two levels: a Lecture never holds slides. Say "this induction has 6 sections and 40 lectures", not "6 modules" or "40 lessons".
 
 ---
 
@@ -80,7 +59,7 @@ at the top of the slide.
 | Type | Label | Fields | Notes |
 | --- | --- | --- | --- |
 | `text` | Text | `id, type, content` | Rich HTML, sanitized (§7). |
-| `alert` | Alert | `id, type, variant, title, content` | `variant` is `info\|warning\|danger\|success`, the semantic colours of `docs/core/ui-guidelines.md`. |
+| `alert` | Alert | `id, type, variant, title, content` | `variant` is `info\|warning\|danger\|success`, the semantic colours of `docs/rules/design.md` §5. |
 | `image` | Image | `id, type, url, caption, width, align, shape, aspect` | `width`: `full` (1024px canvas), `content` (700px), `small` (50%), `smaller` (35%); every width but `full` becomes 100% below 576px. `align`: `left\|center\|right`. `shape`: `rounded\|square\|circle\|as-is`. `aspect`: `natural\|16-9\|4-3\|1-1`. |
 | `gallery` | Gallery | `id, type, columns, images: [{id, url, caption}]` | `columns` `2\|3\|4` at desktop width; a Bootstrap `row row-cols-*` grid that wraps into more rows. |
 | `iframe` | Video | `id, type, url, aspect_ratio, caption` | `https` only. YouTube watch/share/shorts URLs are rewritten to `youtube-nocookie.com/embed/…`. `aspect_ratio` `16:9\|4:3`. |
@@ -194,7 +173,7 @@ Linked from the induction's edit page (**Edit Content Blocks**).
   duplicate, remove). A quick-insert bar (Text, Alert, Image, Gallery,
   Video, Raw HTML) follows the active block, so new blocks go right after
   it. Image and gallery blocks can pick files from the Media Library
-  (`assets/js/media-picker.js`); a plain URL always works too.
+  (`docs/core/media-library.md` §4); a plain URL always works too.
 - **Slide bar** fixed to the bottom of the screen, as on the inductee page:
   Previous, "Slide N of M", Next (and the outline button below `lg`). The
   current slide is kept in the URL hash.
@@ -203,8 +182,8 @@ Linked from the induction's edit page (**Edit Content Blocks**).
   `Ctrl`/`Cmd`+`S`. Leaving with unsaved changes asks first.
 
 The block preview markup in `course-editor.js` is a deliberate client-side
-duplicate of `ContentBlockRenderer`, like `exam-editor.js` and
-`ExamService`, so editing needs no server round trip. Change both together.
+duplicate of `ContentBlockRenderer`, like `exam-editor.js` and the exam
+pages (`exams.md` §4), so editing needs no server round trip. Change both together.
 
 ---
 
@@ -244,7 +223,7 @@ a new tab with `rel="noopener noreferrer"`. `raw_html` is the one exception
 | `assets/js/course-editor.js` | Studio: slides, outline, block editing, save. |
 | `inductee/inductions/show.php`, `views/inductee/inductions/show.php` | Inductee slide view. |
 | `assets/js/slide-viewer.js` | Inductee slide navigation (read-only). |
-| `assets/css/app.css` §9 | `.content-canvas`, `.content-block*`, `.cb-slides-*`, `.cb-slide*`, `.cb-*` editor classes (listed in `docs/core/design-system.html`). |
+| `assets/css/app.css` §9 | `.content-canvas`, `.content-block*`, `.cb-slides-*`, `.cb-slide*`, `.cb-*` editor classes (listed in `docs/rules/design-system.html`). |
 
 ---
 
@@ -266,5 +245,5 @@ It checks that titles, bodies and blocks match the original, and that the
 result passes `ContentBlockService::validate()` unchanged, before writing
 anything. It skips inductions already in the slide shape and keeps
 `updated_at`. It runs as a dry run unless given `--commit`. Back up and test
-on a copy first (`docs/core/data-protection.md`). The application reads only
+on a copy first (`docs/rules/data-protection.md` §4). The application reads only
 the slide shape, so run it wherever old data exists.
