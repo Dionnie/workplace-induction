@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Admin\Services;
 
 use App\Compliance\ComplianceService;
+use App\Core\Auth;
 use App\Core\Auth\AuthService;
 use App\Core\Auth\UserRepository;
 use App\Core\Database;
@@ -92,6 +93,33 @@ class UserManagementService
      *
      * @return array{success: bool, errors: array<string, string>}
      */
+    /**
+     * Switches the logged-in administrator into an inductee's account
+     * (docs/core/users.md §10). Only active inductees: never another
+     * administrator. A switched session is an inductee's, so the admin
+     * guard on this action also stops switching again from inside one.
+     *
+     * @return array{success: bool, errors: array<string, string>}
+     */
+    public function switchTo(int $id): array
+    {
+        $user = $this->users->findById($id);
+        if (!$user) {
+            return ['success' => false, 'errors' => ['form' => 'User not found.']];
+        }
+
+        if ($user['user_type'] !== 'inductee') {
+            return ['success' => false, 'errors' => ['form' => 'Only inductee accounts can be switched to.']];
+        }
+
+        if ($user['status'] !== 'active') {
+            return ['success' => false, 'errors' => ['form' => 'Only an active account can be switched to. Set Status to Active first.']];
+        }
+
+        Auth::switchTo($id);
+        return ['success' => true, 'errors' => []];
+    }
+
     public function sendSetupEmail(int $id): array
     {
         $user = $this->users->findById($id);

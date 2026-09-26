@@ -50,7 +50,48 @@ class Auth
     {
         session_regenerate_id(true);
         $_SESSION['user_id'] = $userId;
+        unset($_SESSION['switched_from']);
         self::$userCache = null;
+    }
+
+    /**
+     * Continues the session as another user, without their password,
+     * remembering the logged-in administrator so switchBack() can return
+     * (Switch Account, docs/core/users.md §10). Who may be switched to is
+     * checked by UserManagementService::switchTo().
+     */
+    public static function switchTo(int $userId): void
+    {
+        $adminId = self::id();
+        session_regenerate_id(true);
+        $_SESSION['user_id'] = $userId;
+        $_SESSION['switched_from'] = $adminId;
+        self::$userCache = null;
+    }
+
+    /** The administrator who switched into this account, or null. */
+    public static function switchedFrom(): ?int
+    {
+        return $_SESSION['switched_from'] ?? null;
+    }
+
+    /**
+     * Returns to the administrator's own account. If that account is no
+     * longer an active administrator, the session ends instead and this
+     * returns false.
+     */
+    public static function switchBack(): bool
+    {
+        $adminId = self::switchedFrom();
+        $admin = $adminId !== null ? (new UserRepository())->findById($adminId) : null;
+
+        if (!$admin || $admin['user_type'] !== 'admin' || $admin['status'] !== 'active') {
+            self::logout();
+            return false;
+        }
+
+        self::login($adminId);
+        return true;
     }
 
     public static function logout(): void

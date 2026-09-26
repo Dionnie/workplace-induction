@@ -6,10 +6,10 @@ use App\ContentBlocks\ContentBlockRenderer;
 
 /**
  * The induction's content as slides, one at a time
- * (docs/application/content-blocks.md #5): the induction's title,
- * About button and outline in a sidebar (a drawer below lg), the current
- * slide, and a Previous / Next bar fixed to the bottom of the screen. Every
- * slide is in the page; slide-viewer.js shows one and hides the rest.
+ * (docs/application/content-blocks.md #5): the current slide, a Previous /
+ * Next bar fixed to the bottom of the screen, and the induction's title,
+ * About button and outline in a drawer opened from that bar. Every slide is
+ * in the page; slide-viewer.js shows one and hides the rest.
  *
  * @var array<string, mixed> $induction
  * @var array<int, array<string, mixed>> $sections Section slides, each with its "lectures".
@@ -55,49 +55,46 @@ $finishAction = trim((string) ob_get_clean());
 
 <div class="<?= $slides ? 'cb-slides-layout' : 'content-canvas' ?>">
     <?php if ($slides): ?>
-        <aside class="cb-slides-sidebar">
-            <div class="offcanvas-lg offcanvas-start" tabindex="-1" id="slide-outline" aria-labelledby="slide-outline-title">
-                <div class="offcanvas-header">
-                    <h2 class="offcanvas-title fs-6" id="slide-outline-title">Outline</h2>
-                    <button type="button" class="btn-close" data-bs-dismiss="offcanvas" data-bs-target="#slide-outline" aria-label="Close"></button>
-                </div>
-                <div class="offcanvas-body">
-                    <div class="cb-slides-induction">
-                        <h1 class="cb-slides-induction-title"><?= e($induction['title']) ?></h1>
-                        <button type="button" class="btn btn-sm btn-outline-secondary" data-about-open>
-                            <i class="bi bi-info-circle me-1" aria-hidden="true"></i>About
-                        </button>
-                    </div>
-                    <nav class="cb-slide-outline" aria-label="Outline">
-                        <div class="small text-uppercase text-muted fw-semibold mb-2 d-none d-lg-block">Outline</div>
-                        <ol class="cb-outline-list list-unstyled mb-0">
-                            <?php foreach ($sections as $section): ?>
-                                <li class="cb-outline-section">
-                                    <a href="#slide-<?= e($section['id']) ?>" class="cb-outline-link cb-outline-link-section" data-slide-link="<?= e($section['id']) ?>">
-                                        <?= e($section['title']) ?>
-                                    </a>
-                                    <?php if (!empty($section['lectures'])): ?>
-                                        <ul class="cb-outline-items list-unstyled">
-                                            <?php foreach ($section['lectures'] as $lecture): ?>
-                                                <li>
-                                                    <a href="#slide-<?= e($lecture['id']) ?>" class="cb-outline-link" data-slide-link="<?= e($lecture['id']) ?>">
-                                                        <?= e($lecture['title']) ?>
-                                                    </a>
-                                                </li>
-                                            <?php endforeach; ?>
-                                        </ul>
-                                    <?php endif; ?>
-                                </li>
-                            <?php endforeach; ?>
-                        </ol>
-                    </nav>
-                </div>
+        <div class="offcanvas offcanvas-start" tabindex="-1" id="slide-outline" aria-labelledby="slide-outline-title">
+            <div class="offcanvas-header">
+                <h2 class="offcanvas-title fs-6" id="slide-outline-title">Outline</h2>
+                <button type="button" class="btn-close" data-bs-dismiss="offcanvas" data-bs-target="#slide-outline" aria-label="Close"></button>
             </div>
-        </aside>
+            <div class="offcanvas-body">
+                <div class="cb-slides-induction">
+                    <h1 class="cb-slides-induction-title"><?= e($induction['title']) ?></h1>
+                    <button type="button" class="btn btn-sm btn-outline-secondary" data-about-open>
+                        <i class="bi bi-info-circle me-1" aria-hidden="true"></i>About
+                    </button>
+                </div>
+                <nav class="cb-slide-outline" aria-label="Outline">
+                    <ol class="cb-outline-list list-unstyled mb-0">
+                        <?php foreach ($sections as $section): ?>
+                            <li class="cb-outline-section">
+                                <a href="#slide-<?= e($section['id']) ?>" class="cb-outline-link cb-outline-link-section" data-slide-link="<?= e($section['id']) ?>">
+                                    <?= e($section['title']) ?>
+                                </a>
+                                <?php if (!empty($section['lectures'])): ?>
+                                    <ul class="cb-outline-items list-unstyled">
+                                        <?php foreach ($section['lectures'] as $lecture): ?>
+                                            <li>
+                                                <a href="#slide-<?= e($lecture['id']) ?>" class="cb-outline-link" data-slide-link="<?= e($lecture['id']) ?>">
+                                                    <?= e($lecture['title']) ?>
+                                                </a>
+                                            </li>
+                                        <?php endforeach; ?>
+                                    </ul>
+                                <?php endif; ?>
+                            </li>
+                        <?php endforeach; ?>
+                    </ol>
+                </nav>
+            </div>
+        </div>
     <?php endif; ?>
 
     <div class="cb-slides-stage">
-        <?php // With slides, the title and description are in the sidebar and the About modal, so the slide gets the screen. ?>
+        <?php // With slides, the title and description are in the outline drawer and the About modal, so the slide gets the screen. ?>
         <?php if (!$slides): ?>
             <div class="page-header">
                 <div>
@@ -158,7 +155,7 @@ $finishAction = trim((string) ob_get_clean());
                     <i class="bi bi-arrow-left" aria-hidden="true"></i><span class="d-none d-sm-inline ms-1">Previous</span>
                 </button>
                 <div class="cb-slide-nav-status">
-                    <button type="button" class="btn btn-sm btn-outline-secondary d-lg-none" data-bs-toggle="offcanvas"
+                    <button type="button" class="btn btn-sm btn-outline-secondary" data-bs-toggle="offcanvas"
                             data-bs-target="#slide-outline" aria-controls="slide-outline" aria-label="Open outline" title="Outline">
                         <i class="bi bi-list-ul" aria-hidden="true"></i>
                     </button>

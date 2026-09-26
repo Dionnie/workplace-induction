@@ -34,23 +34,19 @@
         return -1;
     }
 
-    // Scrolls the outline itself (never the page) so the active link is in
-    // view: the sidebar from lg up, the open drawer below that.
+    // Scrolls the open outline drawer (never the page) so the active link is
+    // in view.
     function revealInOutline(link) {
-        var scroller = link.closest('.offcanvas.show .offcanvas-body') || link.closest('.cb-slides-sidebar');
+        var scroller = link.closest('.offcanvas.show .offcanvas-body');
         if (!scroller) {
             return;
         }
-        // Only the part of the outline on screen counts: before the page is
-        // scrolled, the sidebar can extend below the window.
         var box = scroller.getBoundingClientRect();
-        var top = Math.max(box.top, 0);
-        var bottom = Math.min(box.bottom, window.innerHeight);
         var item = link.getBoundingClientRect();
-        if (item.top < top) {
-            scroller.scrollTop -= top - item.top + 8;
-        } else if (item.bottom > bottom) {
-            scroller.scrollTop += item.bottom - bottom + 8;
+        if (item.top < box.top) {
+            scroller.scrollTop -= box.top - item.top + 8;
+        } else if (item.bottom > box.bottom) {
+            scroller.scrollTop += item.bottom - box.bottom + 8;
         }
     }
 
@@ -121,24 +117,29 @@
         link.addEventListener('click', function (e) {
             e.preventDefault();
 
-            if (outline && window.bootstrap) {
-                var drawer = window.bootstrap.Offcanvas.getInstance(outline);
-                if (drawer) {
-                    drawer.hide();
-                }
-            }
-
             var index = indexOfSlide(link.dataset.slideLink);
             if (index === -1) {
                 return;
             }
             show(index, true);
-            slides[index].querySelector('.cb-slide-title').focus({ preventScroll: true });
+            var title = slides[index].querySelector('.cb-slide-title');
+
+            // Bootstrap gives focus back to the outline button once the
+            // drawer has closed, so the new slide's title takes it after that.
+            var drawer = outline && window.bootstrap && window.bootstrap.Offcanvas.getInstance(outline);
+            if (drawer && outline.classList.contains('show')) {
+                outline.addEventListener('hidden.bs.offcanvas', function () {
+                    title.focus({ preventScroll: true });
+                }, { once: true });
+                drawer.hide();
+            } else {
+                title.focus({ preventScroll: true });
+            }
         });
     });
 
-    // Below lg the About button is in the outline drawer. Bootstrap handles
-    // one overlay at a time, so the drawer closes before the modal opens.
+    // The About button is in the outline drawer. Bootstrap handles one
+    // overlay at a time, so the drawer closes before the modal opens.
     var aboutButton = document.querySelector('[data-about-open]');
     var about = document.getElementById('induction-about');
     if (aboutButton && about) {

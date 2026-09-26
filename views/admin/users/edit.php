@@ -143,6 +143,27 @@ $emailVerified = $user['email_verified_at'] !== null;
         </div>
     </div>
 
+    <div class="card shadow-sm mt-4">
+        <div class="card-body p-4">
+            <h2 class="fs-6 mb-1">Switch Account</h2>
+            <p class="text-muted small mb-3">
+                <?php if (!$isInductee): ?>
+                    Only inductee accounts can be switched to.
+                <?php elseif ($user['status'] !== 'active'): ?>
+                    Only active accounts can be switched to. Set Status to Active first.
+                <?php else: ?>
+                    Use the site as <?= e($userName) ?>, without their password. Everything you do counts as theirs.
+                    Switch Back, at the top of every page, returns you here.
+                <?php endif; ?>
+            </p>
+            <form method="post" action="/admin/users/switch.php" class="d-inline">
+                <?= csrf_field() ?>
+                <input type="hidden" name="id" value="<?= (int) $user['id'] ?>">
+                <button type="submit" class="btn btn-outline-secondary btn-sm" <?= !$isInductee || $user['status'] !== 'active' ? 'disabled' : '' ?>>Switch Account</button>
+            </form>
+        </div>
+    </div>
+
     <div class="card border-danger-subtle shadow-sm mt-4">
         <div class="card-body p-4">
             <h2 class="fs-6 text-danger mb-1">Danger Zone</h2>

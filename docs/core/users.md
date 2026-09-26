@@ -146,9 +146,25 @@ A user can be logged in with an incomplete profile. Some pages need it complete.
 - **List**: name, email, type, status, profile state, created; search and a user type filter. Rows link to Edit.
 - **Add User**: §8.
 - **Edit User**: email, status, Profile completed (inductees), Email verified (while unverified), and an optional new password. The user type can't be changed. A Password Setup Email card sends a setup link.
+- **Switch Account** card: use the site as an inductee, without their password (below).
 - **Delete User** is in the Danger Zone. A user with exam attempts or compliance records can only be deleted with **cascade**, which deletes those records too, in one transaction. Administrators can't delete their own account.
 
-An administrator doesn't edit an inductee's profile details; the inductee keeps them up to date on My Profile.
+An administrator doesn't edit an inductee's profile details on Edit User; the inductee keeps them up to date on My Profile (an administrator can do it there by switching to their account).
+
+### Switch Account
+
+```text
+Edit User → Switch Account (POST) → the inductee's dashboard, with a banner on every page
+    → Switch Back (POST) → back on that Edit User page, as the administrator
+```
+
+- Administrators are trusted: a switched session is the inductee's account with full, normal access. Anything done in it (completing an induction, passing an exam, editing the profile) counts as the inductee's, emails included, and isn't logged as a switch.
+- Only **active inductees** can be switched to, never another administrator (`UserManagementService::switchTo()`). The card stays visible but disabled otherwise, with the reason.
+- The session keeps the administrator's id beside the inductee's (`Auth::switchTo()`, `Auth::switchedFrom()`), and gets a new session ID on the switch and on the way back (`docs/rules/security.md` §5).
+- A switched session is an inductee's, so admin pages answer 403 and switching again isn't possible until Switch Back.
+- **Switch Back** (`/admin/users/switch-back.php`) checks that the administrator's account is still an active administrator. If it isn't, the session ends and the login page says why.
+- The banner (`views/partials/inductee-header.php`) names the account in use and holds Switch Back.
+- **Log Out** while switched ends the whole session, the administrator's included. The same happens if the inductee's account is suspended, made inactive or deleted meanwhile (§2).
 
 ---
 
@@ -175,7 +191,7 @@ Core authentication knows about users, email, passwords, verification, password 
 
 | File | Role |
 | --- | --- |
-| `app/Core/Auth.php` | Session state and guards: `requireLogin`, `requireRole`, `requireCompletedProfile`, `homeUrl`, `intendedUrl` |
+| `app/Core/Auth.php` | Session state and guards: `requireLogin`, `requireRole`, `requireCompletedProfile`, `homeUrl`, `intendedUrl`; `switchTo`, `switchedFrom`, `switchBack` (§10) |
 | `app/Core/Auth/AuthService.php` | Register, login, verify, password reset and setup links |
 | `app/Core/Auth/UserRepository.php` | `users` and profile names |
 | `app/Admin/Services/UserManagementService.php` | Admin Users section and the administrator's My Profile |

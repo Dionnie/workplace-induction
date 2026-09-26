@@ -103,6 +103,8 @@ true preview:
   block, mirrored at the bottom. Decorative only (`aria-hidden`).
 - Blocks on a slide are spaced close together (`.content-block`,
   `.cb-block`); they are never nested or indented.
+- The page always shows its scrollbar, so moving between a short slide and
+  a long one never shifts the slide sideways.
 
 ---
 
@@ -116,20 +118,21 @@ true preview:
   on a Section slide, the section's title on a Lecture slide), then the
   title as an `h2`.
 - **No page header.** The slide starts at the top of the page. The
-  induction's title sits at the top of the sidebar with an **About** button,
-  which opens a modal with the title and description. The top navbar's
-  Dashboard link is the way back.
-- **Outline sidebar** on the left: sections with their lectures nested
-  under them, the current slide highlighted. Clicking an item opens that
-  slide. From `lg` up it is a sticky column that scrolls on its own; below
-  `lg` the same markup is a Bootstrap `.offcanvas-lg` drawer, opened from
-  the slide bar. About, from the drawer, closes the drawer before opening
-  the modal.
+  induction's title sits at the top of the outline drawer with an
+  **About** button, which opens a modal with the title and description. The
+  top navbar's Dashboard link is the way back.
+- **Outline drawer** (a Bootstrap `.offcanvas`, from the left), opened with
+  the outline button in the slide bar at every screen width, so the slide
+  has the page's width to itself while reading: sections with their
+  lectures nested under them, the current slide highlighted. Clicking an
+  item opens that slide and closes the drawer. About, from the drawer,
+  closes the drawer before opening the modal.
 - **Slide bar** (`.cb-slide-nav`) fixed to the bottom of the screen and
-  centred on the slide: Previous, "Slide N of M" ("N of M" below `sm`),
-  Next. It stays in the same place on every slide, however short or long,
-  so Next never moves under the reader's finger. Left/Right arrow keys also
-  move between slides (not while the About modal is open).
+  centred on the slide: Previous, the outline button and "Slide N of M"
+  ("N of M" below `sm`), Next. It stays in the same place on every slide,
+  however short or long, so Next never moves under the reader's finger.
+  Left/Right arrow keys also move between slides (not while the drawer or
+  the About modal is open).
 - **Finishing**: on the last slide, Next is replaced by the page's finish
   action, **Start Exam** / **Retry Exam** (exam-based induction) or **Mark
   as Complete** (no exam). A currently compliant inductee has no finish
@@ -142,7 +145,7 @@ true preview:
   slide reloads its video frames, which stops playback.
 - **No content**: the usual page header (breadcrumb, title, description),
   "This induction has no content yet." with the finish action below it,
-  and no sidebar or slide bar.
+  and no outline or slide bar.
 
 ---
 

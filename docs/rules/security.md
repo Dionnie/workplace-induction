@@ -53,8 +53,8 @@ Auth::requireRole('admin');      // or 'inductee'; sends a guest to login, answe
 
 `bootstrap.php` starts every session with `HttpOnly`, `SameSite=Lax`, `Secure` when the request is HTTPS, and a cookie that ends with the browser session.
 
-- `Auth::login()` regenerates the session ID (prevents session fixation). `Auth::logout()` clears the session and regenerates it.
-- The session holds only the user's id. Nothing sensitive goes in browser storage.
+- `Auth::login()` regenerates the session ID (prevents session fixation). `Auth::logout()` clears the session and regenerates it. Switch Account and Switch Back regenerate it too (`docs/core/users.md` §10).
+- The session holds only the user's id, and during Switch Account the administrator's id beside it. Nothing sensitive goes in browser storage.
 - Account status is checked at login and on every request (`Auth::user()`). A user who is suspended, made inactive or deleted is logged out on their next page (`docs/core/users.md` §2).
 
 ---

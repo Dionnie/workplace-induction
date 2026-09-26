@@ -24,25 +24,26 @@
 
 /* Only 400 and 600 are loaded: use fw-normal / fw-semibold, never 500 or 700. */
 @font-face {
-  font-family: 'Poppins';
+  font-family: "Poppins";
   font-style: normal;
   font-weight: 400;
   font-display: swap;
-  src: url('/assets/fonts/poppins/poppins-400.woff2') format('woff2');
+  src: url("/assets/fonts/poppins/poppins-400.woff2") format("woff2");
 }
 
 @font-face {
-  font-family: 'Poppins';
+  font-family: "Poppins";
   font-style: normal;
   font-weight: 600;
   font-display: swap;
-  src: url('/assets/fonts/poppins/poppins-600.woff2') format('woff2');
+  src: url("/assets/fonts/poppins/poppins-600.woff2") format("woff2");
 }
 
 /* 2. Tokens ------------------------------------------------------------- */
 
 :root {
-  --font-family-base: 'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-family-base:
+    "Poppins", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
 
   /*
    * Brand colours (themeable). These are the default Teal preset;
@@ -50,22 +51,22 @@
    * chosen in Settings > Appearance (App\Core\Theme). Never hard-code a
    * brand hex value anywhere else.
    */
-  --color-primary-900: #022a2b;      /* navbar, dark surfaces */
-  --color-primary-800: #044647;      /* hover */
-  --color-primary-700: #0f5d5f;      /* primary actions, links, active states */
-  --color-primary-rgb: 15, 93, 95;   /* primary-700 as r, g, b for tints */
+  --color-primary-900: #022a2b; /* navbar, dark surfaces */
+  --color-primary-800: #044647; /* hover */
+  --color-primary-700: #0f5d5f; /* primary actions, links, active states */
+  --color-primary-rgb: 15, 93, 95; /* primary-700 as r, g, b for tints */
   --color-primary-800-rgb: 4, 70, 71;
-  --color-accent-500: #a54b17;       /* secondary emphasis, used sparingly */
+  --color-accent-500: #a54b17; /* secondary emphasis, used sparingly */
   --color-accent-rgb: 165, 75, 23;
 
   /* Fixed colours (not themeable). */
-  --color-warm-500: #ea9491;         /* decorative highlight only, never an error */
-  --color-background: #f8f6f3;       /* page background */
-  --color-surface: #ffffff;          /* cards, tables, inputs, modals */
-  --color-surface-subtle: #f8f6f3;   /* panels inside a surface, table headers */
+  --color-warm-500: #ea9491; /* decorative highlight only, never an error */
+  --color-background: #f8f6f3; /* page background */
+  --color-surface: #ffffff; /* cards, tables, inputs, modals */
+  --color-surface-subtle: #f8f6f3; /* panels inside a surface, table headers */
   --color-border: #dee2e6;
   --color-text: #212529;
-  --color-text-muted: #595c5f;       /* 4.5:1 or better on both backgrounds */
+  --color-text-muted: #595c5f; /* 4.5:1 or better on both backgrounds */
 }
 
 /* 3. Bootstrap bridge ----------------------------------------------------- */
@@ -133,7 +134,8 @@
 .pagination {
   --bs-pagination-active-bg: var(--color-primary-700);
   --bs-pagination-active-border-color: var(--color-primary-700);
-  --bs-pagination-focus-box-shadow: 0 0 0 0.25rem rgba(var(--color-primary-rgb), 0.25);
+  --bs-pagination-focus-box-shadow: 0 0 0 0.25rem
+    rgba(var(--color-primary-rgb), 0.25);
 }
 
 .form-check-input:checked {
@@ -153,7 +155,8 @@
 }
 
 .btn-close {
-  --bs-btn-close-focus-shadow: 0 0 0 0.25rem rgba(var(--color-primary-rgb), 0.25);
+  --bs-btn-close-focus-shadow: 0 0 0 0.25rem
+    rgba(var(--color-primary-rgb), 0.25);
 }
 
 /*
@@ -168,8 +171,18 @@ body {
 }
 
 /* Bootstrap's heading weight (500) isn't loaded and falls back to 400. */
-h1, h2, h3, h4, h5, h6,
-.h1, .h2, .h3, .h4, .h5, .h6 {
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+.h1,
+.h2,
+.h3,
+.h4,
+.h5,
+.h6 {
   font-weight: 600;
 }
 
@@ -392,7 +405,9 @@ h1, h2, h3, h4, h5, h6,
 .link-card {
   color: inherit;
   text-decoration: none;
-  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+  transition:
+    border-color 0.15s ease,
+    box-shadow 0.15s ease;
 }
 
 .link-card:hover,
@@ -570,10 +585,19 @@ h1, h2, h3, h4, h5, h6,
  * 576px breakpoint every preset except "full" collapses to 100% so a
  * "smaller" image never shrinks to an illegible size on a phone.
  */
-.cb-image.cb-w-full { width: 100%; }
-.cb-image.cb-w-content { width: 700px; max-width: 100%; }
-.cb-image.cb-w-small { width: 50%; }
-.cb-image.cb-w-smaller { width: 35%; }
+.cb-image.cb-w-full {
+  width: 100%;
+}
+.cb-image.cb-w-content {
+  width: 700px;
+  max-width: 100%;
+}
+.cb-image.cb-w-small {
+  width: 50%;
+}
+.cb-image.cb-w-smaller {
+  width: 35%;
+}
 
 @media (max-width: 576px) {
   .cb-image.cb-w-content,
@@ -583,13 +607,33 @@ h1, h2, h3, h4, h5, h6,
   }
 }
 
-.cb-image img.cb-shape-rounded { border-radius: 0.5rem; }
-.cb-image img.cb-shape-square { border-radius: 0; }
-.cb-image img.cb-shape-circle { border-radius: 50%; aspect-ratio: 1 / 1; object-fit: cover; }
+.cb-image img.cb-shape-rounded {
+  border-radius: 0.5rem;
+}
+.cb-image img.cb-shape-square {
+  border-radius: 0;
+}
+.cb-image img.cb-shape-circle {
+  border-radius: 50%;
+  aspect-ratio: 1 / 1;
+  object-fit: cover;
+}
 
-.cb-image img.cb-aspect-16-9 { aspect-ratio: 16 / 9; object-fit: cover; width: 100%; }
-.cb-image img.cb-aspect-4-3 { aspect-ratio: 4 / 3; object-fit: cover; width: 100%; }
-.cb-image img.cb-aspect-1-1 { aspect-ratio: 1 / 1; object-fit: cover; width: 100%; }
+.cb-image img.cb-aspect-16-9 {
+  aspect-ratio: 16 / 9;
+  object-fit: cover;
+  width: 100%;
+}
+.cb-image img.cb-aspect-4-3 {
+  aspect-ratio: 4 / 3;
+  object-fit: cover;
+  width: 100%;
+}
+.cb-image img.cb-aspect-1-1 {
+  aspect-ratio: 1 / 1;
+  object-fit: cover;
+  width: 100%;
+}
 
 /*
  * Slide title typography, shared by the Studio editor (as an <input>) and
@@ -609,7 +653,7 @@ h1, h2, h3, h4, h5, h6,
  */
 .cb-block,
 .content-block {
-  margin-top: 0.75rem;
+  margin-top: 1.5rem;
 }
 
 .cb-block:first-child,
@@ -780,9 +824,11 @@ h1, h2, h3, h4, h5, h6,
 /*
  * Slides (docs/application/content-blocks.md #5): the inductee
  * induction page and the Content Blocks Studio show one slide at a time.
- * From lg up the outline is a sticky sidebar column beside the stage, and
- * scrolls on its own; below lg the same markup is an offcanvas drawer
- * (.offcanvas-lg), opened from the slide bar, like the admin sidebar. The
+ * On the inductee page the outline is always an offcanvas drawer, opened
+ * from the slide bar, so the slide has the width to itself. In the Studio
+ * (the layout has a .cb-slides-sidebar), from lg up the outline is a sticky
+ * sidebar column beside the stage, and scrolls on its own; below lg the
+ * same markup is a drawer (.offcanvas-lg), like the admin sidebar. The
  * stage keeps the 1024px canvas width.
  */
 .cb-slides-layout {
@@ -793,6 +839,16 @@ h1, h2, h3, h4, h5, h6,
   padding-bottom: 4.5rem;
 }
 
+/*
+ * The page always shows its scrollbar, so moving between a short slide and
+ * a long one never changes the page width and shifts the slide sideways.
+ * On body (the browser applies it to the page), so Bootstrap's drawer and
+ * modal can still hide it while open, and pad for it as usual.
+ */
+body:has(.cb-slides-layout) {
+  overflow-y: scroll;
+}
+
 .cb-slides-stage {
   min-width: 0;
   max-width: 1024px;
@@ -801,14 +857,14 @@ h1, h2, h3, h4, h5, h6,
 }
 
 @media (min-width: 992px) {
-  .cb-slides-layout {
+  .cb-slides-layout:has(> .cb-slides-sidebar) {
     display: grid;
     grid-template-columns: 17rem minmax(0, 1fr);
     gap: 1.5rem;
     align-items: start;
   }
 
-  .cb-slides-stage {
+  .cb-slides-layout:has(> .cb-slides-sidebar) .cb-slides-stage {
     max-width: none;
     margin: 0;
   }
@@ -831,9 +887,9 @@ h1, h2, h3, h4, h5, h6,
 }
 
 /*
- * Inductee page: the induction's title at the top of the sidebar, with the
- * About button (modal with the description). It replaces the page header,
- * so the slide starts at the top of the screen.
+ * Inductee page: the induction's title at the top of the outline drawer,
+ * with the About button (modal with the description). It replaces the page
+ * header, so the slide starts at the top of the screen.
  */
 .cb-slides-induction {
   display: flex;
@@ -903,7 +959,8 @@ h1, h2, h3, h4, h5, h6,
   height: 30px;
   overflow: hidden;
   background-color: var(--color-primary-700);
-  border-radius: var(--bs-card-inner-border-radius) var(--bs-card-inner-border-radius) 0 0;
+  border-radius: var(--bs-card-inner-border-radius)
+    var(--bs-card-inner-border-radius) 0 0;
 }
 
 .cb-slide-band::before {
@@ -977,8 +1034,8 @@ h1, h2, h3, h4, h5, h6,
 /*
  * The slide bar is fixed, so it stays in the same place on every slide,
  * however short or long. Centred on the stage: the layout is centred on the
- * screen, so from lg up the bar is centred on the part right of the sidebar
- * column and gap (18.5rem).
+ * screen, so from lg up, beside the Studio's sidebar column, the bar is
+ * centred on the part right of the column and gap (18.5rem).
  */
 .cb-slide-nav {
   position: fixed;
@@ -990,7 +1047,7 @@ h1, h2, h3, h4, h5, h6,
 }
 
 @media (min-width: 992px) {
-  .cb-slide-nav {
+  .cb-slides-layout:has(> .cb-slides-sidebar) .cb-slide-nav {
     left: 18.5rem;
   }
 }
@@ -1123,8 +1180,12 @@ h1, h2, h3, h4, h5, h6,
 }
 
 @keyframes teleport-highlight-pulse {
-  0% { background-color: var(--color-warm-500); }
-  100% { background-color: transparent; }
+  0% {
+    background-color: var(--color-warm-500);
+  }
+  100% {
+    background-color: transparent;
+  }
 }
 
 .teleport-highlight-pulse {
@@ -1162,7 +1223,9 @@ h1, h2, h3, h4, h5, h6,
 
 /* Spinner icon shown on the Save button while a save request is in flight. */
 @keyframes cb-spin {
-  to { transform: rotate(360deg); }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 .cb-spin {
@@ -1505,7 +1568,10 @@ h1, h2, h3, h4, h5, h6,
   background-color: var(--color-surface);
   border: 1px solid var(--color-border);
   border-radius: 0.5rem;
-  transition: border-color 0.15s ease, background-color 0.15s ease, box-shadow 0.15s ease;
+  transition:
+    border-color 0.15s ease,
+    background-color 0.15s ease,
+    box-shadow 0.15s ease;
 }
 
 label.exam-choice {
@@ -1525,7 +1591,9 @@ label.exam-choice:has(.exam-choice-radio:checked) {
 }
 
 label.exam-choice:has(.exam-choice-radio:focus-visible) {
-  box-shadow: inset 0 0 0 1px var(--color-primary-700), 0 0 0 0.25rem var(--bs-focus-ring-color);
+  box-shadow:
+    inset 0 0 0 1px var(--color-primary-700),
+    0 0 0 0.25rem var(--bs-focus-ring-color);
 }
 
 /* Radio and icon markers, 20px, level with the first line of the text. */

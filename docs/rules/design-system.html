@@ -551,7 +551,7 @@ require __DIR__ . '/../../partials/admin-header.php';
     </p>
     <p>
         The one exception is the inductee's slide view of an induction: the slide gets the whole screen, the induction's
-        title sits at the top of the outline sidebar (<code>.cb-slides-induction</code>), and an About button opens a modal
+        title sits at the top of the outline drawer (<code>.cb-slides-induction</code>), and an About button opens a modal
         with the description.
     </p>
 
@@ -617,7 +617,7 @@ require __DIR__ . '/../../partials/admin-header.php';
                     <tr><td><code>container</code> (inductee layout)</td><td>Bootstrap</td><td>Inductee pages</td></tr>
                     <tr><td><code>.page-narrow</code></td><td>720px</td><td>Form pages, profiles, detail pages (certificate). Wrap the page header and the card in it, so they line up. Centred (<code>.page-narrow.mx-auto</code>) for reading columns: the exam and result pages and the Exam Blocks Studio (<a href="#exam-question">Exam question</a>).</td></tr>
                     <tr><td><code>.container-guest</code> (layout)</td><td>420px</td><td>The guest layout's single card</td></tr>
-                    <tr><td><code>.content-canvas</code>, <code>.cb-slides-stage</code></td><td>1024px</td><td>Content Blocks reading canvas and the slide area beside the outline (see content-blocks.md)</td></tr>
+                    <tr><td><code>.content-canvas</code>, <code>.cb-slides-stage</code></td><td>1024px</td><td>Content Blocks reading canvas and the slide area (see content-blocks.md)</td></tr>
                 </tbody>
             </table>
         </div>
@@ -1179,6 +1179,22 @@ require __DIR__ . '/../../partials/admin-header.php';
             <div class="alert alert-info mb-0">No matches found.</div>
         </div>
     </div>
+    <p>
+        With an action: the text, then one <code>btn-sm</code> button, on a row that wraps on a phone. Used for Complete your
+        profile on the admin dashboard, and for the Switch Account banner on every inductee page while an administrator is using
+        the account (<code>views/partials/inductee-header.php</code>, <code>docs/core/users.md</code> §10).
+    </p>
+    <div class="ds-example">
+        <div class="ds-preview">
+            <div class="alert alert-warning d-flex flex-wrap align-items-center justify-content-between gap-2 mb-0">
+                <div>
+                    <i class="bi bi-person-badge me-1" aria-hidden="true"></i>
+                    You are using <strong>Jane Smith</strong>'s account as an administrator.
+                </div>
+                <button type="button" class="btn btn-primary btn-sm">Switch Back</button>
+            </div>
+        </div>
+    </div>
     <ul class="ds-do">
         <li>Choose the variant by <a href="#semantic">meaning</a>. The text states the situation and, when there is one, the next step.</li>
         <li>Supporting notes inside a card use <code>p.text-muted.small</code> with an optional <code>bi-info-circle</code> icon, not an alert.</li>
@@ -1631,7 +1647,7 @@ require __DIR__ . '/../partials/certificate-card.php';
                     <tr><td><code>.border-dashed</code></td><td>7</td><td>Dashed border (drop zones).</td></tr>
                     <tr><td><code>.logo-preview-box</code>, <code>.reminder-days</code>, <code>.email-preview-frame</code>, <code>.theme-swatch*</code>, <code>.theme-preview-header</code></td><td>8</td><td>Settings page only.</td></tr>
                     <tr><td><code>.content-canvas</code>, <code>.content-block*</code></td><td>9</td><td>Content Blocks reading canvas: 1024px media width, 700px text column (content-blocks.md §4).</td></tr>
-                    <tr><td><code>.cb-slides-layout</code>, <code>.cb-slides-sidebar</code>, <code>.cb-slides-stage</code>, <code>.cb-slides-induction*</code>, <code>.cb-slide-outline</code>, <code>.cb-slide</code>, <code>.cb-slide-band*</code>, <code>.cb-slide-header</code>, <code>.cb-slide-eyebrow</code>, <code>.cb-slide-title</code>, <code>.cb-slide-nav*</code>, <code>.cb-slide-counter</code></td><td>9</td><td>Slides, one at a time, on the inductee induction page and in the Content Blocks Studio: outline sidebar (an <code>.offcanvas-lg</code> drawer below lg; on the inductee page topped by the induction's title and About button), slide card with its <a href="#colour">brand band</a> top and bottom, Previous / Next bar fixed to the bottom of the screen (content-blocks.md §5–6).</td></tr>
+                    <tr><td><code>.cb-slides-layout</code>, <code>.cb-slides-sidebar</code>, <code>.cb-slides-stage</code>, <code>.cb-slides-induction*</code>, <code>.cb-slide-outline</code>, <code>.cb-slide</code>, <code>.cb-slide-band*</code>, <code>.cb-slide-header</code>, <code>.cb-slide-eyebrow</code>, <code>.cb-slide-title</code>, <code>.cb-slide-nav*</code>, <code>.cb-slide-counter</code></td><td>9</td><td>Slides, one at a time, on the inductee induction page and in the Content Blocks Studio: outline (on the inductee page an <code>.offcanvas</code> drawer at every width, topped by the induction's title and About button; in the Studio a <code>.cb-slides-sidebar</code> column from lg, an <code>.offcanvas-lg</code> drawer below), slide card with its <a href="#colour">brand band</a> top and bottom, Previous / Next bar fixed to the bottom of the screen (content-blocks.md §5–6).</td></tr>
                     <tr><td><code>.cb-*</code> (other), <code>.teleport-highlight-pulse</code></td><td>9</td><td>Both Studio editors: blocks, controls, rich text, type badges; the Exam Blocks Studio's outline rail and teleport scroll (exams.md §4).</td></tr>
                     <tr><td><code>.exam-questions</code>, <code>.exam-question*</code>, <code>.exam-choices</code>, <code>.exam-choice*</code>, <code>.exam-explanation</code>, <code>.exam-bar*</code></td><td>12</td><td>The exam question card on the exam page, the result page and in the Exam Blocks Studio; the exam page's bar. <a href="#exam-question">↗</a></td></tr>
                     <tr><td><code>.media-thumb</code>, <code>.media-tile*</code>, <code>.media-picker-*</code></td><td>10</td><td>Media Library and the image picker modal.</td></tr>

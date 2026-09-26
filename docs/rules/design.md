@@ -253,7 +253,7 @@ This applies particularly to status badges, validation messages, alerts, tables,
 # 10. Layout and Navigation
 
 - Every page uses a layout partial (admin, inductee or guest). Never hand-write a `<head>`, navbar or footer.
-- Every page starts with a `.page-header`: the page title, an optional one-line subtitle, and the page's actions. The one exception is the inductee's slide view of an induction, where the slide gets the whole screen: the induction's title sits at the top of the outline sidebar, with an About modal for the description (`docs/application/content-blocks.md` §5).
+- Every page starts with a `.page-header`: the page title, an optional one-line subtitle, and the page's actions. The one exception is the inductee's slide view of an induction, where the slide gets the whole screen: the induction's title sits at the top of the outline drawer, with an About modal for the description (`docs/application/content-blocks.md` §5).
 - Pages below a section's index (create, edit, detail, exam) show a breadcrumb in the page header. It replaces ad-hoc "Back" buttons.
 - Form, profile and detail pages are capped with `.page-narrow`.
 - Both areas have a top bar with the brand and the account menu (My Profile, Log Out). The active item comes from the view's `$currentPage`.

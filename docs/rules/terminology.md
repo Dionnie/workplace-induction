@@ -32,6 +32,7 @@ Use these terms exactly, in the UI, in code names and in docs. Don't substitute 
 | A user's kind | **User type**: Administrator (`admin`) or Inductee (`inductee`) | Role, Group |
 | Whether a user can log in | **Status**: Active, Inactive, Suspended | Enabled, Locked |
 | A user's own details page | **My Profile** | Account settings |
+| An administrator using an inductee's account, and returning | **Switch Account**, **Switch Back** | Impersonate, Log in as, Masquerade |
 | Uploaded images and their groups | **Media Library**, **Category** | Gallery, Folder, Album |
 | Records that are permanently removed | **Delete** | Remove, Erase, Purge |
 | Records invalidated but kept | **Revoke** (compliance records only) | Cancel, Void |
