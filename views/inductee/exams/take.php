@@ -19,19 +19,11 @@ $total = count($questions);
 ?>
 
 <div class="page-narrow mx-auto">
-    <div class="page-header">
+    <div class="page-header justify-content-center text-center">
         <div>
-            <nav aria-label="Breadcrumb">
-                <ol class="breadcrumb">
-                    <li class="breadcrumb-item"><a href="/inductee/index.php">Dashboard</a></li>
-                    <li class="breadcrumb-item"><a href="/inductee/inductions/show.php?id=<?= (int) $induction['id'] ?>"><?= e($induction['title']) ?></a></li>
-                    <li class="breadcrumb-item active" aria-current="page">Exam</li>
-                </ol>
-            </nav>
             <h1 class="page-title"><?= e($induction['title']) ?> &mdash; Exam</h1>
             <p class="page-subtitle">
                 <?= $total ?> <?= $total === 1 ? 'question' : 'questions' ?>, pass mark <?= (int) $exam['pass_percentage'] ?>%.
-                Answer every question, then submit.
             </p>
         </div>
     </div>
@@ -56,7 +48,7 @@ $total = count($questions);
                             <?php foreach ($question['options'] as $option): ?>
                                 <label class="exam-choice">
                                     <input class="form-check-input exam-choice-radio" type="radio"
-                                           name="answers[<?= e($question['id']) ?>]" value="<?= e($option['id']) ?>" required>
+                                        name="answers[<?= e($question['id']) ?>]" value="<?= e($option['id']) ?>" required>
                                     <span class="exam-choice-text"><?= e($option['text']) ?></span>
                                 </label>
                             <?php endforeach; ?>

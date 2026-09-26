@@ -103,7 +103,7 @@ Only active exams can be linked to an induction. If a linked exam is made inacti
 **Exam page** (`views/inductee/exams/take.php`, `assets/js/exam-take.js`)
 
 - The correct answers are removed before the questions reach the page.
-- The page header says how many questions there are and the pass mark.
+- The page header is centred, with no breadcrumb (the bar's Cancel leaves the page), and says how many questions there are and the pass mark.
 - Each question is a card: "Question 3 of 20", the question, its diagram, then the options. The eyebrow and question are the fieldset's legend, so screen readers announce them with the options.
 - **Each option is a full-width row, and the whole row is the click target** (pointer cursor, hover tint). The chosen row gets a primary edge and tint; keyboard users move between options with the arrow keys, and the focused row is ringed.
 - A bar sticks to the bottom of the screen (the slide bar's look): **Cancel**, the answered count ("3 of 20 answered", "All 20 answered"), **Submit Exam**. Every question is required: submitting with one unanswered takes the inductee to it.
