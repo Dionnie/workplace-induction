@@ -39,12 +39,9 @@ $emailVerified = $user['email_verified_at'] !== null;
                 <?= csrf_field() ?>
 
                 <div class="mb-3">
-                    <label for="email" class="form-label required">Email</label>
-                    <input type="email" class="form-control <?= error_for($errors, 'email') ? 'is-invalid' : '' ?>"
-                           id="email" name="email" value="<?= old('email', (string) $user['email']) ?>" autocomplete="off" required autofocus>
-                    <?php if ($error = error_for($errors, 'email')): ?>
-                        <div class="invalid-feedback"><?= e($error) ?></div>
-                    <?php endif; ?>
+                    <label for="email" class="form-label">Email</label>
+                    <input type="email" class="form-control" id="email" value="<?= e((string) $user['email']) ?>" disabled>
+                    <div class="form-text">An account's email can't be changed.</div>
                 </div>
 
                 <div class="row g-3 mb-3">

@@ -22,7 +22,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     verify_csrf();
 
     $data = [
-        'email' => trim($_POST['email'] ?? ''),
         'status' => $_POST['status'] ?? '',
         'profile_completed' => !empty($_POST['profile_completed']) ? '1' : '',
         'email_verified' => !empty($_POST['email_verified']) ? '1' : '',

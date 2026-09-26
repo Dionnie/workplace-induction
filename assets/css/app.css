@@ -956,7 +956,7 @@ body:has(.cb-slides-layout) {
 .cb-slide-band {
   position: relative;
   flex-shrink: 0;
-  height: 30px;
+  height: 10px;
   overflow: hidden;
   background-color: var(--color-primary-700);
   border-radius: var(--bs-card-inner-border-radius)

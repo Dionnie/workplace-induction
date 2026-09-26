@@ -58,7 +58,7 @@ class UserManagementService
             $data['password'] = $data['password_confirmation'] = bin2hex(random_bytes(32));
         }
 
-        $errors = $this->validate($data, null);
+        $errors = $this->validate($data, true);
         if ($sendSetupEmail && ($data['status'] ?? '') !== 'active') {
             $errors['send_setup_email'] = 'Only an active account can be sent a setup email. Set Status to Active, or untick this and set a password.';
         }
@@ -139,7 +139,8 @@ class UserManagementService
     }
 
     /**
-     * Updates the account (the users table only). Profile Completed can be
+     * Updates the account (the users table only). The email never changes
+     * once the account exists (docs/core/users.md §10). Profile Completed can be
      * turned off to have an inductee review their profile again, but only
      * turned on when their profile has every required field. Email Verified
      * can only be turned on (e.g. when the verification email never arrived).
@@ -153,7 +154,7 @@ class UserManagementService
             return ['success' => false, 'errors' => ['form' => 'User not found.']];
         }
 
-        $errors = $this->validate($data, $id);
+        $errors = $this->validate($data, false);
 
         $isInductee = $existing['user_type'] === 'inductee';
         $profileCompleted = !empty($data['profile_completed']);
@@ -169,7 +170,6 @@ class UserManagementService
             return ['success' => false, 'errors' => $errors];
         }
 
-        $this->users->updateEmail($id, trim($data['email']));
         $this->users->updateStatus($id, $data['status']);
 
         if ($isInductee) {
@@ -287,15 +287,15 @@ class UserManagementService
     /**
      * @return array<string, string>
      */
-    private function validate(array $data, ?int $ignoreUserId): array
+    private function validate(array $data, bool $isNew): array
     {
         $errors = [];
 
-        if ($emailError = $this->validateEmail($data['email'] ?? '', $ignoreUserId)) {
+        if ($isNew && $emailError = $this->validateEmail($data['email'] ?? '')) {
             $errors['email'] = $emailError;
         }
 
-        if ($ignoreUserId === null && !in_array($data['user_type'] ?? '', self::USER_TYPES, true)) {
+        if ($isNew && !in_array($data['user_type'] ?? '', self::USER_TYPES, true)) {
             $errors['user_type'] = 'Select a valid user type.';
         }
 
@@ -303,20 +303,19 @@ class UserManagementService
             $errors['status'] = 'Select a valid status.';
         }
 
-        $errors += $this->validatePassword($data, $ignoreUserId === null);
+        $errors += $this->validatePassword($data, $isNew);
 
         return $errors;
     }
 
-    private function validateEmail(string $email, ?int $ignoreUserId): ?string
+    private function validateEmail(string $email): ?string
     {
         $email = trim($email);
         if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
             return 'Enter a valid email address.';
         }
 
-        $existing = $this->users->findByEmail($email);
-        if ($existing && (int) $existing['id'] !== $ignoreUserId) {
+        if ($this->users->findByEmail($email)) {
             return 'An account with this email already exists.';
         }
 

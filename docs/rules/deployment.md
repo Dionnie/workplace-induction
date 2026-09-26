@@ -181,7 +181,7 @@ Images picked from the Media Library are stored as absolute URLs on the domain t
 ### 5.3 Administrator accounts
 
 - Create the real administrators (**Users → Add User**, type Administrator). A setup link needs working email; otherwise set a password and hand it over.
-- Log in as one of them, then delete, or change the email of, any development administrator. `admin@example.com` from `seeds.sql` has a published default password. Administrator accounts don't receive administrator emails by being administrators; who does is the To list under Settings → Email (§5.2).
+- Log in as one of them, then delete any development administrator. `admin@example.com` from `seeds.sql` has a published default password. Administrator accounts don't receive administrator emails by being administrators; who does is the To list under Settings → Email (§5.2).
 
 ### 5.4 Media Library
 

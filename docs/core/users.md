@@ -145,7 +145,7 @@ A user can be logged in with an incomplete profile. Some pages need it complete.
 
 - **List**: name, email, type, status, profile state, created; search and a user type filter. Rows link to Edit.
 - **Add User**: §8.
-- **Edit User**: email, status, Profile completed (inductees), Email verified (while unverified), and an optional new password. The user type can't be changed. A Password Setup Email card sends a setup link.
+- **Edit User**: status, Profile completed (inductees), Email verified (while unverified), and an optional new password. The email and user type are shown but can't be changed: an account's email is fixed once it is created, for administrators too. A Password Setup Email card sends a setup link.
 - **Switch Account** card: use the site as an inductee, without their password (below).
 - **Delete User** is in the Danger Zone. A user with exam attempts or compliance records can only be deleted with **cascade**, which deletes those records too, in one transaction. Administrators can't delete their own account.
 
@@ -177,7 +177,7 @@ From the account menu, for both user types:
 | Profile | First and last name | Every inductee profile field (§1) |
 | Account | Email (read-only), change password | Email (read-only) |
 
-Users can't change their own email; an administrator changes it on Edit User.
+No one can change an account's email, not even an administrator (§10).
 
 ---
 

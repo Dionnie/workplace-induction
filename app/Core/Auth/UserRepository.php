@@ -156,12 +156,6 @@ class UserRepository
         $stmt->execute([$status, $id]);
     }
 
-    public function updateEmail(int $id, string $email): void
-    {
-        $stmt = $this->db->prepare('UPDATE users SET email = ? WHERE id = ?');
-        $stmt->execute([$email, $id]);
-    }
-
     /**
      * The user's admin/inductee profile row is removed automatically via its
      * ON DELETE CASCADE foreign key.
