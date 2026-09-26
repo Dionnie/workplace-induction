@@ -60,7 +60,7 @@ Each of these breaks something quietly. The sections below cover them.
    git tag deployed-YYYY-MM-DD
    ```
 
-   It contains every tracked file, including `.htaccess` and `assets/uploads/`, and leaves out `.git/`, `.claude/` and `database/backups/`. `docs/` and `CLAUDE.md` go along; `.htaccess` blocks them.
+   It contains every tracked file, including `.htaccess` and `assets/uploads/`, and leaves out `.git/`, `.claude/` and `database/backup/`. `docs/` and `CLAUDE.md` go along; `.htaccess` blocks them.
 
 ---
 

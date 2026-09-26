@@ -104,29 +104,6 @@ $isComplete = !empty($profile['profile_completed']);
                     </div>
                 </div>
 
-                <h3 class="small text-uppercase text-muted fw-semibold mt-4 mb-3">Emergency Contact</h3>
-
-                <div class="row g-3 mb-3">
-                    <div class="col-sm">
-                        <label for="emergency_contact_name" class="form-label required">Name</label>
-                        <input type="text" class="form-control <?= error_for($errors, 'emergency_contact_name') ? 'is-invalid' : '' ?>"
-                               id="emergency_contact_name" name="emergency_contact_name"
-                               value="<?= old('emergency_contact_name', (string) $profile['emergency_contact_name']) ?>" required>
-                        <?php if ($error = error_for($errors, 'emergency_contact_name')): ?>
-                            <div class="invalid-feedback"><?= e($error) ?></div>
-                        <?php endif; ?>
-                    </div>
-                    <div class="col-sm">
-                        <label for="emergency_contact_phone" class="form-label required">Phone Number</label>
-                        <input type="tel" class="form-control <?= error_for($errors, 'emergency_contact_phone') ? 'is-invalid' : '' ?>"
-                               id="emergency_contact_phone" name="emergency_contact_phone"
-                               value="<?= old('emergency_contact_phone', (string) $profile['emergency_contact_phone']) ?>" required>
-                        <?php if ($error = error_for($errors, 'emergency_contact_phone')): ?>
-                            <div class="invalid-feedback"><?= e($error) ?></div>
-                        <?php endif; ?>
-                    </div>
-                </div>
-
                 <div class="form-actions">
                     <button type="submit" class="btn btn-primary"><?= $isComplete ? 'Save Profile' : 'Complete Profile' ?></button>
                 </div>

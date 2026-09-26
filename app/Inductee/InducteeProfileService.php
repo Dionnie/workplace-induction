@@ -11,8 +11,8 @@ class InducteeProfileService
     /**
      * What an inductee must provide before starting an induction
      * (docs/core/users.md §9): who they are (the name goes on their
-     * certificates), who they work for, and how to reach them or their
-     * emergency contact on site. Job position is optional.
+     * certificates), who they work for, and how to reach them. Job position
+     * is optional.
      */
     public const REQUIRED_FIELDS = [
         'first_name' => 'First name',
@@ -20,15 +20,13 @@ class InducteeProfileService
         'company' => 'Company',
         'employment_type' => 'Employment type',
         'contact_number' => 'Contact number',
-        'emergency_contact_name' => 'Emergency contact name',
-        'emergency_contact_phone' => 'Emergency contact phone number',
     ];
 
     public const EMPLOYMENT_TYPES = [
         'Full-time', 'Part-time', 'Casual', 'Contractor', 'Sub-contractor', 'Apprentice', 'Trainee', 'Shift-worker', 'Other',
     ];
 
-    private const PHONE_PATTERN = '/^[0-9+\-\s()]{6,30}$/';
+    public const PHONE_PATTERN = '/^[0-9+\-\s()]{6,30}$/';
 
     private InducteeProfileRepository $profiles;
 
@@ -102,10 +100,6 @@ class InducteeProfileService
 
         if (!isset($errors['contact_number']) && !preg_match(self::PHONE_PATTERN, $data['contact_number'])) {
             $errors['contact_number'] = 'Enter a valid contact number.';
-        }
-
-        if (!isset($errors['emergency_contact_phone']) && !preg_match(self::PHONE_PATTERN, $data['emergency_contact_phone'])) {
-            $errors['emergency_contact_phone'] = 'Enter a valid emergency contact number.';
         }
 
         return $errors;

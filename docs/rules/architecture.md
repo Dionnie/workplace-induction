@@ -155,7 +155,6 @@ Reading another feature's repository for a count or a lookup is fine (`ExamAttem
 | `cron/send-notifications.php` | Daily: expiry reminders and the administrator report (`docs/core/settings.md` §5) |
 | `database/test-users.php` | Temporary test accounts (`docs/rules/testing.md`) |
 | `database/migrations/*.php` | Data migrations (`docs/rules/data-protection.md` §7) |
-| `database/import-legacy-contacts.php` | One-off import from the previous induction system |
 
 Every CLI script refuses to run over HTTP (`PHP_SAPI !== 'cli'` → 403). `.htaccess` already blocks `cron/` and `database/` (`docs/rules/security.md` §7); the check is kept in case a server ignores `.htaccess`.
 

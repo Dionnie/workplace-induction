@@ -26,7 +26,7 @@ class InducteeProfileRepository
         $stmt = $this->db->prepare(
             'SELECT u.email, u.profile_completed,
                     ip.first_name, ip.last_name, ip.job_position, ip.company, ip.employment_type,
-                    ip.contact_number, ip.emergency_contact_name, ip.emergency_contact_phone
+                    ip.contact_number
              FROM users u
              LEFT JOIN inductee_profiles ip ON ip.user_id = u.id
              WHERE u.id = ?'
@@ -43,17 +43,13 @@ class InducteeProfileRepository
     {
         $stmt = $this->db->prepare(
             'INSERT INTO inductee_profiles
-                (user_id, first_name, last_name, job_position, company, employment_type,
-                 contact_number, emergency_contact_name, emergency_contact_phone)
+                (user_id, first_name, last_name, job_position, company, employment_type, contact_number)
              VALUES
-                (:user_id, :first_name, :last_name, :job_position, :company, :employment_type,
-                 :contact_number, :emergency_contact_name, :emergency_contact_phone)
+                (:user_id, :first_name, :last_name, :job_position, :company, :employment_type, :contact_number)
              ON DUPLICATE KEY UPDATE
                 first_name = VALUES(first_name), last_name = VALUES(last_name),
                 job_position = VALUES(job_position), company = VALUES(company),
-                employment_type = VALUES(employment_type), contact_number = VALUES(contact_number),
-                emergency_contact_name = VALUES(emergency_contact_name),
-                emergency_contact_phone = VALUES(emergency_contact_phone)'
+                employment_type = VALUES(employment_type), contact_number = VALUES(contact_number)'
         );
 
         $stmt->execute([
@@ -64,8 +60,6 @@ class InducteeProfileRepository
             'company' => $data['company'] !== '' ? $data['company'] : null,
             'employment_type' => $data['employment_type'] !== '' ? $data['employment_type'] : null,
             'contact_number' => $data['contact_number'] !== '' ? $data['contact_number'] : null,
-            'emergency_contact_name' => $data['emergency_contact_name'] !== '' ? $data['emergency_contact_name'] : null,
-            'emergency_contact_phone' => $data['emergency_contact_phone'] !== '' ? $data['emergency_contact_phone'] : null,
         ]);
     }
 }

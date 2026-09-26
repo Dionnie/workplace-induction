@@ -120,7 +120,7 @@ The dashboard's charts and Active Inductees table (markup: `docs/rules/design-sy
 
 ## 10. Imported Records
 
-Records imported from the previous induction system (`database/import-legacy-contacts.php`) carry the old session id in `legacy_id` and keep their original, backdated issue dates. They behave like any other record.
+Records imported from the previous induction system (a one-off import, since removed) carry the old session id in `legacy_id` and keep their original, backdated issue dates. They behave like any other record.
 
 ---
 

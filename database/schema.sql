@@ -49,8 +49,6 @@ CREATE TABLE inductee_profiles (
     job_position VARCHAR(150) NULL,
     company VARCHAR(150) NULL,
     employment_type ENUM('Full-time', 'Part-time', 'Casual', 'Contractor', 'Sub-contractor', 'Apprentice', 'Trainee', 'Shift-worker', 'Other') NULL,
-    emergency_contact_name VARCHAR(150) NULL,
-    emergency_contact_phone VARCHAR(30) NULL,
     created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     PRIMARY KEY (user_id),

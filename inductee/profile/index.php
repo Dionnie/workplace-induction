@@ -25,8 +25,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         'company' => trim($_POST['company'] ?? ''),
         'employment_type' => $_POST['employment_type'] ?? '',
         'contact_number' => trim($_POST['contact_number'] ?? ''),
-        'emergency_contact_name' => trim($_POST['emergency_contact_name'] ?? ''),
-        'emergency_contact_phone' => trim($_POST['emergency_contact_phone'] ?? ''),
     ];
 
     $result = $service->update($userId, $data);

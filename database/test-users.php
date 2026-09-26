@@ -93,8 +93,6 @@ if ($command === 'create') {
             'company' => 'E2E Test',
             'employment_type' => 'Other',
             'contact_number' => '0000 000 000',
-            'emergency_contact_name' => 'E2E Test Contact',
-            'emergency_contact_phone' => '0000 000 000',
         ]);
     }
 

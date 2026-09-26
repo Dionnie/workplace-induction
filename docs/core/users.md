@@ -13,7 +13,7 @@ One `users` table holds identity and authentication state: email, password hash,
 ```text
 users ─┬─ admin_profiles      first and last name
        └─ inductee_profiles   name, company, employment type, contact number,
-                              job position, emergency contact name and phone
+                              job position
 ```
 
 Profile rows are deleted with their user (`ON DELETE CASCADE`). This keeps `users` from becoming a pile of nullable fields for every user type.
@@ -132,7 +132,7 @@ A user can be logged in with an incomplete profile. Some pages need it complete.
 | --- | --- |
 | **State** (Core) | `users.profile_completed`. New accounts start at `0`; administrator accounts are created complete. |
 | **Gate** (Core) | `Auth::requireCompletedProfile($profileUrl, $message)` sends the user to their profile page with the message, adding `redirect_to` for a GET. `Auth::profileCompleted()` reads the state. |
-| **Requirements** (Application) | `App\Inductee\InducteeProfileService::REQUIRED_FIELDS`: first and last name, company, employment type, contact number, emergency contact name and phone. Job position is optional. A save needs all of them, so a successful save marks the profile complete. |
+| **Requirements** (Application) | `App\Inductee\InducteeProfileService::REQUIRED_FIELDS`: first and last name, company, employment type, contact number. Job position is optional. A save needs all of them, so a successful save marks the profile complete. |
 | **Where it applies** | Starting or completing an induction and taking an exam (`inductee/inductions/show.php`, `complete.php`, `inductee/exams/take.php`). The dashboard, compliance records and certificates never need it. |
 
 - While incomplete, the inductee dashboard shows a notification that can't be dismissed, linking to the profile page.
