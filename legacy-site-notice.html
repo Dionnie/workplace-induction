@@ -5,221 +5,1410 @@
     REPLACE-WITH-NEW-SITE-URL with the new site's address.
 -->
 <html lang="en">
+
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Online Induction Has Moved · Stark Food Systems</title>
+    <title>Online Induction Has Moved &middot; Stark Food Systems</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;600&display=swap"
+        rel="stylesheet">
     <style>
         :root {
             --brand: #0f427e;
-            --brand-dark: #0b3262;
-            --text: #1f2933;
-            --muted: #5f6b7a;
-            --border: #dde2e8;
-            --soft: #f5f7fa;
+            --brand-dark: #0a2d57;
+            --brand-light: #eaf2fb;
+            --brand-subtle: #f3f7fd;
+            --accent: #0284c7;
+            --accent-light: #e0f2fe;
+            --success: #059669;
+            --success-dark: #047857;
+            --success-light: #ecfdf5;
+            --success-subtle: #f0fdf4;
+            --warning-bg: #fffbeb;
+            --warning-border: #fde68a;
+            --warning-text: #92400e;
+            --text-main: #0f172a;
+            --text-muted: #475569;
+            --text-subtle: #64748b;
+            --bg-page: #f8fafc;
+            --bg-surface: #ffffff;
+            --border: #e2e8f0;
+            --border-hover: #cbd5e1;
+            --shadow-xs: 0 1px 2px 0 rgba(15, 23, 42, 0.04);
+            --shadow-sm: 0 1px 3px 0 rgba(15, 23, 42, 0.06), 0 1px 2px -1px rgba(15, 23, 42, 0.04);
+            --shadow-md: 0 4px 6px -1px rgba(15, 23, 42, 0.07), 0 2px 4px -2px rgba(15, 23, 42, 0.05);
+            --shadow-lg: 0 10px 15px -3px rgba(15, 23, 42, 0.08), 0 4px 6px -4px rgba(15, 23, 42, 0.04);
+            --radius-sm: 6px;
+            --radius-md: 10px;
+            --radius-lg: 14px;
+            --radius-xl: 18px;
+            --radius-full: 9999px;
+            --font-sans: "Plus Jakarta Sans", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
         }
 
-        * { box-sizing: border-box; }
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+        }
 
         body {
             margin: 0;
-            background: #fff;
-            color: var(--text);
-            font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-            font-size: 16px;
+            background-color: var(--bg-page);
+            color: var(--text-main);
+            font-family: var(--font-sans);
+            font-size: 15px;
             line-height: 1.6;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
         }
 
-        a { color: var(--brand); }
+        a {
+            color: var(--brand);
+            text-decoration: underline;
+            text-underline-offset: 3px;
+            text-decoration-thickness: 1px;
+            transition: color 0.15s ease;
+        }
+
+        a:hover {
+            color: var(--brand-dark);
+        }
 
         .wrap {
-            max-width: 680px;
+            max-width: 820px;
             margin: 0 auto;
-            padding: 0 16px;
+            padding: 0 24px;
         }
 
+        @media (max-width: 640px) {
+            .wrap {
+                padding: 0 16px;
+            }
+        }
+
+        /* Header */
         header {
+            background: var(--bg-surface);
             border-bottom: 1px solid var(--border);
+            box-shadow: var(--shadow-xs);
         }
 
         header .wrap {
             display: flex;
-            align-items: baseline;
+            align-items: center;
             justify-content: space-between;
-            gap: 12px;
+            gap: 14px;
             padding-top: 14px;
             padding-bottom: 14px;
+            flex-wrap: wrap;
         }
 
-        .company { font-weight: 700; color: var(--brand); }
-        .product { color: var(--muted); font-size: 14px; }
-
-        main { padding: 40px 0 24px; }
-
-        h1 { font-size: 28px; line-height: 1.25; margin: 0 0 12px; }
-        h2 { font-size: 20px; margin: 40px 0 12px; }
-        h3 { font-size: 16px; margin: 0 0 6px; }
-
-        p { margin: 0 0 12px; }
-
-        .lead { font-size: 18px; color: var(--muted); }
-
-        .address {
-            margin: 24px 0 0;
-            padding: 20px;
-            background: var(--soft);
-            border: 1px solid var(--border);
-            border-radius: 8px;
-        }
-
-        .address .label { font-size: 14px; color: var(--muted); margin-bottom: 4px; }
-        .address .url { font-size: 18px; font-weight: 600; word-break: break-all; margin-bottom: 16px; }
-
-        .button {
-            display: inline-block;
-            padding: 10px 20px;
-            background: var(--brand);
-            color: #fff;
-            border-radius: 6px;
+        .brand-cluster {
+            display: flex;
+            align-items: center;
+            gap: 12px;
             text-decoration: none;
-            font-weight: 600;
         }
 
-        .button:hover, .button:focus { background: var(--brand-dark); }
+        .brand-logo-icon {
+            width: 36px;
+            height: 36px;
+            border-radius: var(--radius-md);
+            background: linear-gradient(135deg, var(--brand) 0%, #1e5ba0 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #ffffff;
+            box-shadow: 0 2px 6px rgba(15, 66, 126, 0.22);
+            flex-shrink: 0;
+        }
 
-        .case {
-            padding: 16px 20px;
+        .brand-logo-icon svg {
+            width: 20px;
+            height: 20px;
+        }
+
+        .brand-text {
+            display: flex;
+            flex-direction: column;
+            line-height: 1.25;
+        }
+
+        .company-name {
+            font-weight: 700;
+            font-size: 15.5px;
+            color: var(--brand);
+            letter-spacing: -0.01em;
+        }
+
+        .product-name {
+            color: var(--text-muted);
+            font-size: 12.5px;
+            font-weight: 500;
+        }
+
+        .header-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: var(--warning-bg);
+            border: 1px solid var(--warning-border);
+            color: var(--warning-text);
+            font-size: 12px;
+            font-weight: 600;
+            padding: 4px 10px;
+            border-radius: var(--radius-full);
+            letter-spacing: 0.01em;
+            white-space: nowrap;
+        }
+
+        .header-badge .dot {
+            width: 7px;
+            height: 7px;
+            border-radius: var(--radius-full);
+            background: #d97706;
+            animation: pulse-dot 2s infinite ease-in-out;
+        }
+
+        @keyframes pulse-dot {
+
+            0%,
+            100% {
+                opacity: 1;
+                transform: scale(1);
+            }
+
+            50% {
+                opacity: 0.45;
+                transform: scale(0.85);
+            }
+        }
+
+        /* Main Content */
+        main {
+            padding: clamp(28px, 4vw, 42px) 0 clamp(44px, 5vw, 64px);
+        }
+
+        /* Notice Banner */
+        .hero {
+            text-align: left;
+            margin-bottom: 24px;
+        }
+
+        .hero-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            background: var(--brand-light);
+            color: var(--brand);
+            font-size: 12.5px;
+            font-weight: 600;
+            padding: 5px 12px;
+            border-radius: var(--radius-full);
+            margin-bottom: 14px;
+            border: 1px solid rgba(15, 66, 126, 0.15);
+        }
+
+        .hero-pill svg {
+            width: 14px;
+            height: 14px;
+            flex-shrink: 0;
+        }
+
+        h1 {
+            font-size: clamp(25px, 3.5vw, 32px);
+            font-weight: 800;
+            line-height: 1.25;
+            letter-spacing: -0.025em;
+            color: var(--text-main);
+            margin: 0 0 12px;
+        }
+
+        .lead {
+            font-size: clamp(15px, 1.8vw, 16.5px);
+            line-height: 1.65;
+            color: var(--text-muted);
+            margin: 0;
+            max-width: 740px;
+        }
+
+        .old-site-badge {
+            display: inline-block;
+            background: #fee2e2;
+            color: #991b1b;
+            font-family: var(--font-mono);
+            font-size: 13px;
+            font-weight: 600;
+            padding: 2px 7px;
+            border-radius: 4px;
+            border: 1px solid #fecaca;
+            text-decoration: line-through;
+            text-decoration-color: #dc2626;
+            text-decoration-thickness: 1.5px;
+            white-space: nowrap;
+            vertical-align: baseline;
+        }
+
+        /* Destination Hero Card */
+        .portal-card {
+            background: var(--bg-surface);
             border: 1px solid var(--border);
-            border-radius: 8px;
+            border-radius: var(--radius-xl);
+            box-shadow: var(--shadow-lg);
+            padding: clamp(20px, 3.5vw, 30px);
+            margin: 26px 0 38px;
+            position: relative;
+            overflow: hidden;
+            transition: border-color 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .portal-card::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, var(--brand) 0%, #0284c7 60%, #38bdf8 100%);
+        }
+
+        .portal-card-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+            margin-bottom: 14px;
+            flex-wrap: wrap;
+        }
+
+        .portal-label {
+            font-size: 12px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: var(--accent);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .portal-label svg {
+            width: 14px;
+            height: 14px;
+            flex-shrink: 0;
+        }
+
+        .portal-status-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 11.5px;
+            font-weight: 600;
+            color: var(--success);
+            background: var(--success-light);
+            border: 1px solid rgba(5, 150, 105, 0.2);
+            padding: 3px 9px;
+            border-radius: var(--radius-full);
+        }
+
+        .portal-status-pill .dot {
+            width: 6px;
+            height: 6px;
+            border-radius: var(--radius-full);
+            background: var(--success);
+            animation: pulse-dot 2s infinite ease-in-out;
+        }
+
+        .url-box {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            background: var(--bg-page);
+            border: 1.5px solid var(--border);
+            border-radius: var(--radius-md);
+            padding: 7px 7px 7px 14px;
+            margin: 0 0 18px;
+            transition: border-color 0.15s ease, box-shadow 0.15s ease;
+        }
+
+        .url-box:focus-within {
+            border-color: var(--brand);
+            box-shadow: 0 0 0 3px rgba(15, 66, 126, 0.12);
+        }
+
+        @media (max-width: 520px) {
+            .url-box {
+                flex-direction: column;
+                align-items: stretch;
+                padding: 12px;
+                gap: 10px;
+            }
+        }
+
+        .url-text-wrap {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-grow: 1;
+            min-width: 0;
+        }
+
+        .url-icon {
+            width: 16px;
+            height: 16px;
+            color: var(--brand);
+            flex-shrink: 0;
+            opacity: 0.8;
+        }
+
+        .url-text {
+            font-family: var(--font-mono);
+            font-size: clamp(14px, 2.2vw, 15.5px);
+            font-weight: 600;
+            color: var(--brand-dark);
+            word-break: break-all;
+            user-select: all;
+        }
+
+        .btn-copy {
+            background: var(--bg-surface);
+            border: 1px solid var(--border);
+            color: var(--text-muted);
+            border-radius: var(--radius-sm);
+            padding: 8px 14px;
+            font-size: 13px;
+            font-weight: 600;
+            font-family: var(--font-sans);
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            transition: all 0.15s ease;
+            white-space: nowrap;
+            flex-shrink: 0;
+        }
+
+        .btn-copy:hover {
+            background: var(--brand-light);
+            color: var(--brand);
+            border-color: rgba(15, 66, 126, 0.25);
+        }
+
+        .btn-copy:focus-visible {
+            outline: 2px solid var(--brand);
+            outline-offset: 2px;
+        }
+
+        .btn-copy svg {
+            width: 14px;
+            height: 14px;
+            flex-shrink: 0;
+        }
+
+        .btn-copy.copied {
+            background: var(--success-light);
+            color: var(--success);
+            border-color: #a7f3d0;
+        }
+
+        .cta-row {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .btn-primary-portal {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            background: var(--brand);
+            color: #ffffff;
+            font-weight: 700;
+            font-size: 15.5px;
+            padding: 13px 26px;
+            border-radius: var(--radius-md);
+            text-decoration: none;
+            box-shadow: 0 4px 12px rgba(15, 66, 126, 0.22);
+            transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+            border: none;
+            cursor: pointer;
+        }
+
+        .btn-primary-portal:hover {
+            background: var(--brand-dark);
+            color: #ffffff;
+            transform: translateY(-1px);
+            box-shadow: 0 6px 18px rgba(15, 66, 126, 0.3);
+        }
+
+        .btn-primary-portal:active {
+            transform: translateY(0);
+        }
+
+        .btn-primary-portal:focus-visible {
+            outline: 3px solid rgba(15, 66, 126, 0.4);
+            outline-offset: 2px;
+        }
+
+        .btn-primary-portal svg {
+            width: 16px;
+            height: 16px;
+            transition: transform 0.2s ease;
+            flex-shrink: 0;
+        }
+
+        .btn-primary-portal:hover svg {
+            transform: translateX(3px) translateY(-1px);
+        }
+
+        @media (max-width: 520px) {
+            .btn-primary-portal {
+                width: 100%;
+            }
+        }
+
+        .bookmark-tip {
+            font-size: 13px;
+            color: var(--text-muted);
+            display: flex;
+            align-items: flex-start;
+            gap: 8px;
+            margin-top: 16px;
+            padding: 10px 14px;
+            background: var(--brand-subtle);
+            border: 1px solid rgba(15, 66, 126, 0.08);
+            border-radius: var(--radius-md);
+            line-height: 1.5;
+        }
+
+        .bookmark-tip svg {
+            width: 15px;
+            height: 15px;
+            color: #d97706;
+            flex-shrink: 0;
+            margin-top: 2px;
+        }
+
+        /* Section Headings */
+        .section-header {
+            margin: 38px 0 18px;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        h2 {
+            font-size: 21px;
+            font-weight: 700;
+            letter-spacing: -0.015em;
+            color: var(--text-main);
+            margin: 0;
+            display: flex;
+            align-items: center;
+            gap: 9px;
+        }
+
+        .section-subtitle {
+            font-size: 14px;
+            color: var(--text-muted);
+            margin: 0;
+        }
+
+        /* Path Cards Grid */
+        .cases-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 18px;
+            margin-bottom: 38px;
+        }
+
+        @media (min-width: 680px) {
+            .cases-grid {
+                grid-template-columns: 1fr 1fr;
+                gap: 20px;
+            }
+        }
+
+        .case-card {
+            background: var(--bg-surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            padding: clamp(20px, 3vw, 24px);
+            box-shadow: var(--shadow-sm);
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            transition: all 0.2s ease;
+        }
+
+        .case-card:hover {
+            border-color: var(--border-hover);
+            box-shadow: var(--shadow-md);
+            transform: translateY(-2px);
+        }
+
+        .case-badge {
+            align-self: flex-start;
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            padding: 4px 10px;
+            border-radius: var(--radius-full);
             margin-bottom: 12px;
         }
 
-        .case p:last-child, .case ol:last-child { margin-bottom: 0; }
-
-        ol { margin: 0 0 12px; padding-left: 22px; }
-        li { margin-bottom: 4px; }
-
-        details {
-            border-bottom: 1px solid var(--border);
+        .case-badge-existing {
+            background: var(--brand-light);
+            color: var(--brand);
+            border: 1px solid rgba(15, 66, 126, 0.2);
         }
 
-        details:first-of-type { border-top: 1px solid var(--border); }
+        .case-badge-new {
+            background: var(--success-light);
+            color: var(--success);
+            border: 1px solid rgba(5, 150, 105, 0.2);
+        }
 
-        summary {
-            cursor: pointer;
-            padding: 14px 0;
+        .case-title {
+            font-size: 17.5px;
+            font-weight: 700;
+            margin: 0 0 8px;
+            color: var(--text-main);
+            letter-spacing: -0.01em;
+        }
+
+        .case-desc {
+            font-size: 13.5px;
+            color: var(--text-muted);
+            margin: 0 0 16px;
+            line-height: 1.5;
+        }
+
+        .steps-list {
+            margin: 0 0 18px;
+            padding: 0;
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 11px;
+            flex-grow: 1;
+        }
+
+        .step-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 11px;
+            font-size: 13.5px;
+            color: var(--text-main);
+            line-height: 1.48;
+        }
+
+        .step-num {
+            width: 23px;
+            height: 23px;
+            border-radius: var(--radius-full);
+            font-weight: 700;
+            font-size: 11.5px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            margin-top: 1px;
+        }
+
+        .case-card:first-child .step-num {
+            background: var(--brand-light);
+            border: 1px solid rgba(15, 66, 126, 0.2);
+            color: var(--brand);
+        }
+
+        .case-card:last-child .step-num {
+            background: var(--success-light);
+            border: 1px solid rgba(5, 150, 105, 0.2);
+            color: var(--success);
+        }
+
+        .step-item strong {
+            color: var(--text-main);
             font-weight: 600;
         }
 
-        details > div { padding: 0 0 14px; }
-        details > div p:last-child { margin-bottom: 0; }
-
-        .contact {
-            margin-top: 32px;
-            padding: 16px 20px;
-            background: var(--soft);
-            border-radius: 8px;
+        .case-note {
+            border-radius: var(--radius-sm);
+            padding: 11px 13px;
+            font-size: 12.5px;
+            line-height: 1.5;
+            margin-bottom: 18px;
         }
 
+        .case-card:first-child .case-note {
+            background: var(--brand-subtle);
+            color: var(--text-muted);
+            border-left: 3.5px solid var(--brand);
+        }
+
+        .case-card:last-child .case-note {
+            background: var(--success-subtle);
+            color: var(--text-muted);
+            border-left: 3.5px solid var(--success);
+        }
+
+        .case-action-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 11px 18px;
+            border-radius: var(--radius-md);
+            font-weight: 600;
+            font-size: 14px;
+            text-decoration: none;
+            transition: all 0.15s ease;
+            width: 100%;
+        }
+
+        .btn-outline-brand {
+            background: transparent;
+            color: var(--brand);
+            border: 1.5px solid var(--brand);
+        }
+
+        .btn-outline-brand:hover {
+            background: var(--brand-light);
+            color: var(--brand-dark);
+            border-color: var(--brand-dark);
+        }
+
+        .btn-outline-success {
+            background: transparent;
+            color: var(--success-dark);
+            border: 1.5px solid var(--success);
+        }
+
+        .btn-outline-success:hover {
+            background: var(--success-light);
+            color: var(--success-dark);
+            border-color: var(--success-dark);
+        }
+
+        .case-action-btn svg {
+            width: 14px;
+            height: 14px;
+            transition: transform 0.15s ease;
+            flex-shrink: 0;
+        }
+
+        .case-action-btn:hover svg {
+            transform: translateX(3px);
+        }
+
+        /* FAQ Section */
+        .faq-header-row {
+            display: flex;
+            align-items: flex-end;
+            justify-content: space-between;
+            gap: 12px;
+            margin: 40px 0 16px;
+            flex-wrap: wrap;
+        }
+
+        .faq-header-row .section-header {
+            margin: 0;
+        }
+
+        .btn-toggle-all {
+            background: var(--bg-surface);
+            border: 1px solid var(--border);
+            color: var(--brand);
+            font-size: 12.5px;
+            font-weight: 600;
+            cursor: pointer;
+            padding: 6px 12px;
+            border-radius: var(--radius-sm);
+            transition: all 0.15s ease;
+            box-shadow: var(--shadow-xs);
+        }
+
+        .btn-toggle-all:hover {
+            background: var(--brand-light);
+            border-color: rgba(15, 66, 126, 0.25);
+        }
+
+        .btn-toggle-all:focus-visible {
+            outline: 2px solid var(--brand);
+            outline-offset: 2px;
+        }
+
+        .faq-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        details.faq-item {
+            background: var(--bg-surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-md);
+            overflow: hidden;
+            transition: border-color 0.15s ease, box-shadow 0.15s ease;
+        }
+
+        details.faq-item:hover {
+            border-color: var(--border-hover);
+        }
+
+        details.faq-item[open] {
+            border-color: rgba(15, 66, 126, 0.28);
+            box-shadow: var(--shadow-sm);
+        }
+
+        summary.faq-question {
+            cursor: pointer;
+            padding: 15px 20px;
+            font-weight: 600;
+            font-size: 15px;
+            color: var(--text-main);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 14px;
+            user-select: none;
+            list-style: none;
+            transition: background-color 0.15s ease;
+        }
+
+        @media (max-width: 640px) {
+            summary.faq-question {
+                padding: 14px 16px;
+                font-size: 14.5px;
+            }
+        }
+
+        summary.faq-question::-webkit-details-marker {
+            display: none;
+        }
+
+        summary.faq-question:hover {
+            background-color: var(--bg-page);
+        }
+
+        summary.faq-question:focus-visible {
+            outline: 2px solid var(--brand);
+            outline-offset: -2px;
+        }
+
+        .faq-chevron {
+            width: 17px;
+            height: 17px;
+            color: var(--text-subtle);
+            flex-shrink: 0;
+            transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), color 0.15s ease;
+        }
+
+        details[open] .faq-chevron {
+            transform: rotate(180deg);
+            color: var(--brand);
+        }
+
+        details[open] summary.faq-question {
+            padding-bottom: 12px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .faq-answer {
+            padding: 13px 20px 17px;
+            color: var(--text-muted);
+            font-size: 14.5px;
+            line-height: 1.6;
+            margin: 0;
+        }
+
+        @media (max-width: 640px) {
+            .faq-answer {
+                padding: 12px 16px 15px;
+                font-size: 14px;
+            }
+        }
+
+        .faq-answer p {
+            margin: 0 0 10px;
+        }
+
+        .faq-answer p:last-child {
+            margin-bottom: 0;
+        }
+
+        .faq-answer strong {
+            color: var(--text-main);
+        }
+
+        /* Support Card */
+        .support-card {
+            background: linear-gradient(135deg, var(--brand-subtle) 0%, #ffffff 100%);
+            border: 1px solid rgba(15, 66, 126, 0.16);
+            border-radius: var(--radius-lg);
+            padding: clamp(18px, 3vw, 22px) clamp(18px, 3vw, 24px);
+            margin-top: 38px;
+            display: flex;
+            align-items: flex-start;
+            gap: 16px;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .support-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: var(--radius-md);
+            background: var(--brand-light);
+            color: var(--brand);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            margin-top: 1px;
+        }
+
+        .support-icon svg {
+            width: 20px;
+            height: 20px;
+        }
+
+        .support-body {
+            flex-grow: 1;
+        }
+
+        .support-title {
+            font-size: 15.5px;
+            font-weight: 700;
+            color: var(--brand-dark);
+            margin: 0 0 5px;
+        }
+
+        .support-text {
+            font-size: 14px;
+            color: var(--text-muted);
+            margin: 0;
+            line-height: 1.55;
+        }
+
+        .support-email-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            font-weight: 600;
+            color: var(--brand);
+            background: #ffffff;
+            border: 1px solid rgba(15, 66, 126, 0.22);
+            padding: 2px 8px;
+            border-radius: var(--radius-sm);
+            text-decoration: none;
+            white-space: nowrap;
+            vertical-align: baseline;
+            transition: all 0.15s ease;
+        }
+
+        .support-email-pill:hover {
+            background: var(--brand);
+            color: #ffffff;
+            border-color: var(--brand);
+        }
+
+        .support-email-pill svg {
+            width: 13px;
+            height: 13px;
+            flex-shrink: 0;
+        }
+
+        /* Footer */
         footer {
             border-top: 1px solid var(--border);
-            color: var(--muted);
-            font-size: 14px;
-            padding: 16px 0 24px;
+            background: var(--bg-surface);
+            color: var(--text-subtle);
+            font-size: 13px;
+            padding: 24px 0 28px;
+            margin-top: 44px;
+        }
+
+        footer .wrap {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            align-items: center;
+            text-align: center;
+        }
+
+        @media (min-width: 640px) {
+            footer .wrap {
+                flex-direction: row;
+                justify-content: space-between;
+                text-align: left;
+            }
+        }
+
+        .footer-note {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        /* Print styling */
+        @media print {
+            body {
+                background: #ffffff;
+                color: #000000;
+            }
+
+            header {
+                position: static;
+                box-shadow: none;
+            }
+
+            .btn-copy,
+            .btn-toggle-all,
+            .btn-primary-portal,
+            .case-action-btn {
+                display: none !important;
+            }
+
+            .portal-card,
+            .case-card,
+            details.faq-item {
+                box-shadow: none !important;
+                border: 1px solid #999999 !important;
+                break-inside: avoid;
+            }
+
+            details[open] .faq-answer,
+            details .faq-answer {
+                display: block !important;
+            }
         }
     </style>
 </head>
+
 <body>
 
-<header>
-    <div class="wrap">
-        <span class="company">Stark Food Systems</span>
-        <span class="product">Online Induction</span>
-    </div>
-</header>
-
-<main class="wrap">
-
-    <h1>The online induction has moved</h1>
-    <p class="lead">Stark Food Systems inductions are now done on a new site. The old site, sfsonlineinduction.vercel.app, is no longer used.</p>
-
-    <div class="address">
-        <div class="label">New induction site</div>
-        <div class="url">REPLACE-WITH-NEW-SITE-URL</div>
-        <a class="button" href="https://REPLACE-WITH-NEW-SITE-URL">Go to the new site</a>
-    </div>
-
-    <h2>What you need to do</h2>
-
-    <div class="case">
-        <h3>You used the old site</h3>
-        <p>Your account and completed induction have been moved across, but not your password. To set a new one:</p>
-        <ol>
-            <li>On the new site, select <strong>Log In</strong>, then <strong>Forgot your password?</strong></li>
-            <li>Enter the email you used on the old site.</li>
-            <li>Open the link we email you and choose a password.</li>
-        </ol>
-        <p>If you hadn't finished the induction, select <strong>Start</strong> on your dashboard.</p>
-    </div>
-
-    <div class="case">
-        <h3>You're new</h3>
-        <p>Select <strong>Register</strong>, open the verification link we email you, then log in and start the induction.</p>
-    </div>
-
-    <h2>Questions</h2>
-
-    <details>
-        <summary>Do I have to do the induction again?</summary>
-        <div>
-            <p>No. It was moved across with its original dates. You only do it again when it expires.</p>
+    <header>
+        <div class="wrap">
+            <div class="brand-cluster">
+                <div class="brand-logo-icon" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+                        <path d="m9 12 2 2 4-4" />
+                    </svg>
+                </div>
+                <div class="brand-text">
+                    <span class="company-name">Stark Food Systems</span>
+                    <span class="product-name">Workplace Induction Portal</span>
+                </div>
+            </div>
+            <div class="header-badge" role="status">
+                <span class="dot" aria-hidden="true"></span>
+                <span>Migration Notice</span>
+            </div>
         </div>
-    </details>
+    </header>
 
-    <details>
-        <summary>Should I register a new account?</summary>
-        <div>
-            <p>Not if you used the old site. Use <strong>Forgot your password?</strong> with the same email. A new account under a different email won't have your completed induction.</p>
+    <main class="wrap" style="padding-block: 2rem">
+
+        <section class="hero">
+            <div class="hero-pill">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                    stroke-linejoin="round" aria-hidden="true">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <line x1="12" y1="16" x2="12" y2="12"></line>
+                    <line x1="12" y1="8" x2="12.01" y2="8"></line>
+                </svg>
+                <span>System Upgrade &amp; Address Change</span>
+            </div>
+            <h1>The online induction has moved</h1>
+            <p class="lead">
+                Stark Food Systems inductions are now hosted on our dedicated compliance portal.
+                The legacy address at <span class="old-site-badge">sfsonlineinduction.vercel.app</span> is permanently
+                decommissioned.
+            </p>
+        </section>
+
+        <!-- Destination Portal Card -->
+        <section class="portal-card" aria-label="New Portal Access">
+            <div class="portal-card-header">
+                <span class="portal-label">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"
+                        stroke-linejoin="round" aria-hidden="true">
+                        <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
+                    </svg>
+                    New Induction Portal
+                </span>
+                <span class="portal-status-pill">
+                    <span class="dot" aria-hidden="true"></span>
+                    Official &amp; Active
+                </span>
+            </div>
+
+            <div class="url-box">
+                <div class="url-text-wrap">
+                    <svg class="url-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                        stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                        <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                        <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+                    </svg>
+                    <span class="url-text" id="siteUrl">https://REPLACE-WITH-NEW-SITE-URL</span>
+                </div>
+                <button type="button" class="btn-copy" id="copyBtn" aria-label="Copy portal address to clipboard">
+                    <svg id="copyIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                        stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                        <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                        <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                    </svg>
+                    <span id="copyBtnText">Copy Link</span>
+                </button>
+            </div>
+
+            <div class="cta-row">
+                <a class="btn-primary-portal" href="https://REPLACE-WITH-NEW-SITE-URL" id="primaryPortalLink">
+                    <span>Go to the new induction site</span>
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"
+                        stroke-linejoin="round" aria-hidden="true">
+                        <line x1="7" y1="17" x2="17" y2="7"></line>
+                        <polyline points="7 7 17 7 17 17"></polyline>
+                    </svg>
+                </a>
+            </div>
+
+            <div class="bookmark-tip">
+                <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                    <path
+                        d="M12 2a7 7 0 0 0-7 7c0 2.38 1.19 4.47 3 5.74V17a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1v-2.26c1.81-1.27 3-3.36 3-5.74a7 7 0 0 0-7-7M9 21a1 1 0 0 0 1 1h4a1 1 0 0 0 1-1v-1H9z" />
+                </svg>
+                <span><strong>Tip:</strong> Save or bookmark the new address in your browser for easy access whenever
+                    renewing your compliance.</span>
+            </div>
+        </section>
+
+        <!-- What You Need to Do -->
+        <div class="section-header">
+            <h2>
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--brand)" stroke-width="2.2"
+                    stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <path d="M9 11l3 3L22 4"></path>
+                    <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path>
+                </svg>
+                What you need to do
+            </h2>
+            <p class="section-subtitle">Select the scenario that applies to you:</p>
         </div>
-    </details>
 
-    <details>
-        <summary>I didn't get the password email.</summary>
-        <div>
-            <p>Check your junk or spam folder, and that you entered the email you used on the old site. Only one email is sent per minute.</p>
+        <div class="cases-grid">
+            <!-- Case 1: Returning Inductee -->
+            <article class="case-card">
+                <span class="case-badge case-badge-existing">Returning User</span>
+                <h3 class="case-title">You used the old site</h3>
+                <p class="case-desc">Your profile and completed induction records were transferred. For security, your
+                    password was not migrated.</p>
+
+                <ul class="steps-list">
+                    <li class="step-item">
+                        <span class="step-num">1</span>
+                        <span>On the new site, click <strong>Log In</strong>, then select <strong>Forgot your
+                                password?</strong></span>
+                    </li>
+                    <li class="step-item">
+                        <span class="step-num">2</span>
+                        <span>Enter the email address you previously used on the old site.</span>
+                    </li>
+                    <li class="step-item">
+                        <span class="step-num">3</span>
+                        <span>Open the reset link emailed to you and choose a new password.</span>
+                    </li>
+                </ul>
+
+                <div class="case-note">
+                    If you had not finished your induction, simply select <strong>Start</strong> on your dashboard to
+                    continue.
+                </div>
+
+                <a class="case-action-btn btn-outline-brand"
+                    href="https://REPLACE-WITH-NEW-SITE-URL/forgot-password.php">
+                    <span>Reset your password</span>
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round" aria-hidden="true">
+                        <polyline points="9 18 15 12 9 6"></polyline>
+                    </svg>
+                </a>
+            </article>
+
+            <!-- Case 2: New Inductee -->
+            <article class="case-card">
+                <span class="case-badge case-badge-new">First Time Here</span>
+                <h3 class="case-title">You are a new inductee</h3>
+                <p class="case-desc">If you have never taken the Stark Food Systems induction before, create your new
+                    account to begin.</p>
+
+                <ul class="steps-list">
+                    <li class="step-item">
+                        <span class="step-num">1</span>
+                        <span>On the new site, select <strong>Register</strong>.</span>
+                    </li>
+                    <li class="step-item">
+                        <span class="step-num">2</span>
+                        <span>Enter your details and submit the registration form.</span>
+                    </li>
+                    <li class="step-item">
+                        <span class="step-num">3</span>
+                        <span>Open the verification link sent to your email, then log in and start your
+                            induction.</span>
+                    </li>
+                </ul>
+
+                <div class="case-note">
+                    Please complete all required slides and assessments to obtain your compliance certificate.
+                </div>
+
+                <a class="case-action-btn btn-outline-success" href="https://REPLACE-WITH-NEW-SITE-URL/register.php">
+                    <span>Register new account</span>
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round" aria-hidden="true">
+                        <polyline points="9 18 15 12 9 6"></polyline>
+                    </svg>
+                </a>
+            </article>
         </div>
-    </details>
 
-    <details>
-        <summary>My completed induction isn't showing.</summary>
-        <div>
-            <p>Check you logged in with the email you used on the old site. If you finished it there very recently, contact us and we'll check.</p>
+        <!-- Questions / FAQ -->
+        <div class="faq-header-row">
+            <div class="section-header">
+                <h2>
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--brand)" stroke-width="2.2"
+                        stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                        <circle cx="12" cy="12" r="10"></circle>
+                        <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path>
+                        <line x1="12" y1="17" x2="12.01" y2="17"></line>
+                    </svg>
+                    Frequently Asked Questions
+                </h2>
+                <p class="section-subtitle">Common questions regarding the platform transition:</p>
+            </div>
+            <button type="button" class="btn-toggle-all" id="toggleAllFaqBtn">Expand all questions</button>
         </div>
-    </details>
 
-    <details>
-        <summary>What about my old certificate?</summary>
-        <div>
-            <p>Use the new one, under <strong>Compliance</strong>. It has the same dates, and a QR code anyone can scan to check it.</p>
+        <div class="faq-list">
+            <details class="faq-item">
+                <summary class="faq-question">
+                    <span>Do I have to do the induction again?</span>
+                    <svg class="faq-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"
+                        stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                        <polyline points="6 9 12 15 18 9"></polyline>
+                    </svg>
+                </summary>
+                <div class="faq-answer">
+                    <p><strong>No.</strong> Your induction records were moved across with their original completion and
+                        validity dates intact. You only need to complete the induction again when your current
+                        compliance expires.</p>
+                </div>
+            </details>
+
+            <details class="faq-item">
+                <summary class="faq-question">
+                    <span>Should I register a new account?</span>
+                    <svg class="faq-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"
+                        stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                        <polyline points="6 9 12 15 18 9"></polyline>
+                    </svg>
+                </summary>
+                <div class="faq-answer">
+                    <p><strong>Not if you used the old site.</strong> Use <strong>Forgot your password?</strong> with
+                        the same email you registered previously. Creating a new account under a different email address
+                        will not link to your past induction history or certificates.</p>
+                </div>
+            </details>
+
+            <details class="faq-item">
+                <summary class="faq-question">
+                    <span>I didn't receive the password reset email.</span>
+                    <svg class="faq-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"
+                        stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                        <polyline points="6 9 12 15 18 9"></polyline>
+                    </svg>
+                </summary>
+                <div class="faq-answer">
+                    <p>Check your junk or spam folders, and verify that you entered the exact email address used on the
+                        old site. For system security and rate protection, only one reset email is sent per minute.</p>
+                </div>
+            </details>
+
+            <details class="faq-item">
+                <summary class="faq-question">
+                    <span>My completed induction isn't showing on my dashboard.</span>
+                    <svg class="faq-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"
+                        stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                        <polyline points="6 9 12 15 18 9"></polyline>
+                    </svg>
+                </summary>
+                <div class="faq-answer">
+                    <p>Confirm that you logged in with the exact email address used previously. If you completed your
+                        induction on the old site immediately before the transition, please contact us using the details
+                        below so we can confirm and verify your records.</p>
+                </div>
+            </details>
+
+            <details class="faq-item">
+                <summary class="faq-question">
+                    <span>What about my old certificate?</span>
+                    <svg class="faq-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"
+                        stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                        <polyline points="6 9 12 15 18 9"></polyline>
+                    </svg>
+                </summary>
+                <div class="faq-answer">
+                    <p>Use your new certificate located under <strong>Compliance</strong>. It preserves your original
+                        dates and includes a verifiable QR code that supervisors and inspectors can scan directly from
+                        their mobile devices.</p>
+                </div>
+            </details>
+
+            <details class="faq-item">
+                <summary class="faq-question">
+                    <span>Can I still complete inductions on the old site?</span>
+                    <svg class="faq-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"
+                        stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                        <polyline points="6 9 12 15 18 9"></polyline>
+                    </svg>
+                </summary>
+                <div class="faq-answer">
+                    <p><strong>No.</strong> The old site is permanently decommissioned. Any modules completed or
+                        submitted there will not be recorded in company compliance records.</p>
+                </div>
+            </details>
         </div>
-    </details>
 
-    <details>
-        <summary>Can I still use the old site?</summary>
-        <div>
-            <p>No. Anything you do there now won't be recorded.</p>
+        <!-- Contact & Support -->
+        <section class="support-card" aria-label="Support and Assistance">
+            <div class="support-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                    stroke-linejoin="round">
+                    <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+                    <line x1="9" y1="10" x2="15" y2="10"></line>
+                    <line x1="12" y1="7" x2="12" y2="13"></line>
+                </svg>
+            </div>
+            <div class="support-body">
+                <h3 class="support-title">Need help or having trouble?</h3>
+                <p class="support-text">
+                    Speak with your site supervisor, or reach out to our team at
+                    <a class="support-email-pill" href="mailto:info@starkfoodsystems.com">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                            stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                            <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z">
+                            </path>
+                            <polyline points="22,6 12,13 2,6"></polyline>
+                        </svg>
+                        <span>info@starkfoodsystems.com</span>
+                    </a>
+                </p>
+            </div>
+        </section>
+
+    </main>
+
+    <footer>
+        <div class="wrap">
+            <div>&copy; Stark Food Systems &middot; Workplace Induction Portal</div>
+            <div class="footer-note">Internal use only &middot; Compliance &amp; Safety</div>
         </div>
-    </details>
+    </footer>
 
-    <div class="contact">
-        <strong>Need help?</strong> Ask your supervisor, or email <a href="mailto:info@starkfoodsystems.com">info@starkfoodsystems.com</a>.
-    </div>
+    <script>
+        // Copy URL to Clipboard
+        const copyBtn = document.getElementById('copyBtn');
+        const copyBtnText = document.getElementById('copyBtnText');
+        const copyIcon = document.getElementById('copyIcon');
+        const siteUrlEl = document.getElementById('siteUrl');
 
-</main>
+        const defaultIconSvg = `
+        <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+        <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+    `;
 
-<footer>
-    <div class="wrap">Stark Food Systems · Internal use only</div>
-</footer>
+        const successIconSvg = `
+        <polyline points="20 6 9 17 4 12"></polyline>
+    `;
+
+        if (copyBtn && siteUrlEl) {
+            copyBtn.addEventListener('click', async function () {
+                const urlText = siteUrlEl.textContent.trim();
+                let success = false;
+                if (navigator.clipboard && window.isSecureContext) {
+                    try {
+                        await navigator.clipboard.writeText(urlText);
+                        success = true;
+                    } catch (e) {
+                        // Clipboard API might be restricted; fall through to fallback
+                    }
+                }
+                if (!success) {
+                    try {
+                        const temp = document.createElement('textarea');
+                        temp.value = urlText;
+                        temp.style.position = 'fixed';
+                        temp.style.opacity = '0';
+                        document.body.appendChild(temp);
+                        temp.focus();
+                        temp.select();
+                        success = document.execCommand('copy');
+                        document.body.removeChild(temp);
+                    } catch (err) {
+                        console.error('Copy fallback failed', err);
+                    }
+                }
+                if (success) {
+                    copyBtn.classList.add('copied');
+                    copyBtnText.textContent = 'Copied!';
+                    if (copyIcon) copyIcon.innerHTML = successIconSvg;
+                    setTimeout(() => {
+                        copyBtn.classList.remove('copied');
+                        copyBtnText.textContent = 'Copy Link';
+                        if (copyIcon) copyIcon.innerHTML = defaultIconSvg;
+                    }, 2200);
+                }
+            });
+        }
+
+        // Toggle All FAQ Accordions
+        const toggleAllFaqBtn = document.getElementById('toggleAllFaqBtn');
+        const faqItems = document.querySelectorAll('.faq-item');
+
+        function updateToggleBtnText() {
+            if (!toggleAllFaqBtn) return;
+            const allOpen = Array.from(faqItems).every(item => item.open);
+            toggleAllFaqBtn.textContent = allOpen ? 'Collapse all questions' : 'Expand all questions';
+        }
+
+        if (toggleAllFaqBtn && faqItems.length > 0) {
+            toggleAllFaqBtn.addEventListener('click', function () {
+                const anyClosed = Array.from(faqItems).some(item => !item.open);
+                faqItems.forEach(item => {
+                    item.open = anyClosed;
+                });
+                updateToggleBtnText();
+            });
+
+            faqItems.forEach(item => {
+                item.addEventListener('toggle', updateToggleBtnText);
+            });
+        }
+    </script>
 
 </body>
+
 </html>

@@ -104,7 +104,7 @@ function verify_csrf(): void
 {
     $token = $_POST['csrf_token'] ?? '';
     if (!is_string($token) || $token === '' || !hash_equals($_SESSION['csrf_token'] ?? '', $token)) {
-        http_response_code(419);
+        http_response_code(403);
         exit('Your form submission has expired. Please go back and try again.');
     }
 }

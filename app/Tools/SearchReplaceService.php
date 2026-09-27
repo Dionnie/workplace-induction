@@ -33,9 +33,10 @@ use RuntimeException;
  *    on disk; editing the column without renaming the file breaks every
  *    reference to it).
  *
- * Matching/replacing is always exact, case-sensitive PHP str_replace()/
- * substr_count() (never MySQL's collation-dependent LIKE/REPLACE()), so the
- * preview the admin reviews is exactly what gets written on apply.
+ * Matching/replacing is always exact PHP str_replace()/substr_count(), or
+ * their ASCII case-folding equivalents when case sensitivity is off (never
+ * MySQL's collation-dependent LIKE/REPLACE()), so the preview the admin
+ * reviews is exactly what gets written on apply.
  *
  * Every table/column name used in a raw SQL identifier position is always
  * one this class itself just read back from information_schema for the
@@ -103,7 +104,7 @@ class SearchReplaceService
      *     totalRows: int
      * }
      */
-    public function search(array $tables, string $find): array
+    public function search(array $tables, string $find, bool $caseSensitive = true): array
     {
         $result = ['tables' => [], 'totalOccurrences' => 0, 'totalRows' => 0];
 
@@ -121,7 +122,7 @@ class SearchReplaceService
             $columns = [];
 
             foreach ($this->searchableColumns($table) as $column) {
-                $rows = $this->matchingRows($table, $column, $pk, $find);
+                $rows = $this->matchingRows($table, $column, $pk, $find, $caseSensitive);
                 if ($rows === []) {
                     continue;
                 }
@@ -158,7 +159,7 @@ class SearchReplaceService
      * @param array<int, string> $tables
      * @return array{success: bool, errors: array<string, string>, updated: array<string, int>, totalUpdated: int}
      */
-    public function replace(array $tables, string $find, string $replace): array
+    public function replace(array $tables, string $find, string $replace, bool $caseSensitive = true): array
     {
         $resolved = $this->resolveTables($tables);
 
@@ -186,8 +187,10 @@ class SearchReplaceService
                 foreach ($this->searchableColumns($table) as $column) {
                     $isJson = $this->columnType($table, $column) === 'json';
 
-                    foreach ($this->matchingRows($table, $column, $pk, $find) as $row) {
-                        $newContent = str_replace($find, $replace, $row['content']);
+                    foreach ($this->matchingRows($table, $column, $pk, $find, $caseSensitive) as $row) {
+                        $newContent = $caseSensitive
+                            ? str_replace($find, $replace, $row['content'])
+                            : str_ireplace($find, $replace, $row['content']);
 
                         if ($isJson && !$this->isValidJson($newContent)) {
                             throw new RuntimeException(sprintf(
@@ -302,18 +305,20 @@ class SearchReplaceService
     /**
      * Fetches every row of one column (this app's realistic scale makes a
      * full scan fine -- no WHERE/pagination needed) and keeps only the ones
-     * that actually contain $find as an exact substring.
+     * that actually contain $find as a substring.
      *
      * @return array<int, array{pk: string, pkValue: string, content: string, count: int, snippets: array<int, array{before: string, match: string, after: string}>}>
      */
-    private function matchingRows(string $table, string $column, string $pk, string $find): array
+    private function matchingRows(string $table, string $column, string $pk, string $find, bool $caseSensitive): array
     {
         $sql = sprintf('SELECT `%s` AS pk_value, `%s` AS content FROM `%s`', $pk, $column, $table);
 
         $rows = [];
         foreach ($this->db->query($sql)->fetchAll() as $row) {
             $content = (string) $row['content'];
-            $count = substr_count($content, $find);
+            $count = $caseSensitive
+                ? substr_count($content, $find)
+                : substr_count(strtolower($content), strtolower($find));
             if ($count === 0) {
                 continue;
             }
@@ -323,7 +328,7 @@ class SearchReplaceService
                 'pkValue' => (string) $row['pk_value'],
                 'content' => $content,
                 'count' => $count,
-                'snippets' => $this->buildSnippets($content, $find),
+                'snippets' => $this->buildSnippets($content, $find, $caseSensitive),
             ];
         }
 
@@ -338,7 +343,7 @@ class SearchReplaceService
      *
      * @return array<int, array{before: string, match: string, after: string}>
      */
-    private function buildSnippets(string $content, string $find): array
+    private function buildSnippets(string $content, string $find, bool $caseSensitive): array
     {
         $snippets = [];
         $offset = 0;
@@ -346,7 +351,7 @@ class SearchReplaceService
         $contentLen = strlen($content);
 
         while (count($snippets) < self::MAX_SNIPPETS_PER_ROW) {
-            $pos = strpos($content, $find, $offset);
+            $pos = $caseSensitive ? strpos($content, $find, $offset) : stripos($content, $find, $offset);
             if ($pos === false) {
                 break;
             }

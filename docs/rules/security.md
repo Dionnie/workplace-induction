@@ -23,7 +23,7 @@ Auth::requireRole('admin');      // or 'inductee'; sends a guest to login, answe
 ## 2. CSRF
 
 - Every POST form includes `<?= csrf_field() ?>`.
-- Every POST controller calls `verify_csrf()` before reading or changing anything. It answers 419 on a missing or wrong token.
+- Every POST controller calls `verify_csrf()` before reading or changing anything. It answers 403 on a missing or wrong token.
 - `fetch` requests send the same token (`csrf_token()`).
 - A GET request never changes data, so it needs no token.
 

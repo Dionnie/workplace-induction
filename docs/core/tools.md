@@ -18,10 +18,10 @@ Replaces text across database tables. It exists for maintenance such as rewritin
 
 A two-step page (`docs/rules/design.md` §13):
 
-1. **Dry Run.** Tick the tables, enter **Find** (required) and **Replace With**, and run. Nothing is written. The page lists, per table and column, every matching row with how many times the text appears and highlighted snippets.
+1. **Dry Run.** Tick the tables, enter **Find** (required) and **Replace With**, choose **Case sensitive** (ticked by default), and run. Nothing is written. The page lists, per table and column, every matching row with how many times the text appears and highlighted snippets.
 2. **Replace.** Below the results, **Replace** applies exactly what was previewed, in one transaction. The page then reloads the dry run, which should find no matches: that confirms the change.
 
-Matching is exact and case-sensitive (PHP `str_replace()`, not MySQL's collation-dependent `LIKE`/`REPLACE()`), so the preview is exactly what gets written.
+Matching is exact (PHP `str_replace()`, not MySQL's collation-dependent `LIKE`/`REPLACE()`), so the preview is exactly what gets written. With **Case sensitive** unticked it uses `str_ireplace()`, which ignores the case of the letters A–Z only; accented and other letters still match exactly. **Replace With** is written as typed, whatever the case of the text it replaces.
 
 ---
 

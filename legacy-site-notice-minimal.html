@@ -1,0 +1,427 @@
+<!doctype html>
+<!--
+    Minimal notice for visitors of the old induction site (sfsonlineinduction.vercel.app).
+    Before using it, replace every REPLACE-WITH-NEW-SITE-URL with the new site's address.
+-->
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Online Induction Has Moved &middot; Stark Food Systems</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;600&display=swap"
+        rel="stylesheet">
+    <style>
+        :root {
+            --brand: #0f427e;
+            --brand-dark: #0a2d57;
+            --brand-light: #eaf2fb;
+            --brand-subtle: #f3f7fd;
+            --accent: #0284c7;
+            --text-main: #0f172a;
+            --text-muted: #475569;
+            --text-subtle: #64748b;
+            --bg-page: #f8fafc;
+            --bg-surface: #ffffff;
+            --border: #e2e8f0;
+            --border-hover: #cbd5e1;
+            --success: #059669;
+            --success-light: #ecfdf5;
+            --radius-md: 10px;
+            --radius-lg: 16px;
+            --radius-full: 9999px;
+            --font-sans: "Plus Jakarta Sans", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+        }
+
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            background-color: var(--bg-page);
+            color: var(--text-main);
+            font-family: var(--font-sans);
+            font-size: 15px;
+            line-height: 1.55;
+            padding: 24px 16px;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 520px;
+        }
+
+        .card {
+            background: var(--bg-surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            box-shadow: 0 10px 25px -5px rgba(15, 23, 42, 0.07), 0 8px 10px -6px rgba(15, 23, 42, 0.03);
+            overflow: hidden;
+            position: relative;
+        }
+
+        .card-accent-bar {
+            height: 4px;
+            background: linear-gradient(90deg, var(--brand) 0%, #0284c7 60%, #38bdf8 100%);
+        }
+
+        .card-body {
+            padding: clamp(24px, 5vw, 36px);
+        }
+
+        /* Brand Row */
+        .brand-row {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 22px;
+        }
+
+        .brand-icon {
+            width: 38px;
+            height: 38px;
+            border-radius: var(--radius-md);
+            background: linear-gradient(135deg, var(--brand) 0%, #1e5ba0 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #ffffff;
+            box-shadow: 0 2px 6px rgba(15, 66, 126, 0.2);
+            flex-shrink: 0;
+        }
+
+        .brand-icon svg {
+            width: 20px;
+            height: 20px;
+        }
+
+        .brand-meta {
+            display: flex;
+            flex-direction: column;
+            line-height: 1.25;
+        }
+
+        .company-name {
+            font-weight: 700;
+            font-size: 15px;
+            color: var(--brand);
+            letter-spacing: -0.01em;
+        }
+
+        .portal-label {
+            font-size: 12.5px;
+            color: var(--text-subtle);
+            font-weight: 500;
+        }
+
+        /* Heading & Lead */
+        h1 {
+            font-size: clamp(22px, 4vw, 26px);
+            font-weight: 800;
+            line-height: 1.25;
+            letter-spacing: -0.025em;
+            color: var(--text-main);
+            margin: 0 0 10px;
+        }
+
+        .lead {
+            font-size: 15px;
+            color: var(--text-muted);
+            margin: 0 0 24px;
+            line-height: 1.6;
+        }
+
+        .old-badge {
+            display: inline-block;
+            background: #fee2e2;
+            color: #991b1b;
+            font-family: var(--font-mono);
+            font-size: 12.5px;
+            font-weight: 600;
+            padding: 1px 6px;
+            border-radius: 4px;
+            text-decoration: line-through;
+            text-decoration-color: #dc2626;
+            white-space: nowrap;
+        }
+
+        /* Primary Button */
+        .btn-go {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            width: 100%;
+            background: var(--brand);
+            color: #ffffff;
+            font-weight: 700;
+            font-size: 16px;
+            padding: 14px 20px;
+            border-radius: var(--radius-md);
+            text-decoration: none;
+            box-shadow: 0 4px 12px rgba(15, 66, 126, 0.22);
+            transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+            border: none;
+            cursor: pointer;
+            text-align: center;
+        }
+
+        .btn-go:hover {
+            background: var(--brand-dark);
+            transform: translateY(-1px);
+            box-shadow: 0 6px 16px rgba(15, 66, 126, 0.28);
+        }
+
+        .btn-go:active {
+            transform: translateY(0);
+        }
+
+        .btn-go svg {
+            width: 17px;
+            height: 17px;
+            transition: transform 0.2s ease;
+            flex-shrink: 0;
+        }
+
+        .btn-go:hover svg {
+            transform: translateX(3px);
+        }
+
+        /* URL Display & Copy Box */
+        .url-box {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+            background: var(--bg-page);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-md);
+            padding: 6px 6px 6px 12px;
+            margin: 14px 0 22px;
+        }
+
+        .url-text {
+            font-family: var(--font-mono);
+            font-size: 13.5px;
+            font-weight: 600;
+            color: var(--brand);
+            word-break: break-all;
+            user-select: all;
+        }
+
+        .btn-copy {
+            background: var(--bg-surface);
+            border: 1px solid var(--border);
+            color: var(--text-muted);
+            border-radius: 6px;
+            padding: 6px 12px;
+            font-size: 12.5px;
+            font-weight: 600;
+            font-family: var(--font-sans);
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            transition: all 0.15s ease;
+            white-space: nowrap;
+            flex-shrink: 0;
+        }
+
+        .btn-copy:hover {
+            background: var(--brand-light);
+            color: var(--brand);
+            border-color: rgba(15, 66, 126, 0.25);
+        }
+
+        .btn-copy.copied {
+            background: var(--success-light);
+            color: var(--success);
+            border-color: #a7f3d0;
+        }
+
+        .btn-copy svg {
+            width: 13px;
+            height: 13px;
+        }
+
+        /* Quick Guidance */
+        .quick-notes {
+            background: var(--brand-subtle);
+            border: 1px solid rgba(15, 66, 126, 0.1);
+            border-radius: var(--radius-md);
+            padding: 14px 16px;
+            margin: 0 0 20px;
+            font-size: 13.5px;
+            line-height: 1.5;
+            color: var(--text-muted);
+        }
+
+        .quick-notes p {
+            margin: 0;
+        }
+
+        .quick-notes p + p {
+            margin-top: 8px;
+            padding-top: 8px;
+            border-top: 1px dashed rgba(15, 66, 126, 0.12);
+        }
+
+        .quick-notes strong {
+            color: var(--text-main);
+        }
+
+        /* Help link */
+        .help-text {
+            font-size: 13px;
+            color: var(--text-subtle);
+            text-align: center;
+            margin: 0;
+        }
+
+        .help-text a {
+            color: var(--brand);
+            text-decoration: underline;
+            text-underline-offset: 2px;
+        }
+
+        .help-text a:hover {
+            color: var(--brand-dark);
+        }
+
+        /* Footer */
+        .page-footer {
+            margin-top: 20px;
+            text-align: center;
+            font-size: 12.5px;
+            color: var(--text-subtle);
+        }
+    </style>
+</head>
+
+<body>
+
+    <main class="container">
+        <div class="card">
+            <div class="card-accent-bar"></div>
+            <div class="card-body">
+
+                <div class="brand-row">
+                    <div class="brand-icon" aria-hidden="true">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"
+                            stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+                            <path d="m9 12 2 2 4-4" />
+                        </svg>
+                    </div>
+                    <div class="brand-meta">
+                        <span class="company-name">Stark Food Systems</span>
+                        <span class="portal-label">Workplace Induction</span>
+                    </div>
+                </div>
+
+                <h1>The online induction has moved</h1>
+
+                <p class="lead">
+                    Inductions are now hosted on our new platform. The address
+                    <span class="old-badge">sfsonlineinduction.vercel.app</span> is no longer active.
+                </p>
+
+                <a class="btn-go" href="https://REPLACE-WITH-NEW-SITE-URL">
+                    <span>Go to the new induction site</span>
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"
+                        stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                        <line x1="7" y1="17" x2="17" y2="7"></line>
+                        <polyline points="7 7 17 7 17 17"></polyline>
+                    </svg>
+                </a>
+
+                <div class="url-box">
+                    <span class="url-text" id="siteUrl">https://REPLACE-WITH-NEW-SITE-URL</span>
+                    <button type="button" class="btn-copy" id="copyBtn" aria-label="Copy new site address">
+                        <svg id="copyIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                            stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                            <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                            <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                        </svg>
+                        <span id="copyBtnText">Copy</span>
+                    </button>
+                </div>
+
+                <div class="quick-notes">
+                    <p>
+                        <strong>Returning users:</strong> Your records have been transferred. Use <strong>Forgot your password?</strong> on the new site to set up your login.
+                    </p>
+                    <p>
+                        <strong>New inductees:</strong> Click <strong>Register</strong> on the new site to begin.
+                    </p>
+                </div>
+
+                <p class="help-text">
+                    Need help? Contact <a href="mailto:info@starkfoodsystems.com">info@starkfoodsystems.com</a>
+                </p>
+
+            </div>
+        </div>
+
+        <div class="page-footer">
+            &copy; Stark Food Systems &middot; Workplace Induction Portal
+        </div>
+    </main>
+
+    <script>
+        const copyBtn = document.getElementById('copyBtn');
+        const copyBtnText = document.getElementById('copyBtnText');
+        const siteUrlEl = document.getElementById('siteUrl');
+
+        if (copyBtn && siteUrlEl) {
+            copyBtn.addEventListener('click', async function () {
+                const urlText = siteUrlEl.textContent.trim();
+                let ok = false;
+                if (navigator.clipboard && window.isSecureContext) {
+                    try {
+                        await navigator.clipboard.writeText(urlText);
+                        ok = true;
+                    } catch (e) {}
+                }
+                if (!ok) {
+                    try {
+                        const temp = document.createElement('textarea');
+                        temp.value = urlText;
+                        temp.style.position = 'fixed';
+                        temp.style.opacity = '0';
+                        document.body.appendChild(temp);
+                        temp.focus();
+                        temp.select();
+                        ok = document.execCommand('copy');
+                        document.body.removeChild(temp);
+                    } catch (err) {}
+                }
+                if (ok) {
+                    copyBtn.classList.add('copied');
+                    copyBtnText.textContent = 'Copied!';
+                    setTimeout(() => {
+                        copyBtn.classList.remove('copied');
+                        copyBtnText.textContent = 'Copy';
+                    }, 2000);
+                }
+            });
+        }
+    </script>
+
+</body>
+
+</html>
