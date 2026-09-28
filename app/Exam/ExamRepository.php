@@ -19,7 +19,7 @@ class ExamRepository
     /**
      * @return array<int, array<string, mixed>>
      */
-    public function all(?string $status = null, ?string $search = null): array
+    public function all(?string $status = null, ?string $search = null, ?string $sort = null, ?string $dir = null): array
     {
         $sql = 'SELECT * FROM exams WHERE 1 = 1';
         $params = [];
@@ -34,7 +34,19 @@ class ExamRepository
             $params['search'] = '%' . $search . '%';
         }
 
-        $sql .= ' ORDER BY created_at DESC';
+        $sortColumnMap = [
+            'title' => 'title',
+            'questions' => "JSON_LENGTH(COALESCE(NULLIF(exam_blocks, ''), '[]'))",
+            'pass_percentage' => 'pass_percentage',
+            'status' => 'status',
+            'created_at' => 'created_at',
+        ];
+
+        $sortKey = strtolower($sort ?? '');
+        $orderExpr = $sortColumnMap[$sortKey] ?? 'created_at';
+        $direction = strtolower($dir ?? '') === 'asc' ? 'ASC' : 'DESC';
+
+        $sql .= " ORDER BY {$orderExpr} {$direction}, id DESC";
 
         $stmt = $this->db->prepare($sql);
         $stmt->execute($params);

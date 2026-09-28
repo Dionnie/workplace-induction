@@ -374,12 +374,57 @@ h6,
 }
 
 /* A list table filling a card: .card.card-table > .table-responsive > .table */
+.card-table {
+  max-width: none;
+}
+
 .card-table > .table-responsive {
   border-radius: var(--bs-card-inner-border-radius);
 }
 
+/*
+ * Scrollable table container: keeps overflow inside the table instead of the webpage.
+ * Used when a table has many records, with sticky headers so column labels remain visible.
+ */
+.table-scrollable {
+  max-height: calc(100vh - 16.5rem);
+  min-height: 20rem;
+  overflow-y: auto;
+  overflow-x: auto;
+  position: relative;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(var(--color-primary-rgb), 0.25) var(--color-surface-subtle);
+}
+
+.table-scrollable::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+.table-scrollable::-webkit-scrollbar-track {
+  background: var(--color-surface-subtle);
+  border-radius: 4px;
+}
+
+.table-scrollable::-webkit-scrollbar-thumb {
+  background: rgba(var(--color-primary-rgb), 0.25);
+  border-radius: 4px;
+}
+
+.table-scrollable::-webkit-scrollbar-thumb:hover {
+  background: rgba(var(--color-primary-rgb), 0.45);
+}
+
+/* Allow table page container to utilize full width without an artificial cap */
+.container-xxl:has(.table-scrollable) {
+  max-width: none;
+}
+
 .card-table .table {
   margin-bottom: 0;
+  width: 100%;
+  max-width: none;
+  table-layout: auto;
 }
 
 .card-table .table > :not(caption) > * > :first-child {
@@ -391,14 +436,45 @@ h6,
 }
 
 .card-table .table > thead th {
+  position: sticky;
+  top: 0;
+  z-index: 2;
   --bs-table-bg: var(--color-surface-subtle);
+  background-color: var(--color-surface-subtle);
   color: var(--color-text-muted);
   font-size: 0.8125rem;
   white-space: nowrap;
+  box-shadow: inset 0 -1px 0 var(--color-border);
 }
 
 .card-table .table > tbody > tr:last-child > * {
   border-bottom-width: 0;
+}
+
+/* Sortable column header link in a list table */
+.table-sort-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  color: inherit;
+  text-decoration: none;
+  font-weight: inherit;
+  transition: color 0.15s ease;
+}
+
+.table-sort-link:hover,
+.table-sort-link:focus-visible {
+  color: var(--color-primary-700);
+  text-decoration: none;
+}
+
+.table-sort-link .bi {
+  font-size: 0.75rem;
+}
+
+.table-sort-link.active {
+  color: var(--color-primary-700);
+  font-weight: 600;
 }
 
 /* A whole card that is a single link (dashboard shortcuts, Tools). */
@@ -436,6 +512,79 @@ h6,
   vertical-align: -0.0625rem;
   border-radius: 0.1875rem;
 }
+
+/*
+ * Scrollable table inside dashboard breakdown widget.
+ * Matches .chart-box height (20rem) so the card doesn't stretch unevenly,
+ * with sticky table headers so column headers remain visible during scroll.
+ */
+.dashboard-table-scrollable {
+  max-height: 20rem;
+  overflow-y: auto;
+  position: relative;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(var(--color-primary-rgb), 0.25) var(--color-surface-subtle);
+}
+
+.dashboard-table-scrollable::-webkit-scrollbar {
+  width: 6px;
+}
+
+.dashboard-table-scrollable::-webkit-scrollbar-track {
+  background: var(--color-surface-subtle);
+  border-radius: 3px;
+}
+
+.dashboard-table-scrollable::-webkit-scrollbar-thumb {
+  background: rgba(var(--color-primary-rgb), 0.25);
+  border-radius: 3px;
+}
+
+.dashboard-table-scrollable thead th {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  background-color: var(--bs-card-bg, #fff);
+  box-shadow: inset 0 -1px 0 var(--color-border);
+}
+
+/*
+ * Company auto-suggest dropdown
+ */
+.company-suggestions-menu {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  z-index: 1050;
+  margin-top: 0.25rem;
+  max-height: 16rem;
+  overflow-y: auto;
+  border-radius: var(--bs-border-radius);
+  border: 1px solid var(--color-border);
+  box-shadow: 0 0.5rem 1.5rem rgba(0, 0, 0, 0.12);
+  scrollbar-width: thin;
+}
+
+.company-suggestions-menu .dropdown-item {
+  cursor: pointer;
+  white-space: normal;
+  transition: background-color 0.1s ease;
+}
+
+.company-suggestions-menu .dropdown-item:hover,
+.company-suggestions-menu .dropdown-item:focus,
+.company-suggestions-menu .dropdown-item.active {
+  background-color: var(--color-surface-subtle);
+  color: var(--color-text);
+}
+
+.company-suggestions-menu mark {
+  padding: 0;
+  background-color: transparent;
+  font-weight: 600;
+  color: var(--color-primary-700);
+}
+
 /* 7. Utilities ------------------------------------------------------------ */
 
 .bg-surface-subtle {

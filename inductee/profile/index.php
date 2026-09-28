@@ -49,6 +49,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 }
 
 $profile = $service->get($userId);
+$companySuggestions = $service->getCompanySuggestions();
 $errors = get_errors();
 
 require __DIR__ . '/../../views/inductee/profile/index.php';

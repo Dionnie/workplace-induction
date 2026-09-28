@@ -56,6 +56,7 @@ Don't read every doc. Read the ones for the task.
 | `exams.md` | The exam record, Exam Blocks, the Studio, exam and result pages, scoring |
 | `exam-attempts.md` | Attempt records and their admin pages |
 | `compliance.md` | Compliance records, statuses, issuing, renewal, current compliance, certificates, revoke, admin dashboard |
+| `inductees.md` | Inductees, profile columns, employment details, compliance history, admin Inductees |
 
 ## Workflow: New Feature or Change
 

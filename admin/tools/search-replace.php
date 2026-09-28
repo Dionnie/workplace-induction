@@ -18,8 +18,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $replace = (string) ($_POST['replace'] ?? '');
     $tables = array_values(array_filter((array) ($_POST['tables'] ?? []), 'is_string'));
     $caseSensitive = isset($_POST['case_sensitive']);
+    $wholeWord = isset($_POST['whole_word']);
 
-    $result = $service->replace($tables, $find, $replace, $caseSensitive);
+    $result = $service->replace($tables, $find, $replace, $caseSensitive, $wholeWord);
 
     if ($result['success']) {
         $tablesTouched = count(array_filter($result['updated']));
@@ -41,6 +42,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         'replace' => $replace,
         'tables' => $tables,
         'case_sensitive' => $caseSensitive ? '1' : null,
+        'whole_word' => $wholeWord ? '1' : null,
     ]));
 }
 
@@ -49,8 +51,10 @@ $replace = (string) ($_GET['replace'] ?? '');
 $tables = array_values(array_filter((array) ($_GET['tables'] ?? []), 'is_string'));
 // Ticked on first load; after a dry run, whatever was submitted.
 $caseSensitive = !isset($_GET['find']) || isset($_GET['case_sensitive']);
+// Unticked on first load; after a dry run, whatever was submitted.
+$wholeWord = isset($_GET['whole_word']);
 
 $allTables = $service->tables();
-$results = ($find !== '' && !empty($tables)) ? $service->search($tables, $find, $caseSensitive) : null;
+$results = ($find !== '' && !empty($tables)) ? $service->search($tables, $find, $caseSensitive, $wholeWord) : null;
 
 require __DIR__ . '/../../views/admin/tools/search-replace.php';

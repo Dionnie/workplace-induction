@@ -87,10 +87,10 @@ class ComplianceService
      *
      * @return array<int, array<string, mixed>>
      */
-    public function listAll(?string $status = null, ?int $inductionId = null, ?string $search = null): array
+    public function listAll(?string $status = null, ?int $inductionId = null, ?string $search = null, ?string $sort = null, ?string $dir = null): array
     {
         $this->records->expireLapsed();
-        return $this->records->all($status, $inductionId, $search);
+        return $this->records->all($status, $inductionId, $search, $sort, $dir);
     }
 
     /**

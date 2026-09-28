@@ -913,7 +913,8 @@ require __DIR__ . '/../../partials/admin-header.php';
     <h3>List table</h3>
     <p>
         The main list on a page: <code>.card-table</code> gives the table a white card with flush edges, padded first and last
-        columns and a quiet header row.
+        columns and a quiet header row. For long lists with many records, add <code>.table-scrollable</code> to <code>.table-responsive</code>
+        to keep vertical overflow inside the table container with sticky column headers. Column headers with sorting use <code>.table-sort-link</code>.
     </p>
     <div class="ds-example">
         <div class="ds-preview ds-preview-page">
@@ -1652,6 +1653,8 @@ require __DIR__ . '/../partials/certificate-card.php';
                     <tr><td><code>.form-actions</code></td><td>6</td><td>Buttons at the end of a form. <a href="#forms">↗</a></td></tr>
                     <tr><td><code>.field-help</code></td><td>6</td><td>Info button after a label whose tooltip is the field's help, for forms where help lines would be too much text. <a href="#forms">↗</a></td></tr>
                     <tr><td><code>.card-table</code></td><td>6</td><td>A list table filling a card. <a href="#tables">↗</a></td></tr>
+                    <tr><td><code>.table-scrollable</code></td><td>6</td><td>Scrollable table container for long tables: internal scroll with sticky header. <a href="#tables">↗</a></td></tr>
+                    <tr><td><code>.table-sort-link</code></td><td>6</td><td>Interactive column header link for sorting table columns. <a href="#tables">↗</a></td></tr>
                     <tr><td><code>.link-card</code></td><td>6</td><td>A card that is one link. <a href="#cards">↗</a></td></tr>
                     <tr><td><code>.chart-box</code></td><td>6</td><td>Holds a chart's <code>canvas</code> and sets its height. <a href="#charts">↗</a></td></tr>
                     <tr><td><code>.rank-swatch</code></td><td>6</td><td>A square before each label in a ranked widget table, fading down the list; its shade is set inline. <a href="#tables">↗</a></td></tr>

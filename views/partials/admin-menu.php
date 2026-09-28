@@ -39,6 +39,12 @@ return [
             'url' => '/admin/compliance/index.php',
             'description' => 'View compliance records and revoke them where necessary.',
         ],
+        'inductees' => [
+            'label' => 'Inductees',
+            'icon' => 'bi-person-badge',
+            'url' => '/admin/inductees/index.php',
+            'description' => 'View inductees and their complete profile details.',
+        ],
     ],
     'Core' => [
         'users' => [

@@ -97,7 +97,7 @@ class ExamAttemptRepository
      *
      * @return array<int, array<string, mixed>>
      */
-    public function all(?int $inductionId = null, ?int $examId = null, ?string $result = null, ?string $search = null): array
+    public function all(?int $inductionId = null, ?int $examId = null, ?string $result = null, ?string $search = null, ?string $sort = null, ?string $dir = null): array
     {
         $sql = 'SELECT ea.*, i.title AS induction_title, e.title AS exam_title, u.email,
                        COALESCE(ap.first_name, ip.first_name) AS first_name,
@@ -136,7 +136,21 @@ class ExamAttemptRepository
             $params['search_3'] = $like;
         }
 
-        $sql .= ' ORDER BY ea.created_at DESC';
+        $sortColumnMap = [
+            'inductee' => "CONCAT(COALESCE(ap.first_name, ip.first_name, ''), ' ', COALESCE(ap.last_name, ip.last_name, ''))",
+            'induction' => 'i.title',
+            'exam' => 'e.title',
+            'score' => '(ea.score / NULLIF(ea.total_score, 0))',
+            'result' => 'ea.result',
+            'attempted' => 'ea.created_at',
+            'created_at' => 'ea.created_at',
+        ];
+
+        $sortKey = strtolower($sort ?? '');
+        $orderExpr = $sortColumnMap[$sortKey] ?? 'ea.created_at';
+        $direction = strtolower($dir ?? '') === 'asc' ? 'ASC' : 'DESC';
+
+        $sql .= " ORDER BY {$orderExpr} {$direction}, ea.id DESC";
 
         $stmt = $this->db->prepare($sql);
         $stmt->execute($params);

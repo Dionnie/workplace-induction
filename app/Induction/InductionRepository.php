@@ -19,7 +19,7 @@ class InductionRepository
     /**
      * @return array<int, array<string, mixed>>
      */
-    public function all(?string $status = null, ?string $search = null): array
+    public function all(?string $status = null, ?string $search = null, ?string $sort = null, ?string $dir = null): array
     {
         $sql = 'SELECT * FROM inductions WHERE 1 = 1';
         $params = [];
@@ -36,7 +36,19 @@ class InductionRepository
             $params['search_2'] = $like;
         }
 
-        $sql .= ' ORDER BY created_at DESC';
+        $sortColumnMap = [
+            'title' => 'title',
+            'code' => 'code',
+            'validity' => 'validity_months',
+            'status' => 'status',
+            'created_at' => 'created_at',
+        ];
+
+        $sortKey = strtolower($sort ?? '');
+        $orderExpr = $sortColumnMap[$sortKey] ?? 'created_at';
+        $direction = strtolower($dir ?? '') === 'asc' ? 'ASC' : 'DESC';
+
+        $sql .= " ORDER BY {$orderExpr} {$direction}, id DESC";
 
         $stmt = $this->db->prepare($sql);
         $stmt->execute($params);

@@ -43,7 +43,7 @@ class DashboardService
             'expiring_per_quarter' => $this->expiringPerQuarter(),
             'inductee_breakdowns' => [
                 'employment_type' => $this->inducteeBreakdown('employment_type', 'Other types'),
-                'company' => $this->inducteeBreakdown('company', 'Other companies'),
+                'company' => $this->inducteeBreakdown('company', null),
             ],
         ];
     }
@@ -99,12 +99,12 @@ class DashboardService
     }
 
     /**
-     * Active inductees per value of a profile field, largest first. Past
-     * BREAKDOWN_ROWS values, the smallest fold into one $restLabel row.
+     * Active inductees per value of a profile field, largest first. If $restLabel
+     * is provided, past BREAKDOWN_ROWS values the smallest fold into one $restLabel row.
      *
      * @return array{rows: array<int, array{label: string, count: int, share: int}>, not_set: int}
      */
-    private function inducteeBreakdown(string $field, string $restLabel): array
+    private function inducteeBreakdown(string $field, ?string $restLabel = null): array
     {
         $counts = $this->dashboard->countActiveInducteesByProfileField($field);
         $notSet = $counts[''] ?? 0;
@@ -112,7 +112,7 @@ class DashboardService
         arsort($counts);
         $total = array_sum($counts);
 
-        if (count($counts) > self::BREAKDOWN_ROWS) {
+        if ($restLabel !== null && count($counts) > self::BREAKDOWN_ROWS) {
             $top = array_slice($counts, 0, self::BREAKDOWN_ROWS - 1, true);
             $top[$restLabel] = $total - array_sum($top);
             $counts = $top;
@@ -123,7 +123,7 @@ class DashboardService
             $rows[] = [
                 'label' => (string) $label,
                 'count' => $count,
-                'share' => (int) round($count / $total * 100),
+                'share' => $total > 0 ? (int) round($count / $total * 100) : 0,
             ];
         }
 

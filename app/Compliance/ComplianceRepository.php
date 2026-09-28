@@ -190,7 +190,7 @@ class ComplianceRepository
      *
      * @return array<int, array<string, mixed>>
      */
-    public function all(?string $status = null, ?int $inductionId = null, ?string $search = null): array
+    public function all(?string $status = null, ?int $inductionId = null, ?string $search = null, ?string $sort = null, ?string $dir = null): array
     {
         $sql = 'SELECT cr.*, i.title AS induction_title, i.code AS induction_code, u.email,
                        COALESCE(ap.first_name, ip.first_name) AS first_name,
@@ -225,7 +225,21 @@ class ComplianceRepository
             $params['search_4'] = $like;
         }
 
-        $sql .= ' ORDER BY cr.created_at DESC';
+        $sortColumnMap = [
+            'inductee' => "CONCAT(COALESCE(ap.first_name, ip.first_name, ''), ' ', COALESCE(ap.last_name, ip.last_name, ''))",
+            'induction' => 'i.title',
+            'certificate_number' => 'cr.certificate_number',
+            'issue_date' => 'cr.issue_date',
+            'expiry_date' => 'cr.expiry_date',
+            'status' => 'cr.status',
+            'created_at' => 'cr.created_at',
+        ];
+
+        $sortKey = strtolower($sort ?? '');
+        $orderExpr = $sortColumnMap[$sortKey] ?? 'cr.created_at';
+        $direction = strtolower($dir ?? '') === 'asc' ? 'ASC' : 'DESC';
+
+        $sql .= " ORDER BY {$orderExpr} {$direction}, cr.id DESC";
 
         $stmt = $this->db->prepare($sql);
         $stmt->execute($params);

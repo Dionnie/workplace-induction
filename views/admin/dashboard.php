@@ -142,13 +142,13 @@ $breakdownLabels = ['employment_type' => 'Employment Type', 'company' => 'Compan
                     <?php foreach ($breakdownLabels as $field => $label): ?>
                         <?php $breakdown = $metrics['inductee_breakdowns'][$field]; ?>
                         <div data-breakdown="<?= e($field) ?>" <?= $field === 'employment_type' ? '' : 'hidden' ?>>
-                            <div class="table-responsive">
+                            <div class="table-responsive dashboard-table-scrollable">
                                 <table class="table table-sm align-middle mb-0">
                                     <thead>
                                         <tr>
                                             <th><?= e($label) ?></th>
-                                            <th class="text-end">Inductees</th>
-                                            <th class="text-end">Share</th>
+                                            <th class="text-end text-nowrap">Inductees</th>
+                                            <th class="text-end text-nowrap">Share</th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -161,8 +161,8 @@ $breakdownLabels = ['employment_type' => 'Employment Type', 'company' => 'Compan
                                             <?php $shade = round(1 - 0.75 * $i / max(1, count($breakdown['rows']) - 1), 2); ?>
                                             <tr>
                                                 <td><span class="rank-swatch" style="background-color: rgba(var(--color-primary-rgb), <?= $shade ?>)" aria-hidden="true"></span><?= e($row['label']) ?></td>
-                                                <td class="text-end"><?= (int) $row['count'] ?></td>
-                                                <td class="text-end"><?= (int) $row['share'] ?>%</td>
+                                                <td class="text-end text-nowrap"><?= (int) $row['count'] ?></td>
+                                                <td class="text-end text-nowrap"><?= (int) $row['share'] ?>%</td>
                                             </tr>
                                         <?php endforeach; ?>
                                     </tbody>

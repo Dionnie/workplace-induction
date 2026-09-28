@@ -22,9 +22,9 @@ class ExamService
     /**
      * @return array<int, array<string, mixed>>
      */
-    public function list(?string $status = null, ?string $search = null): array
+    public function list(?string $status = null, ?string $search = null, ?string $sort = null, ?string $dir = null): array
     {
-        return $this->exams->all($status, $search);
+        return $this->exams->all($status, $search, $sort, $dir);
     }
 
     public function find(int $id): ?array

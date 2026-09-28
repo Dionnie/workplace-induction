@@ -20,9 +20,9 @@ class ExamAttemptService
      *
      * @return array<int, array<string, mixed>>
      */
-    public function list(?int $inductionId = null, ?int $examId = null, ?string $result = null, ?string $search = null): array
+    public function list(?int $inductionId = null, ?int $examId = null, ?string $result = null, ?string $search = null, ?string $sort = null, ?string $dir = null): array
     {
-        return $this->attempts->all($inductionId, $examId, $result, $search);
+        return $this->attempts->all($inductionId, $examId, $result, $search, $sort, $dir);
     }
 
     public function find(int $id): ?array

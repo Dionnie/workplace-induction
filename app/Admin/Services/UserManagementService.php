@@ -27,9 +27,9 @@ class UserManagementService
     /**
      * @return array<int, array<string, mixed>>
      */
-    public function list(?string $userType = null, ?string $search = null): array
+    public function list(?string $userType = null, ?string $search = null, ?string $sort = null, ?string $dir = null): array
     {
-        return $this->users->allWithProfiles($userType, $search);
+        return $this->users->allWithProfiles($userType, $search, $sort, $dir);
     }
 
     public function find(int $id): ?array

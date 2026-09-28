@@ -104,7 +104,7 @@ class SearchReplaceService
      *     totalRows: int
      * }
      */
-    public function search(array $tables, string $find, bool $caseSensitive = true): array
+    public function search(array $tables, string $find, bool $caseSensitive = true, bool $wholeWord = false): array
     {
         $result = ['tables' => [], 'totalOccurrences' => 0, 'totalRows' => 0];
 
@@ -122,7 +122,7 @@ class SearchReplaceService
             $columns = [];
 
             foreach ($this->searchableColumns($table) as $column) {
-                $rows = $this->matchingRows($table, $column, $pk, $find, $caseSensitive);
+                $rows = $this->matchingRows($table, $column, $pk, $find, $caseSensitive, $wholeWord);
                 if ($rows === []) {
                     continue;
                 }
@@ -159,7 +159,7 @@ class SearchReplaceService
      * @param array<int, string> $tables
      * @return array{success: bool, errors: array<string, string>, updated: array<string, int>, totalUpdated: int}
      */
-    public function replace(array $tables, string $find, string $replace, bool $caseSensitive = true): array
+    public function replace(array $tables, string $find, string $replace, bool $caseSensitive = true, bool $wholeWord = false): array
     {
         $resolved = $this->resolveTables($tables);
 
@@ -173,6 +173,7 @@ class SearchReplaceService
 
         $updated = [];
         $totalUpdated = 0;
+        $pattern = $wholeWord ? $this->buildWholeWordPattern($find, $caseSensitive) : null;
 
         $this->db->beginTransaction();
 
@@ -187,10 +188,22 @@ class SearchReplaceService
                 foreach ($this->searchableColumns($table) as $column) {
                     $isJson = $this->columnType($table, $column) === 'json';
 
-                    foreach ($this->matchingRows($table, $column, $pk, $find, $caseSensitive) as $row) {
-                        $newContent = $caseSensitive
-                            ? str_replace($find, $replace, $row['content'])
-                            : str_ireplace($find, $replace, $row['content']);
+                    foreach ($this->matchingRows($table, $column, $pk, $find, $caseSensitive, $wholeWord) as $row) {
+                        if ($wholeWord && $pattern !== null) {
+                            $replaced = preg_replace_callback($pattern, static fn (): string => $replace, $row['content']);
+                            if ($replaced === null) {
+                                throw new RuntimeException(sprintf(
+                                    'Replacement failed due to a regular expression error in `%s`.`%s`.',
+                                    $table,
+                                    $column
+                                ));
+                            }
+                            $newContent = $replaced;
+                        } else {
+                            $newContent = $caseSensitive
+                                ? str_replace($find, $replace, $row['content'])
+                                : str_ireplace($find, $replace, $row['content']);
+                        }
 
                         if ($isJson && !$this->isValidJson($newContent)) {
                             throw new RuntimeException(sprintf(
@@ -305,22 +318,34 @@ class SearchReplaceService
     /**
      * Fetches every row of one column (this app's realistic scale makes a
      * full scan fine -- no WHERE/pagination needed) and keeps only the ones
-     * that actually contain $find as a substring.
+     * that actually contain $find as a substring (or whole word if enabled).
      *
      * @return array<int, array{pk: string, pkValue: string, content: string, count: int, snippets: array<int, array{before: string, match: string, after: string}>}>
      */
-    private function matchingRows(string $table, string $column, string $pk, string $find, bool $caseSensitive): array
+    private function matchingRows(string $table, string $column, string $pk, string $find, bool $caseSensitive, bool $wholeWord = false): array
     {
         $sql = sprintf('SELECT `%s` AS pk_value, `%s` AS content FROM `%s`', $pk, $column, $table);
+        $pattern = $wholeWord ? $this->buildWholeWordPattern($find, $caseSensitive) : null;
 
         $rows = [];
         foreach ($this->db->query($sql)->fetchAll() as $row) {
             $content = (string) $row['content'];
-            $count = $caseSensitive
-                ? substr_count($content, $find)
-                : substr_count(strtolower($content), strtolower($find));
-            if ($count === 0) {
-                continue;
+
+            if ($wholeWord && $pattern !== null) {
+                $matched = preg_match_all($pattern, $content, $matches, PREG_OFFSET_CAPTURE);
+                if (!$matched) {
+                    continue;
+                }
+                $count = (int) $matched;
+                $snippets = $this->buildSnippetsFromMatches($content, $matches[0]);
+            } else {
+                $count = $caseSensitive
+                    ? substr_count($content, $find)
+                    : substr_count(strtolower($content), strtolower($find));
+                if ($count === 0) {
+                    continue;
+                }
+                $snippets = $this->buildSnippets($content, $find, $caseSensitive);
             }
 
             $rows[] = [
@@ -328,11 +353,50 @@ class SearchReplaceService
                 'pkValue' => (string) $row['pk_value'],
                 'content' => $content,
                 'count' => $count,
-                'snippets' => $this->buildSnippets($content, $find, $caseSensitive),
+                'snippets' => $snippets,
             ];
         }
 
         return $rows;
+    }
+
+    private function buildWholeWordPattern(string $find, bool $caseSensitive): string
+    {
+        $prefix = preg_match('/^\w/u', $find) ? '(?<!\w)' : '';
+        $suffix = preg_match('/\w$/u', $find) ? '(?!\w)' : '';
+
+        return '/' . $prefix . preg_quote($find, '/') . $suffix . '/' . ($caseSensitive ? 'u' : 'iu');
+    }
+
+    /**
+     * @param array<int, array{0: string, 1: int}> $matches
+     * @return array<int, array{before: string, match: string, after: string}>
+     */
+    private function buildSnippetsFromMatches(string $content, array $matches): array
+    {
+        $snippets = [];
+        $contentLen = strlen($content);
+
+        foreach ($matches as $match) {
+            if (count($snippets) >= self::MAX_SNIPPETS_PER_ROW) {
+                break;
+            }
+
+            $matchText = (string) $match[0];
+            $pos = (int) $match[1];
+            $matchLen = strlen($matchText);
+
+            $start = max(0, $pos - self::SNIPPET_RADIUS);
+            $end = min($contentLen, $pos + $matchLen + self::SNIPPET_RADIUS);
+
+            $snippets[] = [
+                'before' => ($start > 0 ? '…' : '') . substr($content, $start, $pos - $start),
+                'match' => $matchText,
+                'after' => substr($content, $pos + $matchLen, $end - ($pos + $matchLen)) . ($end < $contentLen ? '…' : ''),
+            ];
+        }
+
+        return $snippets;
     }
 
     /**

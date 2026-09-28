@@ -17,7 +17,18 @@ $result = in_array($result, ['passed', 'failed'], true) ? $result : '';
 $inductionId = (int) ($_GET['induction_id'] ?? 0);
 $examId = (int) ($_GET['exam_id'] ?? 0);
 
-$attempts = (new ExamAttemptService())->list($inductionId ?: null, $examId ?: null, $result ?: null, $search ?: null);
+$sort = strtolower(trim($_GET['sort'] ?? 'attempted'));
+$dir = strtolower(trim($_GET['dir'] ?? 'desc'));
+
+$allowedSorts = ['inductee', 'induction', 'exam', 'score', 'result', 'attempted'];
+if (!in_array($sort, $allowedSorts, true)) {
+    $sort = 'attempted';
+}
+if (!in_array($dir, ['asc', 'desc'], true)) {
+    $dir = in_array($sort, ['score', 'attempted'], true) ? 'desc' : 'asc';
+}
+
+$attempts = (new ExamAttemptService())->list($inductionId ?: null, $examId ?: null, $result ?: null, $search ?: null, $sort, $dir);
 $inductions = (new InductionRepository())->all();
 $exams = (new ExamRepository())->all();
 

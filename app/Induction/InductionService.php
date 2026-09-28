@@ -30,9 +30,9 @@ class InductionService
     /**
      * @return array<int, array<string, mixed>>
      */
-    public function list(?string $status = null, ?string $search = null): array
+    public function list(?string $status = null, ?string $search = null, ?string $sort = null, ?string $dir = null): array
     {
-        return $this->inductions->all($status, $search);
+        return $this->inductions->all($status, $search, $sort, $dir);
     }
 
     public function find(int $id): ?array

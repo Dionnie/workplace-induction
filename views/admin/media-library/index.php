@@ -119,7 +119,7 @@ $filterInputs = '<input type="hidden" name="category_id" value="' . ($categoryId
 
         <?php if ($view === 'list'): ?>
             <div class="card shadow-sm card-table">
-                <div class="table-responsive">
+                <div class="table-responsive table-scrollable">
                     <table class="table table-hover align-middle">
                         <thead>
                             <tr>

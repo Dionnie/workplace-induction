@@ -6,6 +6,7 @@ use App\Inductee\InducteeProfileService;
 
 /**
  * @var array<string, mixed> $profile
+ * @var array<int, array{company: string, count: int}> $companySuggestions
  * @var array<string, string> $errors
  * @var ?string $redirectTo
  */
@@ -59,13 +60,24 @@ $isComplete = !empty($profile['profile_completed']);
                 </div>
 
                 <div class="row g-3 mb-3">
-                    <div class="col-sm">
+                    <div class="col-sm position-relative" data-company-autosuggest-wrapper>
                         <label for="company" class="form-label required">Company</label>
                         <input type="text" class="form-control <?= error_for($errors, 'company') ? 'is-invalid' : '' ?>"
                                id="company" name="company" value="<?= old('company', (string) $profile['company']) ?>"
-                               autocomplete="organization" required>
+                               autocomplete="off" required
+                               placeholder="Start typing your company..."
+                               data-company-autosuggest
+                               list="company-suggestions-list">
+                        <datalist id="company-suggestions-list">
+                            <?php foreach ($companySuggestions as $sug): ?>
+                                <option value="<?= e($sug['company']) ?>">
+                            <?php endforeach; ?>
+                        </datalist>
+                        <div class="company-suggestions-menu dropdown-menu shadow-sm w-100" style="display: none;" role="listbox" aria-label="Company suggestions"></div>
                         <?php if ($error = error_for($errors, 'company')): ?>
-                            <div class="invalid-feedback"><?= e($error) ?></div>
+                            <div class="invalid-feedback d-block"><?= e($error) ?></div>
+                        <?php else: ?>
+                            <div class="form-text">Type to search existing companies or enter a new one.</div>
                         <?php endif; ?>
                     </div>
                     <div class="col-sm">
@@ -121,5 +133,8 @@ $isComplete = !empty($profile['profile_completed']);
         </div>
     </div>
 </div>
+
+<script id="company-suggestions-data" type="application/json"><?= json_encode($companySuggestions, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) ?></script>
+<script src="/assets/js/company-autosuggest.js"></script>
 
 <?php require __DIR__ . '/../../partials/inductee-footer.php'; ?>

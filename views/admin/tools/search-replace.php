@@ -8,6 +8,7 @@ declare(strict_types=1);
  * @var string $replace
  * @var array<int, string> $tables selected table names
  * @var bool $caseSensitive
+ * @var bool $wholeWord
  * @var array{
  *     tables: array<string, array{
  *         columns: array<string, array{rows: array<int, array{pk:string, value:string, count:int, snippets: array<int, array{before:string,match:string,after:string}>}>, occurrences:int}>,
@@ -69,9 +70,15 @@ require __DIR__ . '/../../partials/admin-header.php';
                 </div>
             </div>
 
-            <div class="form-check mb-3">
-                <input class="form-check-input" type="checkbox" name="case_sensitive" value="1" id="case_sensitive" <?= $caseSensitive ? 'checked' : '' ?>>
-                <label class="form-check-label" for="case_sensitive">Case sensitive</label>
+            <div class="mb-3">
+                <div class="form-check form-check-inline">
+                    <input class="form-check-input" type="checkbox" name="case_sensitive" value="1" id="case_sensitive" <?= $caseSensitive ? 'checked' : '' ?>>
+                    <label class="form-check-label" for="case_sensitive">Case sensitive</label>
+                </div>
+                <div class="form-check form-check-inline">
+                    <input class="form-check-input" type="checkbox" name="whole_word" value="1" id="whole_word" <?= $wholeWord ? 'checked' : '' ?>>
+                    <label class="form-check-label" for="whole_word">Match whole word</label>
+                </div>
             </div>
 
             <div class="form-actions">
@@ -119,6 +126,9 @@ require __DIR__ . '/../../partials/admin-header.php';
                     <input type="hidden" name="replace" value="<?= e($replace) ?>">
                     <?php if ($caseSensitive): ?>
                         <input type="hidden" name="case_sensitive" value="1">
+                    <?php endif; ?>
+                    <?php if ($wholeWord): ?>
+                        <input type="hidden" name="whole_word" value="1">
                     <?php endif; ?>
                     <?php foreach ($tables as $table): ?>
                         <input type="hidden" name="tables[]" value="<?= e($table) ?>">

@@ -133,7 +133,7 @@ class DashboardRepository
 
     /**
      * Active inductees per value of a profile field. Company names are
-     * trimmed and grouped regardless of case (the column's collation).
+     * grouped as-is.
      *
      * @param 'employment_type'|'company' $field
      * @return array<string, int> '' counts those with no value
@@ -142,20 +142,21 @@ class DashboardRepository
     {
         $column = match ($field) {
             'employment_type' => 'ip.employment_type',
-            'company' => 'TRIM(ip.company)',
+            'company' => 'ip.company',
         };
         $stmt = $this->db->query(
             "SELECT {$column} AS value, COUNT(*) AS total
              FROM users u
              LEFT JOIN inductee_profiles ip ON ip.user_id = u.id
              WHERE u.user_type = 'inductee' AND u.status = 'active'
-             GROUP BY value"
+             GROUP BY {$column}
+             ORDER BY total DESC"
         );
 
         // NULL and '' both mean no value.
         $counts = [];
         foreach ($stmt->fetchAll() as $row) {
-            $value = (string) $row['value'];
+            $value = (string) ($row['value'] ?? '');
             $counts[$value] = ($counts[$value] ?? 0) + (int) $row['total'];
         }
 

@@ -41,6 +41,39 @@ class InducteeProfileService
     }
 
     /**
+     * @return array<int, array{company: string, count: int}>
+     */
+    public function getCompanySuggestions(): array
+    {
+        return $this->profiles->distinctCompaniesWithCounts();
+    }
+
+    /**
+     * Inductees with their profile columns and account information,
+     * for the admin Inductees feature.
+     *
+     * @return array<int, array<string, mixed>>
+     */
+    public function listAll(
+        ?string $search = null,
+        ?string $employmentType = null,
+        ?string $status = null,
+        ?string $profileStatus = null,
+        ?string $sort = null,
+        ?string $dir = null
+    ): array {
+        return $this->profiles->allWithUsers($search, $employmentType, $status, $profileStatus, $sort, $dir);
+    }
+
+    /**
+     * One inductee with their profile columns and account information.
+     */
+    public function getWithUser(int $userId): ?array
+    {
+        return $this->profiles->findWithUser($userId);
+    }
+
+    /**
      * Saves the profile. A save needs every required field, so a successful
      * one also marks the profile complete.
      *

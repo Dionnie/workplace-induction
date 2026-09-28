@@ -188,7 +188,7 @@ class UserRepository
         return $stmt->fetchAll();
     }
 
-    public function allWithProfiles(?string $userType = null, ?string $search = null): array
+    public function allWithProfiles(?string $userType = null, ?string $search = null, ?string $sort = null, ?string $dir = null): array
     {
         $sql = "SELECT u.id, u.email, u.user_type, u.status, u.profile_completed, u.email_verified_at, u.created_at,
                        COALESCE(ap.first_name, ip.first_name) AS first_name,
@@ -216,7 +216,20 @@ class UserRepository
             $params['search_5'] = $like;
         }
 
-        $sql .= ' ORDER BY u.created_at DESC';
+        $sortColumnMap = [
+            'name' => "CONCAT(COALESCE(ap.first_name, ip.first_name, ''), ' ', COALESCE(ap.last_name, ip.last_name, ''))",
+            'email' => 'u.email',
+            'user_type' => 'u.user_type',
+            'status' => 'u.status',
+            'profile_completed' => 'u.profile_completed',
+            'created_at' => 'u.created_at',
+        ];
+
+        $sortKey = strtolower($sort ?? '');
+        $orderExpr = $sortColumnMap[$sortKey] ?? 'u.created_at';
+        $direction = strtolower($dir ?? '') === 'asc' ? 'ASC' : 'DESC';
+
+        $sql .= " ORDER BY {$orderExpr} {$direction}, u.id DESC";
 
         $stmt = $this->db->prepare($sql);
         $stmt->execute($params);
