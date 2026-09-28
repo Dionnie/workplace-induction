@@ -43,17 +43,11 @@ $examPercentage = (int) $record['exam_total_score'] > 0 ? round((int) $record['e
                 </div>
             </div>
 
-            <div class="row g-3 mb-3">
-                <div class="col-sm-8">
-                    <label for="induction" class="form-label">Induction</label>
-                    <div class="input-group">
-                        <input type="text" class="form-control" id="induction" value="<?= e($record['induction_title']) ?>" readonly>
-                        <a href="/admin/inductions/edit.php?id=<?= (int) $record['induction_id'] ?>" class="btn btn-outline-secondary">View<span class="visually-hidden"> induction</span></a>
-                    </div>
-                </div>
-                <div class="col-sm-4">
-                    <label for="induction_code" class="form-label">Induction Code</label>
-                    <input type="text" class="form-control" id="induction_code" value="<?= e($record['induction_code']) ?>" readonly>
+            <div class="mb-3">
+                <label for="induction" class="form-label">Induction</label>
+                <div class="input-group">
+                    <input type="text" class="form-control" id="induction" value="<?= e($record['induction_title']) ?>" readonly>
+                    <a href="/admin/inductions/edit.php?id=<?= (int) $record['induction_id'] ?>" class="btn btn-outline-secondary">View<span class="visually-hidden"> induction</span></a>
                 </div>
             </div>
 
