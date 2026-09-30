@@ -60,7 +60,7 @@ Each of these breaks something quietly. The sections below cover them.
    git tag deployed-YYYY-MM-DD
    ```
 
-   It contains every tracked file, including `.htaccess` and `assets/uploads/`, and leaves out `.git/`, `.claude/` and `database/backup/`. `docs/` and `CLAUDE.md` go along; `.htaccess` blocks them.
+   It contains every tracked file, including `.htaccess` and `assets/uploads/`, and leaves out `.git/`, `.claude/` and `database/backup/`. `docs/` and `AGENTS.md` go along; `.htaccess` blocks them.
 
 ---
 
@@ -194,7 +194,7 @@ Images picked from the Media Library are stored as absolute URLs on the domain t
 | Check | Expect |
 | --- | --- |
 | `https://…/` | Landing page with the right name and logo; `http://` redirects to `https://` |
-| `/database/schema.sql`, `/.git/HEAD`, `/config/app.php`, `/CLAUDE.md`, `/assets/uploads/media-library/` | 403 |
+| `/database/schema.sql`, `/.git/HEAD`, `/config/app.php`, `/AGENTS.md`, `/assets/uploads/media-library/` | 403 |
 | Log in as an administrator | Dashboard figures match the local ones |
 | Open the induction's Studio; check the browser's network panel | Every image loads, none from `workplace-induction.test`, no mixed-content warnings |
 | Media Library: upload an image | Appears in the library |

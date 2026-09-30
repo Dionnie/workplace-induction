@@ -8,7 +8,7 @@ RewriteEngine On
 # ever loaded by PHP or run from the command line, never requested.
 RewriteRule ^(app|config|cron|database|views)(/|$) - [F,NC]
 
-# Documentation: Markdown anywhere (CLAUDE.md, docs/). The design system
+# Documentation: Markdown anywhere (AGENTS.md, docs/). The design system
 # page, docs/rules/design-system.html, stays viewable.
 RewriteRule \.md$ - [F,NC]
 

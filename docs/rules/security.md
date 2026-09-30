@@ -82,7 +82,7 @@ The whole project sits in the web root, so the root `.htaccess` returns 403 for 
 | Blocked | Why |
 | --- | --- |
 | `app/`, `config/`, `cron/`, `database/`, `views/` | Loaded by PHP or run from the command line, never requested. `database/` holds the schema, seeds, migrations and any backups. |
-| `*.md` (`CLAUDE.md`, `docs/`) | Internal documentation. `docs/rules/design-system.html` stays viewable. |
+| `*.md` (`AGENTS.md`, `docs/`) | Internal documentation. `docs/rules/design-system.html` stays viewable. |
 | Dotfiles and dot-folders (`.git`, `.claude`, `.gitignore`) | `.git` would expose the full source and history. `.well-known` stays open for SSL certificate checks. |
 | Folder listings under `assets/` and `docs/` | Would list every uploaded file. Files themselves are still served. |
 
