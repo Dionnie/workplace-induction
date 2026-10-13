@@ -91,7 +91,7 @@ php /path/to/site/cron/send-notifications.php
 ```
 
 - It is safe to run more often: each reminder is sent once (`compliance_records.expiry_reminder_sent_at`), and a report only when a new period has started.
-- Set `url` in `config/app.php` so links in scheduled emails point at the live site; without a web request the script can't know the address. Setting up the cron job on cPanel: `docs/rules/deployment.md` §3.6.
+- Set `url` in `config/app.php` so links in scheduled emails point at the live site; without a web request the script can't know the address. Setting up the cron job on cPanel: `docs/rules/deployment.md` §5.5.
 - **Run Now** on the Notifications tab does the same from the browser.
 - `cron/send-expiry-reminders.php` is an old name kept so existing schedules keep working.
 
