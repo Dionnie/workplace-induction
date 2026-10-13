@@ -66,7 +66,7 @@ $frequency = old_raw('admin_notification_frequency', (string) $settings['admin_n
             <div class="card shadow-sm">
                 <div class="card-body p-4">
                     <h2 class="fs-6 mb-1">General</h2>
-                    <p class="text-muted small mb-3">Your organization's branding, shown in page headers and on every email.</p>
+                    <p class="text-muted small mb-3">Your organization's branding, shown in page headers and on every email, and the site's address.</p>
 
                     <form method="post" action="/admin/settings/update-general.php" novalidate>
                         <?= csrf_field() ?>
@@ -112,6 +112,18 @@ $frequency = old_raw('admin_notification_frequency', (string) $settings['admin_n
                                    placeholder="<?= e(default_email()) ?>"
                                    value="<?= old('primary_email', (string) ($site['primary_email'] ?? '')) ?>">
                             <?php if ($error = error_for($errors, 'primary_email')): ?>
+                                <div class="invalid-feedback"><?= e($error) ?></div>
+                            <?php endif; ?>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="site_url" class="form-label">Site URL</label>
+                            <?= $help('site_url-help', 'The address people use, with no path, e.g. https://induction.example.com. Blank uses the address the page was opened on. Scheduled emails cannot see that, so set it on a live site.') ?>
+                            <input type="url" class="form-control <?= error_for($errors, 'site_url') ? 'is-invalid' : '' ?>"
+                                   id="site_url" name="site_url" aria-describedby="site_url-help"
+                                   placeholder="<?= e(public_url('')) ?>"
+                                   value="<?= old('site_url', (string) ($site['site_url'] ?? '')) ?>">
+                            <?php if ($error = error_for($errors, 'site_url')): ?>
                                 <div class="invalid-feedback"><?= e($error) ?></div>
                             <?php endif; ?>
                         </div>

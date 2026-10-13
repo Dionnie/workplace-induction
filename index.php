@@ -6,13 +6,8 @@ require __DIR__ . '/bootstrap.php';
 
 use App\Core\Auth;
 
-$config = require __DIR__ . '/config/app.php';
-
 $appName = site_settings()['company_name'];
 $appLogo = site_settings()['logo_url'];
-$tagline = $config['tagline'];
-$description = $config['description'];
-$registrationEnabled = $config['registration_enabled'];
 $year = date('Y');
 
 $authUser = Auth::user();
@@ -37,9 +32,7 @@ $documentTitle = $appName;
                 <a href="/logout.php" class="btn btn-outline-secondary btn-sm">Log Out</a>
             <?php else: ?>
                 <a href="/login.php" class="btn btn-outline-secondary btn-sm">Log In</a>
-                <?php if ($registrationEnabled): ?>
-                    <a href="/register.php" class="btn btn-primary btn-sm">Register</a>
-                <?php endif; ?>
+                <a href="/register.php" class="btn btn-primary btn-sm">Register</a>
             <?php endif; ?>
         </nav>
     </div>
@@ -49,14 +42,12 @@ $documentTitle = $appName;
     <section class="py-5 bg-white border-bottom">
         <div class="container page-narrow text-center">
             <h1><?= e($appName) ?></h1>
-            <p class="text-muted mb-2"><?= e($tagline) ?></p>
-            <p class="mb-4"><?= e($description) ?></p>
+            <p class="text-muted mb-2">Induction and compliance management</p>
+            <p class="mb-4">Complete required inductions, review your compliance, and access your certificates in one place.</p>
             <?php if (!$authUser): ?>
                 <div class="d-flex justify-content-center gap-2">
                     <a href="/login.php" class="btn btn-primary">Log In</a>
-                    <?php if ($registrationEnabled): ?>
-                        <a href="/register.php" class="btn btn-outline-secondary">Register</a>
-                    <?php endif; ?>
+                    <a href="/register.php" class="btn btn-outline-secondary">Register</a>
                 </div>
             <?php endif; ?>
         </div>

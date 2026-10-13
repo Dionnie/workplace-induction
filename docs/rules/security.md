@@ -71,7 +71,7 @@ Uploads go through the Media Library only (`docs/core/media-library.md` §3):
 
 ## 7. Configuration and Secrets
 
-- Database and URL settings are in `config/*.php`: environment variables, falling back to local-development defaults. A server gets its own copy of those files (`docs/rules/deployment.md` §3.4). Mail needs no credentials (`docs/core/settings.md` §3). Real credentials never go in the repository, seeds, docs or code comments.
+- The database connection and the timezone are in `config.php`, in the project root: environment variables, falling back to local-development defaults. A server gets its own copy of that file (`docs/rules/deployment.md` §3.4). The site URL and the other site settings are in the database (`docs/core/settings.md` §1). Mail needs no credentials (`docs/core/settings.md` §3). Real credentials never go in the repository, seeds, docs or code comments.
 - `database/seeds.sql` creates a default administrator with a known password. Change it on first login, on every installation.
 - CLI scripts refuse to run over HTTP (`docs/rules/architecture.md` §7).
 
@@ -81,7 +81,7 @@ The whole project sits in the web root, so the root `.htaccess` returns 403 for 
 
 | Blocked | Why |
 | --- | --- |
-| `app/`, `config/`, `cron/`, `database/`, `views/` | Loaded by PHP or run from the command line, never requested. `database/` holds the schema, seeds, migrations and any backups. |
+| `app/`, `cron/`, `database/`, `views/`, `config.php` | Loaded by PHP or run from the command line, never requested. `config.php` holds the database password; `database/` holds the schema, seeds, migrations and any backups. |
 | `*.md` (`AGENTS.md`, `docs/`) | Internal documentation. `docs/rules/design-system.html` stays viewable. |
 | Dotfiles and dot-folders (`.git`, `.claude`, `.gitignore`) | `.git` would expose the full source and history. `.well-known` stays open for SSL certificate checks. |
 | Folder listings under `assets/` and `docs/` | Would list every uploaded file. Files themselves are still served. |

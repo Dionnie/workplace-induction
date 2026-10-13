@@ -18,8 +18,10 @@ class SiteSettingsRepository
     public function get(): array
     {
         $stmt = $this->db->query('SELECT * FROM site_settings WHERE id = 1');
-        $settings = $stmt->fetch();
-        return $settings ?: $this->defaults();
+
+        // Defaults fill any column the row lacks, so a database that hasn't
+        // had the latest migration yet still works.
+        return array_merge($this->defaults(), $stmt->fetch() ?: []);
     }
 
     public function updateGeneral(array $data): void
@@ -28,6 +30,7 @@ class SiteSettingsRepository
             'company_name' => $data['company_name'],
             'logo_url' => $data['logo_url'] !== '' ? $data['logo_url'] : null,
             'primary_email' => $data['primary_email'] !== '' ? $data['primary_email'] : null,
+            'site_url' => $data['site_url'] !== '' ? $data['site_url'] : null,
         ]);
     }
 
@@ -61,13 +64,18 @@ class SiteSettingsRepository
         $this->db->prepare($sql)->execute($row);
     }
 
+    /**
+     * Used until a row is saved. The column defaults in database/schema.sql
+     * match these, except company_name, which has no column default.
+     */
     private function defaults(): array
     {
         return [
             'id' => 1,
-            'company_name' => app_config()['name'],
+            'company_name' => 'Induction System',
             'logo_url' => null,
-            'primary_email' => app_config()['contact_email'],
+            'primary_email' => null,
+            'site_url' => null,
             'theme_preset' => Theme::DEFAULT_PRESET,
             'theme_primary' => null,
             'theme_accent' => null,

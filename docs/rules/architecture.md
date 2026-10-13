@@ -25,14 +25,14 @@ views/<area>/<section>/*.php            Templates: admin/, inductee/, auth/, pub
 views/partials/                         Layouts shared by every page
 assets/css/app.css, assets/js/*.js      The design system and page scripts
 assets/uploads/                         Uploaded files (Media Library)
-config/*.php                            Settings read from environment variables
+config.php                              Database connection and timezone, per server
 cron/                                   Scheduled CLI scripts
 database/                               schema.sql, seeds.sql, migrations/, CLI scripts
 docs/                                   This documentation
 bootstrap.php                           Autoloader, helpers, hooks, session
 ```
 
-`bootstrap.php` autoloads `App\Foo\Bar` from `app/Foo/Bar.php`, loads `app/Core/helpers.php`, `app/Core/hooks.php` and the hook listeners, sets the timezone from `config/app.php` (MySQL connections follow it, `docs/rules/deployment.md` §4), and starts the session. Every entry page and CLI script requires it first.
+`bootstrap.php` autoloads `App\Foo\Bar` from `app/Foo/Bar.php`, loads `app/Core/helpers.php`, `app/Core/hooks.php` and the hook listeners, sets the timezone from `config.php` (MySQL connections follow it, `docs/rules/deployment.md` §4), and starts the session. Every entry page and CLI script requires it first.
 
 ---
 

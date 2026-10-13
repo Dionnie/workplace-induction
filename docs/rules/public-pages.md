@@ -10,7 +10,7 @@ Rules for the pages a visitor sees without logging in. This is an internal appli
 | --- | --- | --- |
 | Landing page | `index.php` | What the application is, what you can do, Log In / Register |
 | Log In | `login.php` | `docs/core/users.md` §5 |
-| Register | `register.php` | Only when `registration_enabled` is true in `config/app.php` |
+| Register | `register.php` | Create an inductee account (`docs/core/users.md` §3) |
 | Forgot / Set Your Password | `forgot-password.php`, `reset-password.php` | `docs/core/users.md` §7 |
 | Verify Email | `verify-email.php` | `docs/core/users.md` §4 |
 | Certificate Verification | `certificate.php?token=…` | Anyone holding a certificate's link or QR code checks it is valid (`docs/application/compliance.md` §6) |
@@ -32,8 +32,7 @@ What you can do  Complete Inductions · Review Compliance · Access Certificates
 Footer           © year Company name
 ```
 
-- Company name and logo come from Settings → General (`docs/core/settings.md` §1). Tagline and description come from `config/app.php`.
-- If registration is off, there is no Register button; say how to get access instead ("Contact your administrator").
+- Company name and logo come from Settings → General (`docs/core/settings.md` §1). The tagline and description are plain text in `index.php`; edit them there.
 - Only describe features that exist. Don't advertise something before it is built.
 - Only show links that go somewhere real. No About, Pricing, Blog or empty footer navigation.
 
@@ -58,4 +57,4 @@ No marketing metrics ("10,000+ users"), testimonials, client logos, feature-card
 
 - Same visual language as the rest of the app: `views/partials/head.php` (so the Appearance theme applies), Bootstrap, the design system (`docs/rules/design.md`). No separate public identity.
 - Compact, centred, one column (`.page-narrow`). Works from phone width up.
-- Nothing company-specific is hard-coded. Names, logo and wording come from settings or `config/app.php`, so another deployment only changes those.
+- Names and the logo come from Settings, and the landing page's wording is in `index.php`, so another deployment changes only those.

@@ -40,11 +40,9 @@ require __DIR__ . '/../partials/guest-header.php';
             </div>
         </form>
 
-        <?php if (app_config()['registration_enabled']): ?>
-            <p class="text-center text-muted small mt-3 mb-0">
-                Need an account? <a href="/register.php">Register</a>
-            </p>
-        <?php endif; ?>
+        <p class="text-center text-muted small mt-3 mb-0">
+            Need an account? <a href="/register.php">Register</a>
+        </p>
     </div>
 </div>
 <?php require __DIR__ . '/../partials/guest-footer.php'; ?>

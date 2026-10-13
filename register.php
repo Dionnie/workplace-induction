@@ -7,11 +7,6 @@ require __DIR__ . '/bootstrap.php';
 use App\Core\Auth;
 use App\Core\Auth\AuthService;
 
-if (!app_config()['registration_enabled']) {
-    http_response_code(404);
-    exit('Not found.');
-}
-
 if (Auth::check()) {
     redirect('/index.php');
 }

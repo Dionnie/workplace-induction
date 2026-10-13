@@ -1,20 +1,21 @@
 # Settings
 
-**Core.** What an administrator configures for this deployment: branding, colours, email senders and notifications. `/admin/settings/index.php`, one tab per section (`?tab=general|appearance|email|notifications`); each tab saves on its own.
+**Core.** What an administrator configures for this deployment: branding, the site's address, colours, email senders and notifications. `/admin/settings/index.php`, one tab per section (`?tab=general|appearance|email|notifications`); each tab saves on its own.
 
-Deployment settings that aren't editable in the app (database, site URL, registration on/off) are in `config/*.php` (`docs/rules/deployment.md` §3.4).
+The database connection and the timezone are set outside the app, in `config.php` (`docs/rules/deployment.md` §3.4).
 
 ---
 
 ## 1. General
 
-Stored in `site_settings` (one row, `id = 1`). Until it is first saved, the company name comes from `config/app.php`.
+Stored in `site_settings` (one row, `id = 1`). Until it is first saved, built-in defaults apply (`SiteSettingsRepository::defaults()`).
 
 | Field | Used for |
 | --- | --- |
 | **Company Name** (required) | Page headers, the landing page, every email, certificates |
 | **Company Logo** | Picked from the Media Library (`docs/core/media-library.md` §4); stored as a root-relative path |
 | **Primary Email** | Contact address in email footers, and the From Email when none is set under Email. It doesn't receive administrator emails unless it is in their To list. Blank uses `admin@` the site's domain (`default_email()`), which the field shows as its placeholder. |
+| **Site URL** | The public address: `http://` or `https://` and the domain, with no path (a trailing slash is dropped). `public_url()` builds every absolute link from it: email links, certificate links and QR codes. Blank uses the address the request came in on, which the field shows as its placeholder. Cron-sent emails have no request, so a live site must set it. |
 
 `site_settings()` returns these values anywhere in the code.
 
@@ -91,7 +92,7 @@ php /path/to/site/cron/send-notifications.php
 ```
 
 - It is safe to run more often: each reminder is sent once (`compliance_records.expiry_reminder_sent_at`), and a report only when a new period has started.
-- Set `url` in `config/app.php` so links in scheduled emails point at the live site; without a web request the script can't know the address. Setting up the cron job on cPanel: `docs/rules/deployment.md` §5.5.
+- Set the **Site URL** under General (§1) so links in scheduled emails point at the live site; without a web request the script can't know the address. Setting up the cron job on cPanel: `docs/rules/deployment.md` §5.5.
 - **Run Now** on the Notifications tab does the same from the browser.
 - `cron/send-expiry-reminders.php` is an old name kept so existing schedules keep working.
 

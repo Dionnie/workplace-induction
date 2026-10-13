@@ -29,6 +29,7 @@ class SiteSettingsService
             'company_name' => trim($data['company_name'] ?? ''),
             'logo_url' => $this->toPath(trim($data['logo_url'] ?? '')),
             'primary_email' => trim($data['primary_email'] ?? ''),
+            'site_url' => rtrim(trim($data['site_url'] ?? ''), '/'),
         ];
 
         $errors = $this->validate($data);
@@ -115,6 +116,25 @@ class SiteSettingsService
             $errors['logo_url'] = 'Choose the logo from the media library.';
         }
 
+        if ($data['site_url'] !== '' && !$this->isSiteUrl($data['site_url'])) {
+            $errors['site_url'] = 'Enter the address with https:// and no path, e.g. https://induction.example.com.';
+        }
+
         return $errors;
+    }
+
+    /**
+     * The address the site is at: http or https, with no path, query or fragment.
+     */
+    private function isSiteUrl(string $url): bool
+    {
+        if (filter_var($url, FILTER_VALIDATE_URL) === false) {
+            return false;
+        }
+
+        $parts = parse_url($url);
+
+        return in_array($parts['scheme'] ?? '', ['http', 'https'], true)
+            && array_intersect_key($parts, ['path' => true, 'query' => true, 'fragment' => true]) === [];
     }
 }

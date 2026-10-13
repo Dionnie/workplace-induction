@@ -22,7 +22,7 @@ require __DIR__ . '/app/Notification/listeners.php';
 
 // Before any date is made or the database connects (App\Core\Database uses it too).
 if (!date_default_timezone_set((string) (app_config()['timezone'] ?? ''))) {
-    throw new RuntimeException('config/app.php: "timezone" must be a PHP timezone name, e.g. Asia/Singapore.');
+    throw new RuntimeException('config.php: "timezone" must be a PHP timezone name, e.g. Asia/Singapore.');
 }
 
 if (session_status() === PHP_SESSION_NONE) {

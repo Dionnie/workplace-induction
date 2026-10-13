@@ -2,20 +2,24 @@
 
 declare(strict_types=1);
 
+/**
+ * config.php in the project root: the database connection and the timezone,
+ * which differ per server (docs/rules/deployment.md §3.4).
+ */
 function app_config(): array
 {
     static $config = null;
     if ($config === null) {
-        $config = require dirname(__DIR__, 2) . '/config/app.php';
+        $config = require dirname(__DIR__, 2) . '/config.php';
     }
     return $config;
 }
 
 /**
- * White-label branding (company name, logo, primary email) managed from
- * Admin > Settings > General, falling back to config/app.php.
+ * The site's settings (Admin > Settings > General and Appearance), with the
+ * built-in defaults until they are saved. See App\Core\SiteSettingsRepository.
  *
- * @return array{company_name: string, logo_url: ?string, primary_email: ?string}
+ * @return array{company_name: string, logo_url: ?string, primary_email: ?string, site_url: ?string}
  */
 function site_settings(): array
 {
@@ -56,12 +60,12 @@ function redirect_to_query(?string $path): string
 }
 
 /**
- * Absolute URL for a root-relative path. Uses config/app.php 'url' when set,
- * which is needed wherever there is no request host (e.g. cron-sent emails).
+ * Absolute URL for a root-relative path. Uses the Site URL from Settings when
+ * set, which is needed wherever there is no request host (e.g. cron-sent emails).
  */
 function public_url(string $path): string
 {
-    $baseUrl = rtrim((string) (app_config()['url'] ?? ''), '/');
+    $baseUrl = rtrim((string) site_settings()['site_url'], '/');
     if ($baseUrl !== '') {
         return $baseUrl . $path;
     }

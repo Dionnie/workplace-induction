@@ -43,7 +43,7 @@ Status is checked at login (`AuthService::attemptLogin()`) and on every request 
 
 ## 3. Registration
 
-`/register.php`, only when `registration_enabled` is true in `config/app.php`. It creates an **inductee** and asks only for an email and a password (at least 8 characters, entered twice):
+`/register.php`, always open. It creates an **inductee** and asks only for an email and a password (at least 8 characters, entered twice):
 
 ```text
 Register (email, password)
