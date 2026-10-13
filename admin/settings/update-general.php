@@ -20,7 +20,6 @@ $data = [
     'company_name' => trim($_POST['company_name'] ?? ''),
     'logo_url' => trim($_POST['logo_url'] ?? ''),
     'primary_email' => trim($_POST['primary_email'] ?? ''),
-    'site_url' => trim($_POST['site_url'] ?? ''),
 ];
 
 $result = (new SiteSettingsService())->updateGeneral($data);

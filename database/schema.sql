@@ -136,15 +136,13 @@ CREATE TABLE compliance_records (
 -- Single-row settings record (id is always 1) holding the white-label
 -- branding shown in page headers and emails (Settings > General). Until a row
 -- is saved, the values come from App\Core\SiteSettingsRepository::defaults().
--- logo_url is a root-relative media library path. site_url is the public
--- address (NULL: the address a web request came in on). theme_preset is a key of
+-- logo_url is a root-relative media library path. theme_preset is a key of
 -- App\Core\Theme::PRESETS, or 'custom' to use theme_primary/theme_accent (#rrggbb).
 CREATE TABLE site_settings (
     id TINYINT UNSIGNED NOT NULL DEFAULT 1,
     company_name VARCHAR(150) NOT NULL,
     logo_url VARCHAR(255) NULL,
     primary_email VARCHAR(255) NULL,
-    site_url VARCHAR(255) NULL,
     theme_preset VARCHAR(30) NOT NULL DEFAULT 'teal',
     theme_primary CHAR(7) NULL,
     theme_accent CHAR(7) NULL,

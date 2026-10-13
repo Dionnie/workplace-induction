@@ -3,8 +3,8 @@
 declare(strict_types=1);
 
 /**
- * config.php in the project root: the database connection and the timezone,
- * which differ per server (docs/rules/deployment.md §3.4).
+ * config.php in the project root: the database connection, the site URL and
+ * the timezone, which differ per server (docs/rules/deployment.md §3.4).
  */
 function app_config(): array
 {
@@ -19,7 +19,7 @@ function app_config(): array
  * The site's settings (Admin > Settings > General and Appearance), with the
  * built-in defaults until they are saved. See App\Core\SiteSettingsRepository.
  *
- * @return array{company_name: string, logo_url: ?string, primary_email: ?string, site_url: ?string}
+ * @return array{company_name: string, logo_url: ?string, primary_email: ?string}
  */
 function site_settings(): array
 {
@@ -60,12 +60,12 @@ function redirect_to_query(?string $path): string
 }
 
 /**
- * Absolute URL for a root-relative path. Uses the Site URL from Settings when
- * set, which is needed wherever there is no request host (e.g. cron-sent emails).
+ * Absolute URL for a root-relative path. Uses 'url' in config.php when set,
+ * which is needed wherever there is no request host (e.g. cron-sent emails).
  */
 function public_url(string $path): string
 {
-    $baseUrl = rtrim((string) site_settings()['site_url'], '/');
+    $baseUrl = rtrim((string) (app_config()['url'] ?? ''), '/');
     if ($baseUrl !== '') {
         return $baseUrl . $path;
     }

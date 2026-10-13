@@ -42,7 +42,7 @@ Each of these breaks something quietly. The sections below cover them.
 | Dump or zip left in the document root | `.htaccess` blocks the `database/` folder but not `.sql` or `.zip` files elsewhere, so the data or source can be downloaded | §3.2, §3.3 |
 | `.htaccess` not uploaded | Source, `.git`, schema and docs are downloadable | §3.3, §6 |
 | Credentials set only with `SetEnv` | Cron can't connect: command-line PHP doesn't see Apache variables | §3.4 |
-| Site URL not set (Settings → General) | Emails sent by cron link to `http://localhost/…` | §5.2, §5.5 |
+| `url` not set in `config.php` | Emails sent by cron link to `http://localhost/…` | §3.4 |
 | Cron uses a different PHP binary | Wrong PHP version, or none | §3.1, §5.5 |
 | Cron scheduled before §5 is done | Real inductees get reminders, and the development To list gets the admin report | §5.5 |
 | `timezone` in `config.php` changed from the one the data was made in | New times jump against old ones; certificates dated in the wrong zone | §4 |
@@ -52,7 +52,7 @@ Each of these breaks something quietly. The sections below cover them.
 | Default `admin@example.com` still active | A published password | §5.3 |
 | PHP upload limit below the Media Library limit | Uploads fail with a size error | §3.1, §5.4 |
 | Update bundle built from an empty file list | `git archive` with no paths bundles the whole project, config included | §7 |
-| Server's old `config/` files not carried over when updating | Without `config.php` the site can't connect; without the Site URL, cron emails link to `http://localhost/…` | §7 |
+| Server's old `config/` files not carried over when updating | Without `config.php` the site can't connect; without its `url`, cron emails link to `http://localhost/…` | §7 |
 | Local database imported over a live site | Everything done on the live site since go-live is lost | §7 |
 | Live copy imported over the local database without a backup | Local records from the previous system are lost | §8 |
 
@@ -149,7 +149,7 @@ Each of these breaks something quietly. The sections below cover them.
 
 ### 3.4 Configuration
 
-`config.php`, in the project root, holds the database connection and the timezone. Edit it **on the server only**: the repository's copy holds local-development defaults, and the bundle includes it, so change the server's copy after extracting. Change the value after `?:`; the `getenv(...)` part stays.
+`config.php`, in the project root, holds the database connection, the site URL and the timezone. Edit it **on the server only**: the repository's copy holds local-development defaults, and the bundle includes it, so change the server's copy after extracting. Change the value after `?:`; the `getenv(...)` part stays.
 
 ```php
 // config.php
@@ -160,13 +160,19 @@ Each of these breaks something quietly. The sections below cover them.
     'password' => getenv('DB_PASSWORD') ?: '…',
     // driver, port and charset stay as they are
 ],
+'url' => getenv('APP_URL') ?: 'https://induction.example.com',  // no trailing slash
 'timezone' => getenv('APP_TIMEZONE') ?: 'Asia/Singapore',     // keep as is: see §4
 ```
 
 - **Edit the file rather than setting environment variables.** Variables set with `SetEnv` in `.htaccess` reach web requests only. The cron job runs command-line PHP, which would fall back to the local defaults and fail to connect.
+- **`url` is required.** Emails sent by cron have no web request to take the domain from, so without it their links point to `http://localhost`.
 - **Don't commit server values, and don't upload this file again on updates (§7).** `.htaccess` blocks `config.php` from the web (`docs/rules/security.md` §7).
-- The site's address is a setting in the database, set in §5.2.
-- **Check:** the command in §4 runs without an error.
+- Because these values live in a file, you can fix them even when the site is down (a 500 error, no way to log in): edit `config.php` in File Manager or over SSH.
+- **Check:** the command in §4 runs without an error, and this prints the live address:
+
+  ```text
+  /opt/cpanel/ea-php83/root/usr/bin/php -r "require 'bootstrap.php'; echo public_url('/'), PHP_EOL;"
+  ```
 
 ### 3.5 HTTPS
 
@@ -213,10 +219,10 @@ Images picked from the Media Library are stored as absolute URLs on the domain t
 
 ### 5.2 Settings (`docs/core/settings.md`)
 
-- **General**: Company Name and Logo. Set **Primary Email** to a real address on the organisation's domain; it appears in every email footer. Set **Site URL** to the live address, `https://induction.example.com`: emails sent by cron have no request to take the domain from, so without it their links point to `http://localhost`.
+- **General**: Company Name and Logo. Set **Primary Email** to a real address on the organisation's domain; it appears in every email footer.
 - **Email**: both From Emails on a domain this server may send for. **Review the administrator To, CC and BCC**: addresses carried over from development get the administrator emails, or a copy of every email. Then follow the deliverability checklist in `docs/core/settings.md` §3 (SPF, DKIM, Send Test Email).
 - **Notifications**: the administrator delivery (Instant or a report), which sections are included, and the reminder days.
-- **Check:** Site URL is the live address, and every address in To, CC and BCC should receive these emails.
+- **Check:** every address in To, CC and BCC should receive these emails.
 - Locally, every email went to Mailpit. **On the server, every email is real from the first request.** Once the cron job runs (§5.5), inductees whose compliance falls inside the reminder window get real reminders.
 - Optional: so the first administrator report covers only activity from go-live, record the last report as sent now. Run all three lines together in phpMyAdmin. `SET time_zone` makes `NOW()` use the app's zone for that session (`+08:00` is Asia/Singapore; use the offset of your `timezone`). Without it, `NOW()` uses the server's zone and the window is wrong.
 
@@ -242,7 +248,7 @@ Images picked from the Media Library are stored as absolute URLs on the domain t
 
 `cron/send-notifications.php` sends the inductee expiry reminders, and the administrator report when a new period has started, once a day. What it sends: `docs/core/settings.md` §4–5.
 
-**Do this only after §5.1 to §5.4.** From the first run on, it emails real inductees, and the administrator To list gets the report. Its links need the Site URL (§5.2).
+**Do this only after §5.1 to §5.4.** From the first run on, it emails real inductees, and the administrator To list gets the report. Its links need `url` in `config.php` (§3.4).
 
 1. **Create the log folder** if it doesn't exist: `/home/USER/logs/` (File Manager → New Folder, or `mkdir -p /home/USER/logs` over SSH). Without it, the job won't run at all.
 2. **Add the job** in **Cron Jobs**, once a day (e.g. `0 2 * * *`, server time), using the CLI PHP from §3.1:
@@ -314,13 +320,13 @@ Run these in Git Bash, from the project folder. Only files changed since the las
 6. **Never import a local database over the live one.** Content edited locally has to be recreated on the live site, or migrated deliberately.
 7. **Check, then tag.** Repeat the go-live checks the change touches (§6). Once the site is right, tag the commit that's live: `git tag deployed-YYYY-MM-DD` (add `-2` if there's already one that day). Tag only after the upload is confirmed, so the next update diffs from what's really on the server.
 
-**If the server still has a `config/` folder** (`app.php` and `database.php`), the update that replaces it with `config.php` needs extra steps. The database connection and the timezone move to `config.php`; the site URL moves to Settings → General, in a column added by `database/migrations/2026-10-13-site-settings-app-config.sql`.
+**If the server still has a `config/` folder** (`app.php` and `database.php`), the update that replaces it with `config.php` needs extra steps: the database connection, the site URL and the timezone all move to `config.php`.
 
 - Before anything else, note the server's database settings in `config/database.php`, and the `url` and `timezone` in `config/app.php`. A custom `tagline` or `description` there now goes in `index.php`, and registration is now always open, whatever `registration_enabled` said.
-- Run that migration before uploading, not in step 5. The old code works with the new column, so the site keeps running.
-- Create `config.php` in the document root from the repository's copy, with the noted database settings and timezone (§3.4). The old code ignores it, and the update bundle leaves it out, so it isn't overwritten.
-- Upload the update, then delete the `config/` folder (its files are in step 2's list of deleted files). Enter the noted `url` as the Site URL in Settings → General.
-- **Check**, before the next cron run: the §4 command shows the organisation's time, and the Site URL is the live address.
+- Create `config.php` in the document root from the repository's copy, with the noted values (§3.4). The old code ignores it, and the update bundle leaves it out, so it isn't overwritten.
+- Upload the update, then delete the `config/` folder (its files are in step 2's list of deleted files).
+- A server that ran `database/migrations/2026-10-13-site-settings-app-config.sql` (since removed) has an unused `site_settings.site_url` column. The code ignores it; drop it after a backup if you like.
+- **Check**, before the next cron run: the §4 command shows the organisation's time, and the §3.4 check prints the live address.
 
 To roll back: restore the backup from step 1, both files and database. Anything written to the live site since that backup is lost, so agree that with the site owner first.
 
@@ -339,7 +345,7 @@ For debugging with real data. Importing a copy replaces your local data, so back
    mysql -uroot workplace-induction < live-YYYY-MM-DD.sql
    ```
 
-4. **Point links and images at the local site** (Tools → Search & Replace, dry run first): Find `https://induction.example.com`, Replace with `http://workplace-induction.test`, with every table ticked, so the Site URL in `site_settings` changes too. To keep images loading from the live site instead, at least clear the Site URL under Settings → General; otherwise local links and emails point at the live site.
+4. **Point images at the local site** (Tools → Search & Replace, dry run first): Find `https://induction.example.com`, Replace with `http://workplace-induction.test`, or leave the images loading from the live site. Links stay local by themselves: each server's `config.php` has its own `url`.
    **Check:** after the Replace, the dry run finds nothing for the live domain.
 5. **Keep copies of live data away from live mail.** Locally, all mail goes to Mailpit, so Run Now and the cron script are safe to run here. Never point a copy of live data at a server with working mail and a cron job: it would send reminders to real inductees.
 6. **Delete both dump files** once imported.

@@ -71,7 +71,7 @@ Uploads go through the Media Library only (`docs/core/media-library.md` §3):
 
 ## 7. Configuration and Secrets
 
-- The database connection and the timezone are in `config.php`, in the project root: environment variables, falling back to local-development defaults. A server gets its own copy of that file (`docs/rules/deployment.md` §3.4). The site URL and the other site settings are in the database (`docs/core/settings.md` §1). Mail needs no credentials (`docs/core/settings.md` §3). Real credentials never go in the repository, seeds, docs or code comments.
+- The database connection, the site URL and the timezone are in `config.php`, in the project root: environment variables, falling back to local-development defaults. A server gets its own copy of that file (`docs/rules/deployment.md` §3.4). The other site settings are in the database (`docs/core/settings.md` §1). Mail needs no credentials (`docs/core/settings.md` §3). Real credentials never go in the repository, seeds, docs or code comments.
 - `database/seeds.sql` creates a default administrator with a known password. Change it on first login, on every installation.
 - CLI scripts refuse to run over HTTP (`docs/rules/architecture.md` §7).
 

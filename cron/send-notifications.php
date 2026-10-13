@@ -7,7 +7,7 @@ declare(strict_types=1);
 // Sends inductee expiry reminders, and the admin report when a new period
 // (day/week/month, per Settings > Notifications) has started.
 // Restricted to the CLI since it is not authenticated like the admin
-// "Run Now" button. Set the Site URL under Settings > General so email links are absolute.
+// "Run Now" button. Set 'url' in config.php so email links are absolute.
 if (PHP_SAPI !== 'cli') {
     http_response_code(403);
     exit('This script can only be run from the command line.');
