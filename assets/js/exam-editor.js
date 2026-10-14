@@ -300,14 +300,27 @@
 
             var self = this;
             fetch(this.saveUrl, { method: 'POST', body: body })
-                .then(function (response) { return response.json(); })
+                .then(function (response) {
+                    return response.text().then(function (text) {
+                        var data;
+                        try {
+                            data = JSON.parse(text);
+                        } catch (e) {
+                            throw new Error('HTTP ' + response.status + ' ' + response.statusText + (text ? ': ' + text.trim().slice(0, 300) : ''));
+                        }
+                        if (!response.ok && !data.message) {
+                            throw new Error('HTTP ' + response.status + ' ' + response.statusText);
+                        }
+                        return data;
+                    });
+                })
                 .then(function (data) {
                     if (data.success) {
                         self.markSaved();
                         return;
                     }
 
-                    window.alert('Not saved. ' + data.message);
+                    window.alert('Not saved. ' + (data.message || 'Unable to save.'));
 
                     // Take the admin straight to the question that needs fixing.
                     if (data.block_id && self.find(data.block_id)) {
@@ -318,8 +331,9 @@
                         }
                     }
                 })
-                .catch(function () {
-                    window.alert('Network error while saving.');
+                .catch(function (err) {
+                    console.error('Save error:', err);
+                    window.alert('Not saved. ' + (err && err.message ? err.message : 'Network error while saving.'));
                 })
                 .finally(function () {
                     if (self.saveButton) {

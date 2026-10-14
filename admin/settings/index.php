@@ -15,6 +15,7 @@ $tabs = ['general', 'appearance', 'email', 'notifications'];
 $tab = in_array($_GET['tab'] ?? '', $tabs, true) ? $_GET['tab'] : 'general';
 
 $site = (new SiteSettingsService())->get();
+$searchVisibility = search_engine_visibility();
 $settings = (new EmailSettingsService())->get();
 $nextReport = (new NotificationService())->nextReportDue();
 $errors = get_errors();

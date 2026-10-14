@@ -34,7 +34,7 @@ use App\Inductee\InducteeProfileService;
 
 const TEST_EMAIL_PATTERN = '/^e2e-(admin|inductee)-[0-9a-f]{8}@test\.invalid$/';
 
-function fail(string $message): never
+function fail(string $message): void
 {
     fwrite(STDERR, $message . "\n");
     exit(1);

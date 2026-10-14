@@ -15,8 +15,13 @@ Stored in `site_settings` (one row, `id = 1`). Until it is first saved, built-in
 | **Company Name** (required) | Page headers, the landing page, every email, certificates |
 | **Company Logo** | Picked from the Media Library (`docs/core/media-library.md` §4); stored as a root-relative path |
 | **Primary Email** | Contact address in email footers, and the From Email when none is set under Email. It doesn't receive administrator emails unless it is in their To list. Blank uses `admin@` the site's domain (`default_email()`), which the field shows as its placeholder. |
+| **Search Engine Visibility** | Discourage search engines from indexing this site (`site_settings.discourage_search_engines`). When enabled, pages render `<meta name="robots" content="noindex, nofollow">`, send `X-Robots-Tag: noindex, nofollow` HTTP headers, and block crawlers via `/robots.txt`. |
 
-`site_settings()` returns these values anywhere in the code.
+`site_settings()` returns these values anywhere in the code. `is_search_engine_discouraged()` returns whether crawlers are currently blocked.
+
+### Staging Mode and Environment Protection
+
+To prevent search engines from indexing staging copies when a production database is cloned, `config.php` supports an `'environment'` setting (`'staging'`, `'development'`, or `'production'`) and an optional `'discourage_search_engines'` boolean override. When `'environment'` is `'staging'` or `'development'` (or explicitly overridden), search engine indexing is automatically blocked regardless of the database setting, and the Settings page informs administrators that staging protection is active.
 
 ---
 

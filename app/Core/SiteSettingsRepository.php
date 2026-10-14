@@ -17,9 +17,13 @@ class SiteSettingsRepository
 
     public function get(): array
     {
-        $stmt = $this->db->query('SELECT * FROM site_settings WHERE id = 1');
-        $settings = $stmt->fetch();
-        return $settings ?: $this->defaults();
+        try {
+            $stmt = $this->db->query('SELECT * FROM site_settings WHERE id = 1');
+            $settings = $stmt ? $stmt->fetch() : false;
+            return $settings ?: $this->defaults();
+        } catch (\Throwable) {
+            return $this->defaults();
+        }
     }
 
     public function updateGeneral(array $data): void
@@ -28,6 +32,7 @@ class SiteSettingsRepository
             'company_name' => $data['company_name'],
             'logo_url' => $data['logo_url'] !== '' ? $data['logo_url'] : null,
             'primary_email' => $data['primary_email'] !== '' ? $data['primary_email'] : null,
+            'discourage_search_engines' => (int) ($data['discourage_search_engines'] ?? 0),
         ]);
     }
 
@@ -72,6 +77,7 @@ class SiteSettingsRepository
             'company_name' => 'Induction System',
             'logo_url' => null,
             'primary_email' => null,
+            'discourage_search_engines' => 0,
             'theme_preset' => Theme::DEFAULT_PRESET,
             'theme_primary' => null,
             'theme_accent' => null,

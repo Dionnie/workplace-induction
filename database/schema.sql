@@ -138,11 +138,14 @@ CREATE TABLE compliance_records (
 -- is saved, the values come from App\Core\SiteSettingsRepository::defaults().
 -- logo_url is a root-relative media library path. theme_preset is a key of
 -- App\Core\Theme::PRESETS, or 'custom' to use theme_primary/theme_accent (#rrggbb).
+-- discourage_search_engines (1 = true, 0 = false) adds noindex/nofollow meta tags,
+-- X-Robots-Tag HTTP header, and blocks crawlers in robots.txt.
 CREATE TABLE site_settings (
     id TINYINT UNSIGNED NOT NULL DEFAULT 1,
     company_name VARCHAR(150) NOT NULL,
     logo_url VARCHAR(255) NULL,
     primary_email VARCHAR(255) NULL,
+    discourage_search_engines TINYINT(1) NOT NULL DEFAULT 0,
     theme_preset VARCHAR(30) NOT NULL DEFAULT 'teal',
     theme_primary CHAR(7) NULL,
     theme_accent CHAR(7) NULL,

@@ -19,22 +19,33 @@ if (!$induction) {
 }
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    verify_csrf();
+    try {
+        verify_csrf();
 
-    $result = $service->updateContentBlocks($id, $_POST['content_blocks'] ?? '[]');
+        $result = $service->updateContentBlocks($id, $_POST['content_blocks'] ?? '[]');
 
-    header('Content-Type: application/json');
-    if (!$result['success']) {
-        http_response_code(422);
+        header('Content-Type: application/json');
+        if (!$result['success']) {
+            http_response_code(422);
+            echo json_encode([
+                'success' => false,
+                'message' => $result['errors']['content_blocks'] ?? $result['errors']['form'] ?? 'Unable to save.',
+            ]);
+            exit;
+        }
+
+        echo json_encode(['success' => true, 'message' => 'Content blocks saved.']);
+        exit;
+    } catch (\Throwable $e) {
+        error_log((string) $e);
+        header('Content-Type: application/json');
+        http_response_code(500);
         echo json_encode([
             'success' => false,
-            'message' => $result['errors']['content_blocks'] ?? $result['errors']['form'] ?? 'Unable to save.',
+            'message' => 'Server error: ' . $e->getMessage(),
         ]);
         exit;
     }
-
-    echo json_encode(['success' => true, 'message' => 'Content blocks saved.']);
-    exit;
 }
 
 // Section slides, each with its lecture slides (docs/application/content-blocks.md #3).

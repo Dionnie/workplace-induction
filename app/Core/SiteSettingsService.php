@@ -21,6 +21,54 @@ class SiteSettingsService
     }
 
     /**
+     * Effective search engine visibility, considering config.php environment
+     * ('staging' or 'development' automatically block crawlers) and database setting.
+     *
+     * @return array{
+     *     discouraged: bool,
+     *     enforced_by_config: bool,
+     *     reason: ?string,
+     *     environment: string,
+     *     db_value: bool
+     * }
+     */
+    public function searchEngineVisibility(): array
+    {
+        $config = app_config();
+        $env = strtolower((string) ($config['environment'] ?? 'production'));
+        $configOverride = $config['discourage_search_engines'] ?? null;
+        $dbValue = !empty($this->get()['discourage_search_engines']);
+
+        if (is_bool($configOverride)) {
+            return [
+                'discouraged' => $configOverride,
+                'enforced_by_config' => true,
+                'reason' => 'config_override',
+                'environment' => $env,
+                'db_value' => $dbValue,
+            ];
+        }
+
+        if (in_array($env, ['staging', 'development'], true)) {
+            return [
+                'discouraged' => true,
+                'enforced_by_config' => true,
+                'reason' => 'environment_' . $env,
+                'environment' => $env,
+                'db_value' => $dbValue,
+            ];
+        }
+
+        return [
+            'discouraged' => $dbValue,
+            'enforced_by_config' => false,
+            'reason' => 'database',
+            'environment' => $env,
+            'db_value' => $dbValue,
+        ];
+    }
+
+    /**
      * @return array{success: bool, errors: array<string, string>}
      */
     public function updateGeneral(array $data): array
@@ -29,6 +77,7 @@ class SiteSettingsService
             'company_name' => trim($data['company_name'] ?? ''),
             'logo_url' => $this->toPath(trim($data['logo_url'] ?? '')),
             'primary_email' => trim($data['primary_email'] ?? ''),
+            'discourage_search_engines' => !empty($data['discourage_search_engines']) ? 1 : 0,
         ];
 
         $errors = $this->validate($data);

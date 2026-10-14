@@ -10,7 +10,11 @@ function app_config(): array
 {
     static $config = null;
     if ($config === null) {
-        $config = require dirname(__DIR__, 2) . '/config.php';
+        $path = dirname(__DIR__, 2) . '/config.php';
+        if (!is_file($path)) {
+            throw new RuntimeException('config.php is missing: copy config.example.php to config.php and set its values (docs/rules/deployment.md §3.4).');
+        }
+        $config = require $path;
     }
     return $config;
 }
@@ -19,7 +23,7 @@ function app_config(): array
  * The site's settings (Admin > Settings > General and Appearance), with the
  * built-in defaults until they are saved. See App\Core\SiteSettingsRepository.
  *
- * @return array{company_name: string, logo_url: ?string, primary_email: ?string}
+ * @return array{company_name: string, logo_url: ?string, primary_email: ?string, discourage_search_engines: int}
  */
 function site_settings(): array
 {
@@ -28,6 +32,36 @@ function site_settings(): array
         $settings = (new \App\Core\SiteSettingsService())->get();
     }
     return $settings;
+}
+
+/**
+ * Effective search engine visibility details, combining config.php environment
+ * (e.g. 'staging' automatically blocks crawlers) and the database setting.
+ *
+ * @return array{
+ *     discouraged: bool,
+ *     enforced_by_config: bool,
+ *     reason: ?string,
+ *     environment: string,
+ *     db_value: bool
+ * }
+ */
+function search_engine_visibility(): array
+{
+    static $visibility = null;
+    if ($visibility === null) {
+        $visibility = (new \App\Core\SiteSettingsService())->searchEngineVisibility();
+    }
+    return $visibility;
+}
+
+/**
+ * Whether search engines should be discouraged from indexing this site.
+ * Used for <meta name="robots">, X-Robots-Tag headers, and robots.txt.
+ */
+function is_search_engine_discouraged(): bool
+{
+    return search_engine_visibility()['discouraged'];
 }
 
 function redirect(string $url): void
@@ -195,4 +229,20 @@ function status_badge(string $status, ?string $label = null): string
 function theme_style_tag(): string
 {
     return '<style>' . \App\Core\Theme::css(site_settings()) . '</style>';
+}
+
+/**
+ * Polyfill for array_is_list() when running on PHP < 8.1.
+ */
+if (!function_exists('array_is_list')) {
+    function array_is_list(array $array): bool
+    {
+        $i = 0;
+        foreach ($array as $k => $v) {
+            if ($k !== $i++) {
+                return false;
+            }
+        }
+        return true;
+    }
 }

@@ -19,23 +19,34 @@ if (!$exam) {
 }
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    verify_csrf();
+    try {
+        verify_csrf();
 
-    $result = $service->updateExamBlocks($id, $_POST['exam_blocks'] ?? '[]');
+        $result = $service->updateExamBlocks($id, $_POST['exam_blocks'] ?? '[]');
 
-    header('Content-Type: application/json');
-    if (!$result['success']) {
-        http_response_code(422);
+        header('Content-Type: application/json');
+        if (!$result['success']) {
+            http_response_code(422);
+            echo json_encode([
+                'success' => false,
+                'message' => $result['errors']['exam_blocks'] ?? $result['errors']['form'] ?? 'Unable to save.',
+                'block_id' => $result['block_id'] ?? null,
+            ]);
+            exit;
+        }
+
+        echo json_encode(['success' => true, 'message' => 'Exam blocks saved.']);
+        exit;
+    } catch (\Throwable $e) {
+        error_log((string) $e);
+        header('Content-Type: application/json');
+        http_response_code(500);
         echo json_encode([
             'success' => false,
-            'message' => $result['errors']['exam_blocks'] ?? $result['errors']['form'] ?? 'Unable to save.',
-            'block_id' => $result['block_id'] ?? null,
+            'message' => 'Server error: ' . $e->getMessage(),
         ]);
         exit;
     }
-
-    echo json_encode(['success' => true, 'message' => 'Exam blocks saved.']);
-    exit;
 }
 
 $initialBlocksJson = json_encode(json_decode((string) $exam['exam_blocks'], true) ?: []);

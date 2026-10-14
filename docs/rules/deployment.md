@@ -51,7 +51,8 @@ Each of these breaks something quietly. The sections below cover them.
 | Development email settings carried over | Mail sent from `example.com` is rejected; administrator emails and CC/BCC copies go to development addresses | §5.2 |
 | Default `admin@example.com` still active | A published password | §5.3 |
 | PHP upload limit below the Media Library limit | Uploads fail with a size error | §3.1, §5.4 |
-| Update bundle built from an empty file list | `git archive` with no paths bundles the whole project, config included | §7 |
+| Update bundle built from an empty file list | `git archive` with no paths bundles the whole project, not just the changes | §7 |
+| Deleted-files list followed blindly on the update that stopped tracking `config.php` | The server's `config.php` is deleted and the site stops | §7 |
 | Server's old `config/` files not carried over when updating | Without `config.php` the site can't connect; without its `url`, cron emails link to `http://localhost/…` | §7 |
 | Local database imported over a live site | Everything done on the live site since go-live is lost | §7 |
 | Live copy imported over the local database without a backup | Local records from the previous system are lost | §8 |
@@ -69,7 +70,7 @@ Each of these breaks something quietly. The sections below cover them.
 | Need | Detail |
 | --- | --- |
 | Domain | Its own domain or subdomain (`induction.example.com`), with the project folder as the document root. **Not a subfolder**: every URL in the app starts at `/`. |
-| PHP | 8.1 or later; use 8.3, which development runs. Extensions `pdo_mysql` and `mbstring` (standard on cPanel). |
+| PHP | 8.0 or later (`ea-php80` through `ea-php83`). Extensions `pdo_mysql` and `mbstring` (standard on cPanel). `array_is_list()` is polyfilled in `helpers.php` for PHP 8.0. |
 | Database | MySQL 8, or MariaDB 10.5+. The dump has no MySQL-only syntax, and MariaDB accepts the `json` columns. |
 | Web server | Apache or LiteSpeed with `mod_rewrite` and `.htaccess` (cPanel's default) |
 | HTTPS | AutoSSL, or any certificate |
@@ -102,9 +103,9 @@ Each of these breaks something quietly. The sections below cover them.
    git archive --format=zip -o ../induction-YYYY-MM-DD.zip HEAD
    ```
 
-   The bundle holds every tracked file, including `.htaccess`, `assets/uploads/` and `config.php`. That file carries local defaults; you edit the server's copy in §3.4. It leaves out `.git/`, `.claude/` and `database/backup/`. `docs/` and `AGENTS.md` go along, and `.htaccess` blocks them.
+   The bundle holds every tracked file, including `.htaccess`, `assets/uploads/` and the template `config.example.php`. It leaves out `config.php`, which isn't tracked (you make the server's in §3.4), and `.git/`, `.claude/` and `database/backup/`. `docs/` and `AGENTS.md` go along, and `.htaccess` blocks them.
 
-   **Check:** open the zip. `.htaccess`, `index.php` and `config.php` are inside, and there is no `.git` folder.
+   **Check:** open the zip. `.htaccess`, `index.php` and `config.example.php` are inside, and there is no `config.php` and no `.git` folder.
 
 ---
 
@@ -113,14 +114,14 @@ Each of these breaks something quietly. The sections below cover them.
 ### 3.1 Domain and PHP
 
 - **Domain:** create the domain or subdomain, with a document root of its own, e.g. `/home/USER/induction.example.com`.
-- **MultiPHP Manager:** PHP 8.3 for that domain.
-- **Command-line PHP:** the cron job and the checks in §4 use the server's CLI binary. Its path depends on the host. `ls /opt/cpanel/` lists the installed versions (`ea-php83` is 8.3; on CloudLinux hosts it's `/opt/alt/php83/usr/bin/php`). Use the full path, not plain `php`:
+- **MultiPHP Manager:** PHP 8.0, 8.1, 8.2 or 8.3 (`ea-php80` through `ea-php83`) for that domain.
+- **Command-line PHP:** the cron job and the checks in §4 use the server's CLI binary. Its path depends on the host. `ls /opt/cpanel/` lists the installed versions (`ea-php80`, `ea-php83`, etc.; on CloudLinux hosts it's `/opt/alt/php80/usr/bin/php`). Use the full path, not plain `php`:
 
   ```text
-  /opt/cpanel/ea-php83/root/usr/bin/php -v
+  /opt/cpanel/ea-php80/root/usr/bin/php -v
   ```
 
-  **Check:** it reports PHP 8.3.
+  **Check:** it reports PHP 8.0 or later.
 - **MultiPHP INI Editor**, for that domain:
 
   | Setting | Value |
@@ -149,7 +150,7 @@ Each of these breaks something quietly. The sections below cover them.
 
 ### 3.4 Configuration
 
-`config.php`, in the project root, holds the database connection, the site URL and the timezone. Edit it **on the server only**: the repository's copy holds local-development defaults, and the bundle includes it, so change the server's copy after extracting. Change the value after `?:`; the `getenv(...)` part stays.
+`config.php`, in the project root, holds the database connection, the site URL and the timezone. It isn't in the repository: each server, Laragon included, has its own. Make the server's by copying `config.example.php` to `config.php` in the document root (File Manager → **Copy**), then set its values. Change the value after `?:`; the `getenv(...)` part stays.
 
 ```php
 // config.php
@@ -161,12 +162,14 @@ Each of these breaks something quietly. The sections below cover them.
     // driver, port and charset stay as they are
 ],
 'url' => getenv('APP_URL') ?: 'https://induction.example.com',  // no trailing slash
-'timezone' => getenv('APP_TIMEZONE') ?: 'Asia/Singapore',     // keep as is: see §4
+'timezone' => getenv('APP_TIMEZONE') ?: 'Australia/Melbourne', // keep as is: see §4
+'environment' => getenv('APP_ENV') ?: 'production',           // 'production', 'staging' (auto-blocks crawlers)
 ```
 
 - **Edit the file rather than setting environment variables.** Variables set with `SetEnv` in `.htaccess` reach web requests only. The cron job runs command-line PHP, which would fall back to the local defaults and fail to connect.
 - **`url` is required.** Emails sent by cron have no web request to take the domain from, so without it their links point to `http://localhost`.
-- **Don't commit server values, and don't upload this file again on updates (§7).** `.htaccess` blocks `config.php` from the web (`docs/rules/security.md` §7).
+- `.gitignore` keeps `config.php` out of git, so server values can't be committed and update bundles never replace the server's copy (§7). `.htaccess` blocks both files from the web (`docs/rules/security.md` §7).
+- A missing `config.php` stops every page with an error saying so.
 - Because these values live in a file, you can fix them even when the site is down (a 500 error, no way to log in): edit `config.php` in File Manager or over SSH.
 - **Check:** the command in §4 runs without an error, and this prints the live address:
 
@@ -186,7 +189,7 @@ Each of these breaks something quietly. The sections below cover them.
 
 `'timezone'` in `config.php` (§3.4) is the organisation's timezone. `bootstrap.php` sets it for PHP, and `App\Core\Database` sets the same offset on every MySQL connection. PHP dates (certificate issue and expiry dates) and MySQL's (`NOW()`, `CURDATE()`, `created_at`) therefore agree, on web requests and in cron, whatever the server's own zones. The server's `date.timezone` and MySQL's global zone don't matter to the app.
 
-- **Keep the value the records were made in.** `DATETIME` columns store no zone, so the imported data's times are in the local install's zone (`Asia/Singapore`, UTC+8). Changing the setting later makes new times jump against old ones; treat that as a data change (`docs/rules/data-protection.md` §4).
+- **Keep the value the records were made in.** `DATETIME` columns store no zone, so the imported data's times are in the zone the local install used when they were recorded: `Australia/Melbourne` (UTC+10, UTC+11 in daylight saving) from 2026-10-14, `Asia/Singapore` (UTC+8) before that. Changing the setting later makes new times jump against old ones; treat that as a data change (`docs/rules/data-protection.md` §4).
 - An invalid name stops every page with an error naming the `timezone` in `config.php`. On the server, that goes to cPanel → Errors, since `display_errors` is off.
 - **Check** from the project folder, with the server's CLI PHP (§3.1). Locally, use plain `php`:
 
@@ -194,7 +197,7 @@ Each of these breaks something quietly. The sections below cover them.
   /opt/cpanel/ea-php83/root/usr/bin/php -r "require 'bootstrap.php'; echo date('c'), '  ', App\Core\Database::now()->format('Y-m-d H:i:s'), PHP_EOL;"
   ```
 
-  Both values must show the organisation's local time, for example `2026-10-13T10:00:00+08:00  2026-10-13 10:00:00`. The second value comes from MySQL, so the check also proves the command line can reach the database. Don't use phpMyAdmin's `SELECT NOW()` for this: it shows the server's zone, not the app's.
+  Both values must show the organisation's local time, for example `2026-10-14T10:00:00+11:00  2026-10-14 10:00:00`. The second value comes from MySQL, so the check also proves the command line can reach the database. Don't use phpMyAdmin's `SELECT NOW()` for this: it shows the server's zone, not the app's.
 
 ---
 
@@ -219,15 +222,15 @@ Images picked from the Media Library are stored as absolute URLs on the domain t
 
 ### 5.2 Settings (`docs/core/settings.md`)
 
-- **General**: Company Name and Logo. Set **Primary Email** to a real address on the organisation's domain; it appears in every email footer.
+- **General**: Company Name and Logo, and **Search Engine Visibility** (discourage search engines). Staging servers should have `'environment' => 'staging'` in `config.php`, which automatically blocks search crawlers regardless of database settings. Set **Primary Email** to a real address on the organisation's domain; it appears in every email footer.
 - **Email**: both From Emails on a domain this server may send for. **Review the administrator To, CC and BCC**: addresses carried over from development get the administrator emails, or a copy of every email. Then follow the deliverability checklist in `docs/core/settings.md` §3 (SPF, DKIM, Send Test Email).
 - **Notifications**: the administrator delivery (Instant or a report), which sections are included, and the reminder days.
 - **Check:** every address in To, CC and BCC should receive these emails.
 - Locally, every email went to Mailpit. **On the server, every email is real from the first request.** Once the cron job runs (§5.5), inductees whose compliance falls inside the reminder window get real reminders.
-- Optional: so the first administrator report covers only activity from go-live, record the last report as sent now. Run all three lines together in phpMyAdmin. `SET time_zone` makes `NOW()` use the app's zone for that session (`+08:00` is Asia/Singapore; use the offset of your `timezone`). Without it, `NOW()` uses the server's zone and the window is wrong.
+- Optional: so the first administrator report covers only activity from go-live, record the last report as sent now. Run all three lines together in phpMyAdmin. `SET time_zone` makes `NOW()` use the app's zone for that session (Australia/Melbourne is `+11:00` in daylight saving, from the first Sunday in October to the first Sunday in April, and `+10:00` otherwise). Without it, `NOW()` uses the server's zone and the window is wrong.
 
   ```sql
-  SET time_zone = '+08:00';
+  SET time_zone = '+11:00';
   UPDATE email_settings SET admin_report_last_sent_at = NOW() WHERE id = 1;
   SELECT admin_report_last_sent_at, NOW() FROM email_settings WHERE id = 1;
   ```
@@ -271,7 +274,7 @@ Work down the list, and tick each row once it passes.
 | ☐ | Check | Expect |
 | --- | --- | --- |
 | ☐ | `https://induction.example.com/` | Landing page with the right name and logo. `http://` redirects to `https://`. |
-| ☐ | `/database/schema.sql`, `/.git/HEAD`, `/config.php`, `/AGENTS.md`, `/assets/uploads/media-library/` | 403 (`docs/rules/security.md` §7) |
+| ☐ | `/database/schema.sql`, `/.git/HEAD`, `/config.php`, `/config.example.php`, `/AGENTS.md`, `/assets/uploads/media-library/` | 403 (`docs/rules/security.md` §7) |
 | ☐ | `/error_log` | Not downloadable (404 or 403). If the file opens, PHP's log is public: block it with a rule in `.htaccess` (`docs/rules/security.md` §7) before go-live. |
 | ☐ | Log in as an administrator | The dashboard loads. Right after the first import its figures match the local ones; after go-live they drift, as the server gets new data. |
 | ☐ | Open an induction's Studio, and check the browser's network panel | Every image loads. None come from `workplace-induction.test`. No mixed-content warnings. |
@@ -297,24 +300,24 @@ Run these in Git Bash, from the project folder. Only files changed since the las
 
    ```bash
    LAST=$(git describe --tags --match "deployed-*" --abbrev=0)
-   FILES=$(git diff --name-only --diff-filter=ACMR "$LAST" HEAD -- . ':!config.php')
+   FILES=$(git diff --name-only --diff-filter=ACMR "$LAST" HEAD)
    echo "$FILES"
-   git diff --name-only --diff-filter=D "$LAST" HEAD
-   git diff --name-only "$LAST" HEAD -- config.php
+   git diff --name-only --diff-filter=D "$LAST" HEAD -- . ':!config.php'
+   git diff "$LAST" HEAD -- config.example.php
    ```
 
-   - The first list is what to upload. **Check** that it holds only the files you expect, and never `config.php`.
-   - The second list is deleted files: remove those on the server by hand.
-   - The third list shows whether `config.php` changed: make the same edits in the server's copy by hand (§3.4).
+   - The first list is what to upload. **Check** that it holds only the files you expect. It can't hold `config.php`, which isn't tracked.
+   - The second list is deleted files: remove those on the server by hand. It leaves out `config.php`: an update from before git stopped tracking it would otherwise list it as deleted, and deleting the server's copy stops the site.
+   - The last command shows changes to `config.example.php`: add any new or changed setting to the server's `config.php` by hand (§3.4).
 
-3. **Bundle the upload.** An empty first list would make `git archive` bundle the whole project, `config.php` included, so the command only runs when the list isn't empty:
+3. **Bundle the upload.** An empty first list would make `git archive` bundle the whole project, so the command only runs when the list isn't empty:
 
    ```bash
    test -n "$FILES" && git archive --format=zip -o ../update-YYYY-MM-DD.zip HEAD $FILES
    ```
 
 4. **Upload and extract.** Upload the zip to `/home/USER/`, extract it into the document root, then delete the zip. Remove the deleted files from step 2. Never upload over:
-   - `config.php`: the server's credentials and timezone;
+   - `config.php`: the server's credentials and timezone. Bundles never hold it, so only a hand upload can replace it;
    - `assets/uploads/`: files uploaded on the live site exist only there. Extracting adds files, but never delete or replace the folder.
 5. **Run the new migrations**, those dated after the last deployment, in date order (`docs/rules/data-protection.md` §7). Each migration's header gives its exact command. SQL ones through phpMyAdmin; PHP ones over SSH, as a dry run first, then with `--commit`. Note the last one applied, since nothing records it.
 6. **Never import a local database over the live one.** Content edited locally has to be recreated on the live site, or migrated deliberately.
@@ -323,7 +326,7 @@ Run these in Git Bash, from the project folder. Only files changed since the las
 **If the server still has a `config/` folder** (`app.php` and `database.php`), the update that replaces it with `config.php` needs extra steps: the database connection, the site URL and the timezone all move to `config.php`.
 
 - Before anything else, note the server's database settings in `config/database.php`, and the `url` and `timezone` in `config/app.php`. A custom `tagline` or `description` there now goes in `index.php`, and registration is now always open, whatever `registration_enabled` said.
-- Create `config.php` in the document root from the repository's copy, with the noted values (§3.4). The old code ignores it, and the update bundle leaves it out, so it isn't overwritten.
+- Create `config.php` in the document root from the repository's `config.example.php`, with the noted values (§3.4). The old code ignores it, and the update bundle leaves it out, so it isn't overwritten.
 - Upload the update, then delete the `config/` folder (its files are in step 2's list of deleted files).
 - A server that ran `database/migrations/2026-10-13-site-settings-app-config.sql` (since removed) has an unused `site_settings.site_url` column. The code ignores it; drop it after a backup if you like.
 - **Check**, before the next cron run: the §4 command shows the organisation's time, and the §3.4 check prints the live address.

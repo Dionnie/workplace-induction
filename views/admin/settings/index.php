@@ -8,6 +8,7 @@ use App\Notification\EmailSettingsService;
 /**
  * @var string $tab
  * @var array<string, mixed> $site
+ * @var array<string, mixed> $searchVisibility
  * @var array<string, mixed> $settings
  * @var array<string, string> $errors
  * @var DateTimeImmutable $nextReport
@@ -113,6 +114,42 @@ $frequency = old_raw('admin_notification_frequency', (string) $settings['admin_n
                                    value="<?= old('primary_email', (string) ($site['primary_email'] ?? '')) ?>">
                             <?php if ($error = error_for($errors, 'primary_email')): ?>
                                 <div class="invalid-feedback"><?= e($error) ?></div>
+                            <?php endif; ?>
+                        </div>
+
+                        <?php $discourageChecked = old('discourage_search_engines', !empty($site['discourage_search_engines']) ? '1' : '') === '1'; ?>
+                        <div class="mb-4 pt-3 border-top">
+                            <label class="form-label fs-6 mb-1">Search Engine Visibility</label>
+                            <div class="form-check">
+                                <input type="checkbox" class="form-check-input" id="discourage_search_engines"
+                                       name="discourage_search_engines" value="1" <?= $discourageChecked ? 'checked' : '' ?>
+                                       aria-describedby="discourage_search_engines-help">
+                                <label class="form-check-label" for="discourage_search_engines">
+                                    Discourage search engines from indexing this site
+                                </label>
+                            </div>
+                            <div class="form-text text-muted" id="discourage_search_engines-help">
+                                It is up to search engines to honor this request. When enabled, pages include a <code>noindex, nofollow</code> meta tag, send an <code>X-Robots-Tag</code> header, and block crawlers via <code>/robots.txt</code>.
+                            </div>
+
+                            <?php if (!empty($searchVisibility['enforced_by_config'])): ?>
+                                <div class="mt-2 p-2 px-3 bg-surface-subtle border rounded small d-flex align-items-center gap-2 text-body">
+                                    <i class="bi bi-info-circle text-primary flex-shrink-0" aria-hidden="true"></i>
+                                    <div>
+                                        <?php if ($searchVisibility['reason'] === 'environment_staging'): ?>
+                                            <strong>Staging mode active:</strong> Search engines are automatically blocked on this deployment via <code>config.php</code> (<code>'environment' =&gt; 'staging'</code>). When deployed to production, the saved database setting will apply.
+                                        <?php elseif ($searchVisibility['reason'] === 'environment_development'): ?>
+                                            <strong>Development mode active:</strong> Search engines are automatically blocked on this deployment via <code>config.php</code> (<code>'environment' =&gt; 'development'</code>).
+                                        <?php else: ?>
+                                            <strong>Enforced by configuration:</strong> Search engine visibility is overridden in <code>config.php</code> (<code>'discourage_search_engines' =&gt; <?= $searchVisibility['discouraged'] ? 'true' : 'false' ?></code>).
+                                        <?php endif; ?>
+                                    </div>
+                                </div>
+                            <?php elseif ($discourageChecked): ?>
+                                <div class="mt-2 p-2 px-3 bg-warning-subtle border border-warning-subtle rounded small d-flex align-items-center gap-2 text-warning-emphasis">
+                                    <i class="bi bi-exclamation-triangle-fill flex-shrink-0" aria-hidden="true"></i>
+                                    <div>Search engine indexing is currently discouraged. Crawlers are instructed not to index this site.</div>
+                                </div>
                             <?php endif; ?>
                         </div>
 

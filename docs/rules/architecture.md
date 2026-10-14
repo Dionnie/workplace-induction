@@ -25,7 +25,8 @@ views/<area>/<section>/*.php            Templates: admin/, inductee/, auth/, pub
 views/partials/                         Layouts shared by every page
 assets/css/app.css, assets/js/*.js      The design system and page scripts
 assets/uploads/                         Uploaded files (Media Library)
-config.php                              Database connection, site URL and timezone, per server
+config.php                              Database connection, site URL and timezone, per server (not in git)
+config.example.php                      Template for config.php
 cron/                                   Scheduled CLI scripts
 database/                               schema.sql, seeds.sql, migrations/, CLI scripts
 docs/                                   This documentation
